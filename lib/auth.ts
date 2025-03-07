@@ -2,16 +2,15 @@ import NextAuth from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 
-import { PrismaAdapter } from "@auth/prisma-adapter";
-
+// import { PrismaAdapter } from "@auth/prisma-adapter";
 import { NODE_ENV } from "@/config";
 
 import { PATHS } from "@/constants";
 
-import { prisma } from "./prisma";
+// import { prisma } from "./prisma";
 
 export const { handlers, auth, signOut, signIn } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  // adapter: PrismaAdapter(prisma),
   // 解决这个错误：Error: PrismaClient is not configured to run in Vercel Edge Functions or Edge Middleware.
   // 参考：https://github.com/prisma/prisma/issues/21310#issuecomment-1840428931
   session: { strategy: "jwt" },

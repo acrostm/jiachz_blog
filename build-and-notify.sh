@@ -18,18 +18,8 @@ send_notification() {
     local body=$3
     local sound=$4
 
-    # 发送Server酱通知
-    curl -X POST "https://sctapi.ftqq.com/SCT187769TLs8kElhV6A14sCW4rQRx34pX.send" \
-        -H "Content-Type: application/json;charset=utf-8" \
-        -d '{
-            "title": "'"$title"'",
-            "desp": "'"$body"'",
-            "short": "'"$status Build on $CURRENT_TIME"'",
-            "channel": "9"
-        }'
-
     # 发送Bark通知
-    curl -X POST "https://bark.zj.cyou/q5QapdtK7oHDyULHxqaS4Y" \
+    curl -X POST "https://bark.zj.cyou/dFxvXQx7y5Dt7yZHEzCFiJ" \
         -H 'Content-Type: application/json; charset=utf-8' \
         -d '{
             "body": "'"$body"'",

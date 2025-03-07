@@ -41,7 +41,7 @@ export default function RootLayout({ children }: React.PropsWithChildren) {
         <script
           defer
           src="https://umami.zj.cyou/script.js"
-          data-website-id="ee1e1002-aed7-4c01-b538-87e383d581db"
+          data-website-id="56094296-ecd7-4340-bc0b-dfc93a182c75"
         ></script>
       </head>
       {/* eslint-disable-next-line tailwindcss/no-custom-classname */}

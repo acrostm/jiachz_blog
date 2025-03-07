@@ -58,7 +58,7 @@ export const HeroSection = () => {
           animationDelay: `${getDelay()}ms`,
         }}
       >
-        专注
+        学习
         <span className={`font-semibold text-[#00d8ff]`}>TypeScript</span>、
         <span className={`font-semibold text-[#007acc]`}>Java</span>
         <span className="ml-4">\owo/ ~</span>
@@ -72,7 +72,7 @@ export const HeroSection = () => {
           animationDelay: `${getDelay()}ms`,
         }}
       >
-        我在这个网站记录我的学习，努力 💪 ！
+        我在这个网站记录我的学习，文章 ！
       </p>
       <div
         className={cn("flex space-x-4", "animate-fade-up animate-ease-in-out")}

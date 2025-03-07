@@ -95,7 +95,7 @@ export const Navbar = () => {
                             </NavigationMenuLink>
                           </li>
                           <LabItem
-                            href={`https://umami.zj.cyou/share/UhCPLa7xAktvaMnP/jiachzha.com`}
+                            href={`https://umami.zj.cyou/share/FA5STOBptMTaBn4o/jiachzha.com`}
                             target="_blank"
                             title={
                               <div className="flex items-center">
@@ -106,8 +106,8 @@ export const Navbar = () => {
                           >
                             流量监控
                           </LabItem>
-                          <LabItem href={el.link} title="Project 2">
-                            Description of Project 2 in the lab.
+                          <LabItem href="/chat" title="聊天室">
+                            简易聊天室
                           </LabItem>
                           <LabItem href={el.link} title="Project 3">
                             Description of Project 3 in the lab.

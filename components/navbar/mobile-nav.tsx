@@ -107,7 +107,7 @@ export const MobileNav = () => {
                         Uptime Kuma
                       </Link>
                       <Link
-                        href={`https://umami.zj.cyou/share/UhCPLa7xAktvaMnP/jiachzha.com`}
+                        href={`https://umami.zj.cyou/share/FA5STOBptMTaBn4o/jiachzha.com`}
                         target={"_blank"}
                         className={cn(
                           buttonVariants({

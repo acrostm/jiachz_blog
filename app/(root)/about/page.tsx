@@ -72,7 +72,6 @@ export default function Page() {
           <h2>我是谁</h2>
           <p>
             Hi, 我是Jiachen
-            ，一名软件开发工程师，2021年毕业，通信行业软件开发工作一年，目前自学前后端开发中~~~
           </p>
         </div>
 
@@ -222,13 +221,6 @@ export default function Page() {
             </li>
             <li>
               <>
-                <IconLogoZshDark className="mx-1 inline-block translate-y-0.5 dark:hidden" />
-                <IconLogoZshLight className="mx-1 hidden translate-y-0.5 dark:inline-block" />
-              </>
-              Zsh + Oh My Zsh + Termius
-            </li>
-            <li>
-              <>
                 <IconSkillUbuntuDark
                   className="mx-1
                   translate-y-0.5 dark:hidden"
@@ -239,12 +231,12 @@ export default function Page() {
             </li>
             <li>
               <IconSkillDocker className="mx-1 translate-y-0.5" />
-              Docker + 1Panel
+              Docker
             </li>
             <li>
               使用
               <IconSkillNginx className="mx-1 translate-y-0.5" />
-              NGINX + OpenResty 反向代理 +
+              OpenResty 反向代理 +
               <IconLogoCloudflare className="mx-1 w-6 translate-y-0.5" />
               Cloudflare 配置 DNS, HTTPS
             </li>
@@ -258,17 +250,6 @@ export default function Page() {
           }}
         >
           <h2>我的设备</h2>
-          <ul>
-            <li>MacBook Pro 16-inch M2 Pro + 32G + 1TB + macOS</li>
-            <li>
-              ThinkPad X1 Carbon Gen 5 + i7-7600U + 16G + 512G + Ubuntu 24.04 +
-              Gnome
-            </li>
-            <li>i5-12400F + 32G DDR5 + 4TB + RTX4060Ti</li>
-            <li>DELL 27英寸 4K</li>
-            <li>键盘：OWLab Spring</li>
-            <li>鼠标：Logitech MX Master 3S</li>
-          </ul>
         </div>
 
         <div

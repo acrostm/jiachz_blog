@@ -81,7 +81,7 @@ export const MobileNav = () => {
                       )}
                     >
                       <Link
-                        href={`https://kuma.zj.cyou/status/1`}
+                        href={`https://kuma.jiachzha.com/status/1`}
                         target={"_blank"}
                         className={cn(
                           buttonVariants({
@@ -107,7 +107,7 @@ export const MobileNav = () => {
                         Uptime Kuma
                       </Link>
                       <Link
-                        href={`https://umami.zj.cyou/share/FA5STOBptMTaBn4o/jiachzha.com`}
+                        href={`https://umami.jiachzha.com/share/FA5STOBptMTaBn4o/jiachzha.com`}
                         target={"_blank"}
                         className={cn(
                           buttonVariants({

@@ -40,7 +40,7 @@ export default function RootLayout({ children }: React.PropsWithChildren) {
         />
         <script
           defer
-          src="https://umami.zj.cyou/script.js"
+          src="https://umami.jiachzha.com/script.js"
           data-website-id="56094296-ecd7-4340-bc0b-dfc93a182c75"
         ></script>
       </head>

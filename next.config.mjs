@@ -18,11 +18,11 @@ const config = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "**.zj.cyou",
+        hostname: "**.jiachzha.com",
       },
       {
         protocol: "http",
-        hostname: "**.zj.cyou",
+        hostname: "**.jiachzha.com",
       },
       {
         protocol: "https",

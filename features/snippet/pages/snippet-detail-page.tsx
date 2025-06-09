@@ -52,7 +52,7 @@ export const SnippetDetailPage = ({ snippet, uv = 0 }: SnippetDetailProps) => {
           <TiptapViewer body={snippet.body || ""} />
         </div>
         <DetailSidebar>
-          <MarkdownTOC />
+          <MarkdownTOC body={snippet.body || ""} />
         </DetailSidebar>
       </div>
       <div className="pb-14 pt-16">

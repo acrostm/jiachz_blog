@@ -52,7 +52,7 @@ export const BlogDetailPage = ({ blog, uv = 0 }: BlogDetailProps) => {
           <TiptapViewer body={blog.body || ""} />
         </div>
         <DetailSidebar>
-          <MarkdownTOC />
+          <MarkdownTOC body={blog.body || ""} />
         </DetailSidebar>
       </div>
 

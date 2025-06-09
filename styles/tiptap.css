@@ -105,3 +105,53 @@
 .markdown-body .copy-button {
   @apply absolute right-4 top-0 z-[1] flex h-[40px] cursor-pointer items-center text-lg transition-opacity ease-in-out;
 }
+
+#note-editor .tiptap-editor {
+  @apply h-[60vh] min-h-[560px];
+}
+
+#content-editor .tiptap-editor {
+  @apply h-screen;
+}
+
+.tiptap-editor {
+  @apply rounded-xl border border-border bg-background text-foreground prose prose-neutral !max-w-full dark:prose-invert;
+}
+
+.tiptap-editor a {
+  @apply mx-1 inline-flex items-center gap-1 no-underline;
+}
+
+.tiptap-editor pre {
+  @apply relative my-0 whitespace-break-spaces rounded-lg border bg-background/50 text-primary p-0;
+}
+
+.tiptap-editor pre > code {
+  @apply mx-2 mt-14 whitespace-pre-wrap break-words text-base;
+}
+
+.tiptap-editor pre::after {
+  content: attr(data-language);
+  @apply absolute inset-x-0 top-0 border-b border-b-muted-foreground/20 px-4 py-2 text-primary;
+}
+
+.tiptap-editor iframe {
+  @apply aspect-video w-full;
+}
+
+.tiptap-editor img {
+  @apply mx-auto max-h-[40vh] rounded-lg border p-4;
+}
+
+.tiptap-editor :where(h2, h3, h4, h5, h6) {
+  @apply flex scroll-mt-20 items-center;
+}
+
+.tiptap-editor :where(h2, h3, h4, h5, h6):hover .markdown-anchor {
+  @apply opacity-100;
+}
+
+.tiptap-editor :where(h2, h3, h4, h5, h6) .markdown-anchor {
+  @apply order-2 opacity-0 transition-opacity;
+}
+

@@ -23,7 +23,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 
-import { BytemdEditor } from "@/components/bytemd";
+import { TiptapEditor } from "@/components/tiptap";
 
 import { PATHS } from "@/constants";
 import { CreateTagButton } from "@/features/admin";
@@ -177,7 +177,7 @@ export const CreateSnippetForm = () => {
                 <FormLabel>内容</FormLabel>
                 <FormControl>
                   <div id="content-editor">
-                    <BytemdEditor
+                    <TiptapEditor
                       body={field.value}
                       setContent={field.onChange}
                     />

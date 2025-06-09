@@ -17,6 +17,7 @@ import { Fingerprint } from "@/components/fingerprint";
 
 import { ImageAssets, NICKNAME, SLOGAN, WEBSITE } from "@/constants";
 import "@/styles/global.css";
+import "@/styles/custom-code-block.css";
 
 export const metadata: Metadata = {
   title: {

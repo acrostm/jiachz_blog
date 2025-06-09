@@ -7,7 +7,7 @@
 }
 
 .tiptap-editor {
-  @apply rounded-xl border border-border bg-background text-foreground prose prose-neutral !max-w-full dark:prose-invert;
+  @apply prose prose-neutral !max-w-full rounded-xl border border-border bg-background text-foreground dark:prose-invert;
 }
 
 .tiptap-editor a {
@@ -15,7 +15,7 @@
 }
 
 .tiptap-editor pre {
-  @apply relative my-0 whitespace-break-spaces rounded-lg border bg-background/50 text-primary p-0;
+  @apply relative my-0 whitespace-break-spaces rounded-lg border bg-background/50 p-0 text-primary;
 }
 
 .tiptap-editor pre > code {
@@ -35,6 +35,14 @@
   @apply mx-auto max-h-[40vh] rounded-lg border p-4;
 }
 
+.tiptap-menubar {
+  @apply flex flex-wrap gap-1 rounded-t-xl border border-border bg-muted p-2;
+}
+
+.tiptap-menubar button[data-active="true"] {
+  @apply bg-accent text-accent-foreground;
+}
+
 .tiptap-editor :where(h2, h3, h4, h5, h6) {
   @apply flex scroll-mt-20 items-center;
 }
@@ -45,6 +53,30 @@
 
 .tiptap-editor :where(h2, h3, h4, h5, h6) .markdown-anchor {
   @apply order-2 opacity-0 transition-opacity;
+}
+
+.code-block-wrapper {
+  @apply my-4 overflow-hidden rounded-xl border bg-card text-card-foreground;
+}
+
+.code-block-header {
+  @apply flex items-center gap-2 border-b border-muted bg-muted px-3 py-2;
+}
+
+.code-block-header .dot {
+  @apply h-3 w-3 rounded-full;
+}
+
+.code-block-header .dot.red {
+  @apply bg-red-500 dark:bg-red-400;
+}
+
+.code-block-header .dot.yellow {
+  @apply bg-yellow-500 dark:bg-yellow-400;
+}
+
+.code-block-header .dot.green {
+  @apply bg-green-500 dark:bg-green-400;
 }
 
 .markdown-body {
@@ -115,7 +147,7 @@
 }
 
 .tiptap-editor {
-  @apply rounded-xl border border-border bg-background text-foreground prose prose-neutral !max-w-full dark:prose-invert;
+  @apply prose prose-neutral !max-w-full rounded-xl border border-border bg-background text-foreground dark:prose-invert;
 }
 
 .tiptap-editor a {
@@ -123,7 +155,7 @@
 }
 
 .tiptap-editor pre {
-  @apply relative my-0 whitespace-break-spaces rounded-lg border bg-background/50 text-primary p-0;
+  @apply relative my-0 whitespace-break-spaces rounded-lg border bg-background/50 p-0 text-primary;
 }
 
 .tiptap-editor pre > code {
@@ -154,4 +186,3 @@
 .tiptap-editor :where(h2, h3, h4, h5, h6) .markdown-anchor {
   @apply order-2 opacity-0 transition-opacity;
 }
-

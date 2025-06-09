@@ -194,6 +194,14 @@ export const updateSnippet = async (params: UpdateSnippetDTO) => {
     throw new Error(result.error.format()._errors?.join(";"));
   }
 
+  const existSnippet = await prisma.snippet.findUnique({
+    where: { id: result.data.id },
+  });
+
+  if (!existSnippet) {
+    throw new Error("Snippet不存在");
+  }
+
   const snippet = await prisma.snippet.update({
     where: { id: result.data.id },
     data: {
@@ -211,7 +219,5 @@ export const updateSnippet = async (params: UpdateSnippetDTO) => {
     include: { tags: true },
   });
 
-  if (!snippet) {
-    throw new Error("Snippet不存在");
-  }
+  return snippet;
 };

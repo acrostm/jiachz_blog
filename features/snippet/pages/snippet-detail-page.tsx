@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { MoveLeft } from "lucide-react";
 
-import { TiptapViewer } from "@/components/tiptap";
+import { BytemdViewer } from "@/components/bytemd";
 import { DetailSidebar } from "@/components/detail-sidebar";
 import { MarkdownTOC } from "@/components/markdown-toc";
 import { Wrapper } from "@/components/wrapper";
@@ -49,10 +49,10 @@ export const SnippetDetailPage = ({ snippet, uv = 0 }: SnippetDetailProps) => {
             "wrapper:border-r wrapper:border-r-border wrapper:pr-14",
           )}
         >
-          <TiptapViewer body={snippet.body || ""} />
+          <BytemdViewer body={snippet.body || ""} />
         </div>
         <DetailSidebar>
-          <MarkdownTOC body={snippet.body || ""} />
+          <MarkdownTOC />
         </DetailSidebar>
       </div>
       <div className="pb-14 pt-16">

@@ -1,36 +1,24 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 
 import Link from "next/link";
 
-import { useMount } from "ahooks";
-import { load } from "cheerio";
+import { toSlug } from "@/lib/utils";
 
 import { type OptionItem } from "@/types";
 
-export const MarkdownTOC = () => {
-  const [tocList, setTocList] = React.useState<OptionItem<string>[]>([]);
-
-  useMount(() => {
-    const markdownBodyElement = document.querySelector(".markdown-body")!;
-    const $ = load(markdownBodyElement.innerHTML);
-    const h2Elems = $("h2");
-    for (const h2 of h2Elems) {
-      const h2Element = $(h2);
-      const text = h2Element.text();
-      const id = h2Element.attr("id");
-      if (text && id) {
-        setTocList((prev) => [
-          ...prev,
-          {
-            value: id,
-            label: text,
-          },
-        ]);
-      }
-    }
-  });
+export const MarkdownTOC = ({ body }: { body: string }) => {
+  const tocList = useMemo<OptionItem<string>[]>(() => {
+    const matches = Array.from(body.matchAll(/^##\s+(.+)$/gm));
+    return matches.map((m) => {
+      const title = m[1] as string;
+      return {
+        value: toSlug(title),
+        label: title,
+      };
+    });
+  }, [body]);
 
   return (
     <div>

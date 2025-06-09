@@ -1,48 +1,58 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
-import { Viewer } from "@bytemd/react";
-import { plugins, sanitize } from "./config";
-import { Icons } from "@/components/icons"; // 假设图标组件路径
+import { useEffect, useRef } from "react";
+import { Editor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
+import { createLowlight, common } from "lowlight";
+import asciidoc from "highlight.js/lib/languages/asciidoc";
+import dart from "highlight.js/lib/languages/dart";
+import nginx from "highlight.js/lib/languages/nginx";
+import { Markdown } from "tiptap-markdown";
+import { toSlug } from "@/lib/utils";
 
-// 确保在你的项目中有一个合适的CSS文件来定义 .code-block-wrapper, .copy-button 等样式
-// 例如: styles/custom-code-block.css
+const lowlight = createLowlight(common);
+lowlight.register({ asciidoc });
+lowlight.register({ dart });
+lowlight.register({ nginx });
 
-type BytemdViewerProps = {
+export type TiptapViewerProps = {
   body: string;
 };
 
-export const BytemdViewer = ({ body }: BytemdViewerProps) => {
-  const viewerRef = useRef<HTMLDivElement>(null);
+export const TiptapViewer = ({ body }: TiptapViewerProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!viewerRef.current) return;
+    if (!containerRef.current) return;
+    const editor = new Editor({
+      editable: false,
+      extensions: [StarterKit, CodeBlockLowlight.configure({ lowlight }), Markdown],
+    });
+    editor.commands.setContent(body);
+    containerRef.current.innerHTML = editor.getHTML();
 
-    const preElements = viewerRef.current.querySelectorAll("pre");
-
-    preElements.forEach((pre) => {
-      // 防止重复添加按钮
-      if (pre.querySelector(".copy-button")) {
-        return;
+    const headingElements = containerRef.current.querySelectorAll("h2");
+    headingElements.forEach((el) => {
+      const text = el.textContent?.trim();
+      if (text) {
+        el.id = toSlug(text);
       }
+    });
+    editor.destroy();
 
-      pre.classList.add("code-block-container"); // 用于CSS样式
-
+    const preElements = containerRef.current.querySelectorAll("pre");
+    preElements.forEach((pre) => {
+      if (pre.querySelector(".copy-button")) return;
+      pre.classList.add("code-block-container");
       const wrapper = document.createElement("div");
       wrapper.className = "code-block-wrapper";
-      
-      // 将 pre 元素移动到 wrapper 内部
       pre.parentNode?.insertBefore(wrapper, pre);
       wrapper.appendChild(pre);
-
       const copyButton = document.createElement("button");
       copyButton.className = "copy-button";
       copyButton.title = "Copy code";
-      
-      // 使用SVG图标或文字，这里用文字示例，你可以替换为Icons.copy
-      // 为了简单起见，这里直接使用文字，你可以替换为 <Icons.copy /> 的SVG字符串或DOM
       copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>`;
-
       copyButton.addEventListener("click", async () => {
         const codeElement = pre.querySelector("code");
         const codeToCopy = codeElement ? codeElement.innerText : pre.innerText;
@@ -55,20 +65,20 @@ export const BytemdViewer = ({ body }: BytemdViewerProps) => {
         } catch (err) {
           console.error("Failed to copy: ", err);
           copyButton.innerText = "Error";
-           setTimeout(() => {
+          setTimeout(() => {
             copyButton.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>`;
           }, 2000);
         }
       });
-      // 将按钮添加到 wrapper 的右上角
-      wrapper.style.position = "relative"; // 确保按钮可以相对于wrapper定位
+      wrapper.style.position = "relative";
       wrapper.appendChild(copyButton);
     });
   }, [body]);
 
   return (
-    <div ref={viewerRef}>
-      <Viewer value={body} plugins={plugins} sanitize={sanitize} />
-    </div>
+    <div
+      ref={containerRef}
+      className="prose max-w-full w-full dark:prose-invert"
+    />
   );
 };

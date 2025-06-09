@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
 
-import { BytemdEditor } from "@/components/bytemd";
+import { TiptapEditor } from "@/components/tiptap";
 
 import {
   type UpdateNoteDTO,
@@ -142,7 +142,7 @@ export const EditNoteButton = ({ id, refreshAsync }: EditNoteButtonProps) => {
                     <FormLabel>内容</FormLabel>
                     <FormControl>
                       <div id="note-editor">
-                        <BytemdEditor
+                        <TiptapEditor
                           body={field.value}
                           setContent={field.onChange}
                         />

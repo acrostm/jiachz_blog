@@ -35,10 +35,23 @@ export const TiptapEditor = ({
     editorProps,
     onUpdate({ editor }) {
       // @ts-ignore
-      const markdown = editor.storage.markdown.getMarkdown();
-      setContent(markdown);
+      const md = editor.storage.markdown.getMarkdown();
+      setMarkdown(md);
+      setContent(md);
     },
   });
 
-  return <EditorContent editor={editor} className="tiptap-editor" />;
+  return (
+    <div className="space-y-2">
+      <MenuBar
+        editor={editor}
+        showPreview={preview}
+        togglePreview={() => setPreview((p) => !p)}
+      />
+      <div className={cn(preview && "grid md:grid-cols-2 gap-4")}>
+        <EditorContent editor={editor} className="tiptap-editor" />
+        {preview && <TiptapViewer body={markdown} />}
+      </div>
+    </div>
+  );
 };

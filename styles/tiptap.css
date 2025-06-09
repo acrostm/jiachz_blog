@@ -35,6 +35,14 @@
   @apply mx-auto max-h-[40vh] rounded-lg border p-4;
 }
 
+.tiptap-menubar {
+  @apply flex flex-wrap gap-1 rounded-t-xl border border-border bg-muted p-2;
+}
+
+.tiptap-menubar button[data-active="true"] {
+  @apply bg-accent text-accent-foreground;
+}
+
 .tiptap-editor :where(h2, h3, h4, h5, h6) {
   @apply flex scroll-mt-20 items-center;
 }

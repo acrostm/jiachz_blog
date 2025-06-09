@@ -9,7 +9,6 @@ import asciidoc from "highlight.js/lib/languages/asciidoc";
 import dart from "highlight.js/lib/languages/dart";
 import nginx from "highlight.js/lib/languages/nginx";
 import { Markdown } from "tiptap-markdown";
-import type { EditorOptions } from "@tiptap/core";
 
 const lowlight = createLowlight(common);
 lowlight.register({ asciidoc });
@@ -19,7 +18,7 @@ lowlight.register({ nginx });
 export type TiptapEditorProps = {
   body?: string;
   setContent: (body: string) => void;
-  editorProps?: EditorOptions["editorProps"];
+  editorProps?: Parameters<typeof useEditor>[0]["editorProps"];
 };
 
 export const TiptapEditor = ({ body, setContent, editorProps }: TiptapEditorProps) => {

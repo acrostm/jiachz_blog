@@ -8,6 +8,7 @@ export const PATHS = {
   SITE_COMING: "/coming-soon",
   SITE_REGISTER: "/register",
   SITE_ABOUT: "/about",
+  SITE_CHAT: "/chat",
   SITEMAP: "/sitemap.xml",
 
   /** ************* ADMIN ****************** */
@@ -38,6 +39,7 @@ export const PATHS_MAP: Record<string, string> = {
   [PATHS.SITE_COMING]: "实验室",
   [PATHS.SITE_REGISTER]: "注册",
   [PATHS.SITE_ABOUT]: "关于",
+  [PATHS.SITE_CHAT]: "聊天室",
   [PATHS.SITEMAP]: "站点地图",
 
   /** ************* ADMIN ****************** */

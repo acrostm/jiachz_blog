@@ -9,7 +9,6 @@ import asciidoc from "highlight.js/lib/languages/asciidoc";
 import dart from "highlight.js/lib/languages/dart";
 import nginx from "highlight.js/lib/languages/nginx";
 import { Markdown } from "tiptap-markdown";
-import { toSlug } from "@/lib/utils";
 
 const lowlight = createLowlight(common);
 lowlight.register({ asciidoc });
@@ -31,14 +30,6 @@ export const TiptapViewer = ({ body }: TiptapViewerProps) => {
     });
     editor.commands.setContent(body);
     containerRef.current.innerHTML = editor.getHTML();
-
-    const headingElements = containerRef.current.querySelectorAll("h2");
-    headingElements.forEach((el) => {
-      const text = el.textContent?.trim();
-      if (text) {
-        el.id = toSlug(text);
-      }
-    });
     editor.destroy();
 
     const preElements = containerRef.current.querySelectorAll("pre");
@@ -75,10 +66,5 @@ export const TiptapViewer = ({ body }: TiptapViewerProps) => {
     });
   }, [body]);
 
-  return (
-    <div
-      ref={containerRef}
-      className="prose max-w-full w-full dark:prose-invert"
-    />
-  );
+  return <div ref={containerRef} className="markdown-body" />;
 };

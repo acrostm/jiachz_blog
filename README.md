@@ -71,7 +71,7 @@ pnpm install
 
 ### 准备数据库
 
-开发环境，推荐使用 Docker Compose 启动一个 MySQL
+开发环境，推荐使用 Docker Compose 启动一个 PostgreSQL
 
 #### 更多
 
@@ -84,9 +84,9 @@ pnpm install
 新建一个 `.env` 文件，在 `.env` 文件新增以下内容
 
 ```.env
-# DATABASE_URL 格式为 mysql://用户名:用户密码@数据库IP:数据库端口/需要连接的数据库名
+# DATABASE_URL 格式为 postgresql://用户名:用户密码@数据库IP:数据库端口/需要连接的数据库名
 # 根据实际情况进行修改
-DATABASE_URL="mysql://root:123456@127.0.0.1:3306/jiachzha_blog"
+DATABASE_URL="postgresql://postgres:123456@127.0.0.1:5432/jiachzha_blog"
 
 # 根据实际情况进行修改
 REDIS_HOST="127.0.0.1"
@@ -158,3 +158,11 @@ pnpm db:studio
 ### 自定义页面的信息
 
 你可能想修改页面中的信息，请修改 `constants/info.ts` 文件
+
+### 运行单元测试
+
+项目使用 [Vitest](https://vitest.dev/) 进行单元测试。在项目根目录执行以下命令运行所有测试：
+
+```bash
+pnpm test
+```

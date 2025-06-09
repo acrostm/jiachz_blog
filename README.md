@@ -26,7 +26,7 @@
 
 - 使用 iconify 支持各种 svg 图标
 
-- 使用 Bytemd 实现 Markdown 的编写和预览，自己编写 Bytemd 插件优化 Markdown 的预览
+- 使用 Tiptap 实现 Markdown 的编写和预览，使用插件支持代码高亮
 
 - 使用 next-theme 支持明暗主题切换
 

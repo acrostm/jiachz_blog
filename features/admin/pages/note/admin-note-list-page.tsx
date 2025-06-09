@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 
-import { BytemdViewer } from "@/components/bytemd";
+import { TiptapViewer } from "@/components/tiptap";
 import { PageBreadcrumb } from "@/components/page-header";
 
 import {
@@ -159,7 +159,7 @@ export const AdminNoteListPage = () => {
             : data.map((note) => (
                 <div key={note.id} className="w-full">
                   <div className="relative w-full rounded-lg border px-6 pb-6">
-                    <BytemdViewer body={note.body || ""} />
+                    <TiptapViewer body={note.body || ""} />
                     <div className="flex flex-wrap justify-end gap-2 py-4">
                       {note.tags?.map((tag) => (
                         <Badge key={tag.id}>{tag.name}</Badge>

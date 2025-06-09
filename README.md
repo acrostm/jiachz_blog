@@ -158,3 +158,11 @@ pnpm db:studio
 ### 自定义页面的信息
 
 你可能想修改页面中的信息，请修改 `constants/info.ts` 文件
+
+### 运行单元测试
+
+项目使用 [Vitest](https://vitest.dev/) 进行单元测试。在项目根目录执行以下命令运行所有测试：
+
+```bash
+pnpm test
+```

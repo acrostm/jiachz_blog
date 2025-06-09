@@ -1,19 +1,16 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+
+import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
 import { Editor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import CodeBlockLowlight from "@tiptap/extension-code-block-lowlight";
-import { createLowlight, common } from "lowlight";
-import asciidoc from "highlight.js/lib/languages/asciidoc";
-import dart from "highlight.js/lib/languages/dart";
-import nginx from "highlight.js/lib/languages/nginx";
+import { all, createLowlight } from "lowlight";
 import { Markdown } from "tiptap-markdown";
 
-const lowlight = createLowlight(common);
-lowlight.register({ asciidoc });
-lowlight.register({ dart });
-lowlight.register({ nginx });
+import { toSlug } from "@/lib/utils";
+
+const lowlight = createLowlight(all);
 
 export type TiptapViewerProps = {
   body: string;
@@ -26,11 +23,29 @@ export const TiptapViewer = ({ body }: TiptapViewerProps) => {
     if (!containerRef.current) return;
     const editor = new Editor({
       editable: false,
-      extensions: [StarterKit, CodeBlockLowlight.configure({ lowlight }), Markdown],
+      extensions: [
+        StarterKit,
+        CodeBlockLowlight.configure({ lowlight }),
+        Markdown,
+      ],
     });
     editor.commands.setContent(body);
     containerRef.current.innerHTML = editor.getHTML();
     editor.destroy();
+
+    const headings =
+      containerRef.current.querySelectorAll<HTMLElement>("h2, h3, h4, h5, h6");
+    headings.forEach((el) => {
+      const slug = toSlug(el.textContent || "");
+      el.id = slug;
+      if (!el.querySelector(".markdown-anchor")) {
+        const anchor = document.createElement("a");
+        anchor.href = `#${slug}`;
+        anchor.className = "markdown-anchor ml-2";
+        anchor.innerHTML = `#`;
+        el.appendChild(anchor);
+      }
+    });
 
     const preElements = containerRef.current.querySelectorAll("pre");
     preElements.forEach((pre) => {
@@ -39,6 +54,11 @@ export const TiptapViewer = ({ body }: TiptapViewerProps) => {
       const wrapper = document.createElement("div");
       wrapper.className = "code-block-wrapper";
       pre.parentNode?.insertBefore(wrapper, pre);
+      const header = document.createElement("div");
+      header.className = "code-block-header";
+      header.innerHTML =
+        '<span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>';
+      wrapper.appendChild(header);
       wrapper.appendChild(pre);
       const copyButton = document.createElement("button");
       copyButton.className = "copy-button";

@@ -122,6 +122,11 @@ export const TiptapEditor = ({
         transformCopiedText: true,
         transformPastedText: true,
       }),
+      Markdown.configure({
+        html: false,
+        transformCopiedText: true,
+        transformPastedText: true,
+      }),
     ],
     content: body ?? "",
     editorProps,

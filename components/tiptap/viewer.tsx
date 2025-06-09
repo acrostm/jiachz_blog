@@ -81,7 +81,6 @@ export const TiptapViewer = ({ body }: TiptapViewerProps) => {
           }, 2000);
         }
       });
-      wrapper.style.position = "relative";
       wrapper.appendChild(copyButton);
     });
   }, [body]);

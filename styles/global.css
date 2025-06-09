@@ -1,5 +1,6 @@
-@import "./tiptap.css";
+@import "./bytemd.css";
 @import "./github.css";
+@import "bytemd/dist/index.css";
 @import "./github-dark.css";
 
 @tailwind base;

@@ -37,6 +37,7 @@ export const createUser = async (params: SignupDTO) => {
       name: result.data.name,
       password: hashedPassword,
       email: result.data.email,
+      image: ImageAssets.defaultAvatar,
     },
   });
 

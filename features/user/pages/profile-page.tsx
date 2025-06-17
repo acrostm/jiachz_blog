@@ -1,27 +1,25 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import {
-  IconBrandGithub,
-  IconLogoGoogle,
-  IconLogoKuma,
-} from "@/components/icons";
+import { IconBrandGithub, IconLogoGoogle } from "@/components/icons";
 
 import { PageBreadcrumb } from "@/components/page-header";
 
-import { PATHS, PLACEHOLDER_TEXT } from "@/constants";
+import { PATHS, PATHS_MAP, PLACEHOLDER_TEXT } from "@/constants";
 import { AdminContentLayout } from "@/features/admin/components";
 import { auth } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
 import { ChangePasswordForm } from "../components/change-password-form";
-import { ChangeNameForm } from "../components/change-name-form";
-import { getUserAccounts } from "../actions";
 
 export const ProfilePage = async () => {
   const session = await auth();
   if (!session?.user) {
     return null;
   }
-  const accounts = await getUserAccounts(session.user.id);
+  const accounts = await prisma.account.findMany({
+    where: { userId: session.user.id },
+    select: { provider: true },
+  });
   return (
     <AdminContentLayout
       breadcrumb={
@@ -30,7 +28,7 @@ export const ProfilePage = async () => {
         />
       }
     >
-      <div className="mx-auto max-w-xl space-y-6 px-4">
+      <div className="space-y-6 px-4">
         <div className="flex items-center space-x-4">
           <Avatar className="size-10">
             <AvatarImage
@@ -43,17 +41,10 @@ export const ProfilePage = async () => {
           </Avatar>
           <span>{session.user.name ?? PLACEHOLDER_TEXT}</span>
         </div>
-        {session.user.email && (
-          <p className="text-sm text-muted-foreground">{session.user.email}</p>
-        )}
-        <ChangeNameForm
-          userId={session.user.id}
-          defaultName={session.user.name ?? ""}
-        />
         <ChangePasswordForm userId={session.user.id} />
         <div>
           <p className="mb-2 font-medium">已连接的第三方登录:</p>
-          <ul className="space-y-2 pl-2">
+          <ul className="flex space-x-4 pl-2">
             {accounts.map((a) => (
               <li key={a.provider} className="flex items-center space-x-1">
                 {a.provider === "github" && (
@@ -62,10 +53,7 @@ export const ProfilePage = async () => {
                 {a.provider === "google" && (
                   <IconLogoGoogle className="size-4" />
                 )}
-                {a.provider === "credentials" && (
-                  <IconLogoKuma className="size-4" />
-                )}
-                <span>{session.user.email ?? PLACEHOLDER_TEXT}</span>
+                <span>{a.provider}</span>
               </li>
             ))}
           </ul>

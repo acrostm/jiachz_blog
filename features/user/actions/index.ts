@@ -2,14 +2,12 @@
 
 import { hashSync } from "bcryptjs";
 
-import { ADMIN_EMAILS, ImageAssets } from "@/constants";
+import { ADMIN_EMAILS } from "@/constants";
 import {
   type SignupDTO,
   type UpdatePasswordDTO,
-  type UpdateNameDTO,
   signupSchema,
   updatePasswordSchema,
-  updateNameSchema,
 } from "@/features/auth";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -84,22 +82,9 @@ export const updateUserPassword = async (
   });
 };
 
-export const updateUserName = async (userId: string, params: UpdateNameDTO) => {
-  const result = await updateNameSchema.safeParseAsync(params);
-  if (!result.success) {
-    const error = result.error.format()._errors?.join(";");
-    throw new Error(error);
-  }
-
-  await prisma.user.update({
-    where: { id: userId },
-    data: { name: result.data.name },
-  });
-};
-
 export const getUserAccounts = async (userId: string) => {
   return prisma.account.findMany({
     where: { userId },
-    select: { provider: true, providerAccountId: true },
+    select: { provider: true },
   });
 };

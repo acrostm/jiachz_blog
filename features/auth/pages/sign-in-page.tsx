@@ -117,19 +117,9 @@ export const SignInPage = () => {
                   </FormItem>
                 )}
               />
-              <div className="flex space-x-2">
-                <Button variant="default" className="flex-1" type="submit">
-                  登录
-                </Button>
-                <Button
-                  variant="secondary"
-                  className="flex-1"
-                  type="button"
-                  onClick={() => router.push(PATHS.AUTH_SIGN_UP)}
-                >
-                  注册
-                </Button>
-              </div>
+              <Button variant="default" className="!w-full" type="submit">
+                登录
+              </Button>
               <Button
                 variant="default"
                 className="!w-full"

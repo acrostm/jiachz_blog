@@ -2,8 +2,13 @@
 
 import { hashSync } from "bcryptjs";
 
-import { ADMIN_EMAILS } from "@/constants";
-import { type SignupDTO, signupSchema } from "@/features/auth";
+import { ADMIN_EMAILS, ImageAssets } from "@/constants";
+import {
+  type SignupDTO,
+  type UpdatePasswordDTO,
+  signupSchema,
+  updatePasswordSchema,
+} from "@/features/auth";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -27,13 +32,25 @@ export const createUser = async (params: SignupDTO) => {
   }
 
   const hashedPassword = hashSync(result.data.password);
-  await prisma.user.create({
+  const user = await prisma.user.create({
     data: {
       name: result.data.name,
       password: hashedPassword,
       email: result.data.email,
+      image: ImageAssets.defaultAvatar,
     },
   });
+
+  await prisma.account.create({
+    data: {
+      userId: user.id,
+      provider: "credentials",
+      type: "credentials",
+      providerAccountId: user.email!,
+    },
+  });
+
+  return user;
 };
 
 export const noPermission = async () => {
@@ -46,4 +63,28 @@ export const noPermission = async () => {
     // 如果当前用户邮箱存在admin邮箱中，返回false，说明有权限
     return !ADMIN_EMAILS.includes(session.user.email);
   }
+};
+
+export const updateUserPassword = async (
+  userId: string,
+  params: UpdatePasswordDTO,
+) => {
+  const result = await updatePasswordSchema.safeParseAsync(params);
+  if (!result.success) {
+    const error = result.error.format()._errors?.join(";");
+    throw new Error(error);
+  }
+
+  const hashedPassword = hashSync(result.data.password);
+  await prisma.user.update({
+    where: { id: userId },
+    data: { password: hashedPassword },
+  });
+};
+
+export const getUserAccounts = async (userId: string) => {
+  return prisma.account.findMany({
+    where: { userId },
+    select: { provider: true },
+  });
 };

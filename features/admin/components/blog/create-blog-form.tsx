@@ -38,6 +38,7 @@ import {
   createBlogSchema,
   useCreateBlog,
 } from "@/features/blog";
+import { useGetAllUsers } from "@/features/user";
 import { useGetAllTags } from "@/features/tag";
 import { uploadFile } from "@/features/upload";
 import { toSlug } from "@/lib/utils";
@@ -49,6 +50,11 @@ export const CreateBlogForm = () => {
   const tags = React.useMemo(() => {
     return getTagsQuery.data?.tags ?? [];
   }, [getTagsQuery]);
+
+  const getUsersQuery = useGetAllUsers();
+  const users = React.useMemo(() => {
+    return getUsersQuery.data?.users ?? [];
+  }, [getUsersQuery]);
 
   const createBlogQuery = useCreateBlog();
 
@@ -133,10 +139,15 @@ export const CreateBlogForm = () => {
               <FormItem>
                 <FormLabel>作者</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
+                  <Combobox
+                    options={users.map((u) => ({
+                      label: u.name ?? "", // there should be a name
+                      value: u.name ?? "",
+                    }))}
                     value={field.value ?? ""}
-                    placeholder="请输入作者"
+                    onValueChange={field.onChange}
+                    clearable
+                    selectPlaceholder="请选择作者"
                   />
                 </FormControl>
                 <FormMessage />

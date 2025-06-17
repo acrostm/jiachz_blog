@@ -102,6 +102,13 @@ export const SignUpPage = () => {
               <Button type="submit" className="!w-full">
                 注册
               </Button>
+              <Button
+                type="button"
+                className="!w-full"
+                onClick={handleGoBack}
+              >
+                返回登录
+              </Button>
             </form>
           </Form>
         </CardFooter>
@@ -116,5 +123,9 @@ export const SignUpPage = () => {
     } catch (error) {
       showErrorToast((error as Error).message);
     }
+  }
+
+  function handleGoBack() {
+    router.push(PATHS.AUTH_SIGN_IN);
   }
 };

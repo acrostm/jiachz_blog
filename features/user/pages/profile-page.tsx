@@ -10,6 +10,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 import { ChangePasswordForm } from "../components/change-password-form";
+import { ChangeNameDialog } from "../components/change-name-dialog";
 
 export const ProfilePage = async () => {
   const session = await auth();
@@ -18,7 +19,7 @@ export const ProfilePage = async () => {
   }
   const accounts = await prisma.account.findMany({
     where: { userId: session.user.id },
-    select: { provider: true },
+    select: { provider: true, providerAccountId: true },
   });
   return (
     <AdminContentLayout
@@ -28,9 +29,9 @@ export const ProfilePage = async () => {
         />
       }
     >
-      <div className="space-y-6 px-4">
-        <div className="flex items-center space-x-4">
-          <Avatar className="size-10">
+      <div className="flex flex-col items-center space-y-6 px-4">
+        <div className="space-y-2 text-center">
+          <Avatar className="mx-auto size-20">
             <AvatarImage
               src={session.user.image ?? ""}
               alt={session.user.name ?? PLACEHOLDER_TEXT}
@@ -39,12 +40,21 @@ export const ProfilePage = async () => {
               {session.user.name ?? PLACEHOLDER_TEXT}
             </AvatarFallback>
           </Avatar>
-          <span>{session.user.name ?? PLACEHOLDER_TEXT}</span>
+          <p className="text-lg font-medium">
+            {session.user.name ?? PLACEHOLDER_TEXT}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            {session.user.email}
+          </p>
         </div>
+        <ChangeNameDialog
+          userId={session.user.id}
+          defaultName={session.user.name ?? ""}
+        />
         <ChangePasswordForm userId={session.user.id} />
-        <div>
+        <div className="w-full">
           <p className="mb-2 font-medium">已连接的第三方登录:</p>
-          <ul className="flex space-x-4 pl-2">
+          <ul className="space-y-2 pl-2">
             {accounts.map((a) => (
               <li key={a.provider} className="flex items-center space-x-1">
                 {a.provider === "github" && (
@@ -53,7 +63,7 @@ export const ProfilePage = async () => {
                 {a.provider === "google" && (
                   <IconLogoGoogle className="size-4" />
                 )}
-                <span>{a.provider}</span>
+                <span>{a.providerAccountId}</span>
               </li>
             ))}
           </ul>

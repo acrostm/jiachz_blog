@@ -121,14 +121,6 @@ export const SignInPage = () => {
                 登录
               </Button>
               <Button
-                variant="secondary"
-                className="!w-full"
-                type="button"
-                onClick={() => router.push(PATHS.AUTH_SIGN_UP)}
-              >
-                注册
-              </Button>
-              <Button
                 variant="default"
                 className="!w-full"
                 type="button"

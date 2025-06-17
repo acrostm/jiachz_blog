@@ -2,7 +2,7 @@
 
 import { hashSync } from "bcryptjs";
 
-import { ADMIN_EMAILS, ImageAssets } from "@/constants";
+import { ADMIN_EMAILS } from "@/constants";
 import {
   type SignupDTO,
   type UpdatePasswordDTO,

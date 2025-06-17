@@ -4,6 +4,7 @@ import React from "react";
 
 import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { Book, CodeXml, Home, PanelLeft, ScrollIcon, Tags } from "lucide-react";
 
@@ -71,6 +72,7 @@ export const AdminContentLayout = ({
 }: AdminContentLayoutProps) => {
   const scrollRef = React.useRef<HTMLDivElement | null>(null);
   const session = useSession();
+  const router = useRouter();
   const [signOutDialogOpen, setSignOutDialogOpen] = React.useState(false);
   const [settingsModalOpen, setSettingsModalOpen] = React.useState(false);
 
@@ -125,6 +127,12 @@ export const AdminContentLayout = ({
                 我的账号
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="cursor-pointer"
+                onClick={() => router.push(PATHS.ADMIN_PROFILE)}
+              >
+                个人信息
+              </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer"
                 onClick={() => setSettingsModalOpen(true)}

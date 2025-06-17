@@ -106,3 +106,11 @@ export const getUserAccounts = async (userId: string) => {
     select: { provider: true, providerAccountId: true },
   });
 };
+
+export const getAllUsers = async () => {
+  const users = await prisma.user.findMany({
+    select: { id: true, name: true },
+    orderBy: { name: "asc" },
+  });
+  return { users, total: users.length };
+};

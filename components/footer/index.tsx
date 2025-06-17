@@ -6,13 +6,16 @@ import { buttonVariants } from "@/components/ui/button";
 
 import { PATHS, PATHS_MAP, SLOGAN, navItems } from "@/constants";
 import { getSiteStatistics } from "@/features/statistics";
+import { auth } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { formatNum } from "@/utils";
 
 import { Wrapper } from "../wrapper";
+import { FooterUserMenu } from "./user-menu";
 
 export const Footer = async () => {
   const { pv, uv, todayPV, todayUV } = await getSiteStatistics();
+  const session = await auth();
 
   return (
     <footer className="relative px-6 py-12">
@@ -65,15 +68,24 @@ export const Footer = async () => {
           &copy; {new Date().getFullYear()} {`Jiach`}&nbsp;&nbsp;·&nbsp;&nbsp;
           {SLOGAN}
         </div>
-        <Link
-          href={PATHS.AUTH_SIGN_UP}
-          className={cn(
-            buttonVariants({ variant: "ghost", size: "sm" }),
-            "absolute right-4 bottom-2",
-          )}
-        >
-          注册
-        </Link>
+        {session?.user ? (
+          <FooterUserMenu user={session.user} />
+        ) : (
+          <div className="absolute right-4 bottom-2 flex space-x-2">
+            <Link
+              href={PATHS.AUTH_SIGN_IN}
+              className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+            >
+              登录
+            </Link>
+            <Link
+              href={PATHS.AUTH_SIGN_UP}
+              className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
+            >
+              注册
+            </Link>
+          </div>
+        )}
       </Wrapper>
     </footer>
   );

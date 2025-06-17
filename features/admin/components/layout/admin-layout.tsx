@@ -13,9 +13,8 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 
 import { NICKNAME, PATHS } from "@/constants";
+import { adminNavItems } from "@/features/admin";
 import { cn } from "@/lib/utils";
-
-import { adminNavItems } from "./admin-content-layout";
 
 export const AdminLayout = ({ children }: React.PropsWithChildren) => {
   const pathname = usePathname();

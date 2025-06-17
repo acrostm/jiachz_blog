@@ -1,7 +1,7 @@
 import { BackToTop } from "@/components/back-to-top";
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
-import TurnstileGuard from '@/components/turnstile/turnstile-guard';
+import TurnstileGuard from "@/components/turnstile/turnstile-guard";
 
 export default function Layout({ children }: React.PropsWithChildren) {
   return (

@@ -60,7 +60,7 @@ export const Footer = async () => {
 
       <Wrapper className="flex flex-col items-center justify-center space-y-1 pt-24 text-sm text-muted-foreground md:flex-row md:space-x-4 md:space-y-0">
         <div className="order-3">
-          &copy; {new Date().getFullYear()} {`Jiachen`}&nbsp;&nbsp;·&nbsp;&nbsp;
+          &copy; {new Date().getFullYear()} {`Jiach`}&nbsp;&nbsp;·&nbsp;&nbsp;
           {SLOGAN}
         </div>
       </Wrapper>

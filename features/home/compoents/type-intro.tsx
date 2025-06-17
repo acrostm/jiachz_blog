@@ -11,7 +11,7 @@ export const TypeIntro = () => {
         500,
         "一名软件开发工程师 。",
         1000,
-        "A Software <Developer /> .",
+        "A Software <Developer />",
         1000,
       ]}
       speed={10}

@@ -2,7 +2,7 @@
 export const EMAIL = "jiachzha@gmail.com";
 
 /** 昵称 */
-export const NICKNAME = "Jiachen";
+export const NICKNAME = "Jiach";
 
 /** Github 个人页 */
 export const GITHUB_PAGE = "https://github.com/acrostm";

@@ -10,8 +10,6 @@ import {
   IconLogoVscodeLight,
   IconLogoWebstormDark,
   IconLogoWebstormLight,
-  IconLogoZshDark,
-  IconLogoZshLight,
   IconSkillCSS,
   IconSkillDocker,
   IconSkillFigmaDark,
@@ -70,9 +68,7 @@ export default function Page() {
           }}
         >
           <h2>我是谁</h2>
-          <p>
-            Hi, 我是Jiachen
-          </p>
+          <p>Hi, 我是Jiach</p>
         </div>
 
         <div

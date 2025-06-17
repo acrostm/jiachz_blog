@@ -39,7 +39,7 @@ export const HeroSection = () => {
           animationDelay: `${getDelay()}ms`,
         }}
       >
-        Jiachen
+        {NICKNAME}
       </strong>
       <div
         className={cn("animate-fade-up animate-ease-in-out")}
@@ -59,9 +59,9 @@ export const HeroSection = () => {
         }}
       >
         学习
-        <span className={`font-semibold text-[#00d8ff]`}>TypeScript</span>、
-        <span className={`font-semibold text-[#007acc]`}>Java</span>
-        <span className="ml-4">\owo/ ~</span>
+        <span className={`font-semibold text-[#00d8ff]`}>Java</span>、
+        <span className={`font-semibold text-[#007acc]`}>Spring</span>
+        <span className="ml-4">~ \owo/ ~ </span>
       </p>
       <p
         className={cn(

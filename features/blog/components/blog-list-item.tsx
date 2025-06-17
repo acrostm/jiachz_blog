@@ -14,17 +14,13 @@ import { type Blog } from "../types";
 type BlogListItemProps = {
   blog: Blog;
   uvMap?: Record<string, number>;
+  currentUserName?: string | null;
 };
 
-export const BlogListItem = ({ blog, uvMap }: BlogListItemProps) => {
-  return (
-    <Link
-      href={`${PATHS.SITE_BLOG}/${blog.slug}`}
-      className={cn(
-        "flex flex-col justify-between h-full text-primary px-6 py-4 transition-colors rounded-lg",
-        "bg-transparent hover:bg-primary-foreground ",
-      )}
-    >
+export const BlogListItem = ({ blog, uvMap, currentUserName }: BlogListItemProps) => {
+  const canView = blog.author === currentUserName;
+  const content = (
+    <>
       <ul className="mb-1 flex space-x-4 text-xs font-medium text-muted-foreground">
         {blog.tags.map((tag) => (
           <li key={tag.id} className="flex items-center">
@@ -53,6 +49,31 @@ export const BlogListItem = ({ blog, uvMap }: BlogListItemProps) => {
           </span>
         </div>
       </div>
-    </Link>
+    </>
+  );
+
+  if (canView) {
+    return (
+      <Link
+        href={`${PATHS.SITE_BLOG}/${blog.slug}`}
+        className={cn(
+          "flex flex-col justify-between h-full text-primary px-6 py-4 transition-colors rounded-lg",
+          "bg-transparent hover:bg-primary-foreground ",
+        )}
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <div
+      className={cn(
+        "flex flex-col justify-between h-full text-primary px-6 py-4 rounded-lg",
+        "bg-muted cursor-not-allowed opacity-60",
+      )}
+    >
+      {content}
+    </div>
   );
 };

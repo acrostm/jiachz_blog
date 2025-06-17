@@ -19,7 +19,10 @@ export const ProfilePage = async () => {
   }
   const accounts = await prisma.account.findMany({
     where: { userId: session.user.id },
-    select: { provider: true, providerAccountId: true },
+    select: {
+      provider: true,
+      user: { select: { email: true } },
+    },
   });
   return (
     <AdminContentLayout
@@ -29,7 +32,7 @@ export const ProfilePage = async () => {
         />
       }
     >
-      <div className="flex flex-col items-center space-y-6 px-4">
+      <div className="mx-auto flex w-full max-w-md flex-col items-center space-y-6 px-4">
         <div className="space-y-2 text-center">
           <Avatar className="mx-auto size-20">
             <AvatarImage
@@ -54,16 +57,16 @@ export const ProfilePage = async () => {
         <ChangePasswordForm userId={session.user.id} />
         <div className="w-full">
           <p className="mb-2 font-medium">已连接的第三方登录:</p>
-          <ul className="space-y-2 pl-2">
+          <ul className="space-y-2">
             {accounts.map((a) => (
-              <li key={a.provider} className="flex items-center space-x-1">
+              <li key={a.provider} className="flex items-center space-x-2">
                 {a.provider === "github" && (
                   <IconBrandGithub className="size-4" />
                 )}
                 {a.provider === "google" && (
                   <IconLogoGoogle className="size-4" />
                 )}
-                <span>{a.providerAccountId}</span>
+                <span>{a.user.email}</span>
               </li>
             ))}
           </ul>

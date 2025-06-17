@@ -17,13 +17,21 @@ import { Input } from "@/components/ui/input";
 import { type UpdateNameDTO, updateNameSchema } from "@/features/auth";
 
 import { updateUserName } from "../actions";
+import {
+  hideToast,
+  showErrorToast,
+  showLoadingToast,
+  showSuccessToast,
+} from "@/components/ui/toast";
 
 export const ChangeNameForm = ({
   userId,
   defaultName,
+  setOpen,
 }: {
   userId: string;
   defaultName: string;
+  setOpen?: (open: boolean) => void;
 }) => {
   const form = useForm<UpdateNameDTO>({
     resolver: zodResolver(updateNameSchema),
@@ -52,7 +60,16 @@ export const ChangeNameForm = ({
   );
 
   async function handleSubmit(values: UpdateNameDTO) {
-    await updateUserName(userId, values);
-    form.reset(values);
+    const tid = showLoadingToast("正在更新用户名...");
+    try {
+      await updateUserName(userId, values);
+      form.reset(values);
+      showSuccessToast("用户名修改成功");
+      setOpen?.(false);
+    } catch (error) {
+      showErrorToast((error as Error).message);
+    } finally {
+      hideToast(tid);
+    }
   }
 };

@@ -135,6 +135,12 @@ export const AdminContentLayout = ({
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer"
+                onClick={() => router.push(PATHS.SITE_HOME)}
+              >
+                返回首页
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                className="cursor-pointer"
                 onClick={() => setSettingsModalOpen(true)}
               >
                 设置

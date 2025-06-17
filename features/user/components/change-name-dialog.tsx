@@ -31,7 +31,11 @@ export const ChangeNameDialog = ({ userId, defaultName }: Props) => {
         <DialogHeader>
           <DialogTitle>修改用户名</DialogTitle>
         </DialogHeader>
-        <ChangeNameForm userId={userId} defaultName={defaultName} />
+        <ChangeNameForm
+          userId={userId}
+          defaultName={defaultName}
+          setOpen={setOpen}
+        />
       </DialogContent>
     </Dialog>
   );

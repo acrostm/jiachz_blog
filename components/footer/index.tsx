@@ -2,6 +2,8 @@ import React from "react";
 
 import Link from "next/link";
 
+import { buttonVariants } from "@/components/ui/button";
+
 import { PATHS, PATHS_MAP, SLOGAN, navItems } from "@/constants";
 import { getSiteStatistics } from "@/features/statistics";
 import { cn } from "@/lib/utils";
@@ -13,7 +15,7 @@ export const Footer = async () => {
   const { pv, uv, todayPV, todayUV } = await getSiteStatistics();
 
   return (
-    <footer className="px-6 py-12">
+    <footer className="relative px-6 py-12">
       <Wrapper
         className={cn(
           "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-24 gap-y-8 text-sm text-muted-foreground",
@@ -58,11 +60,20 @@ export const Footer = async () => {
         </dl>
       </Wrapper>
 
-      <Wrapper className="flex flex-col items-center justify-center space-y-1 pt-24 text-sm text-muted-foreground md:flex-row md:space-x-4 md:space-y-0">
+      <Wrapper className="relative flex flex-col items-center justify-center space-y-1 pt-24 text-sm text-muted-foreground md:flex-row md:space-x-4 md:space-y-0">
         <div className="order-3">
           &copy; {new Date().getFullYear()} {`Jiach`}&nbsp;&nbsp;·&nbsp;&nbsp;
           {SLOGAN}
         </div>
+        <Link
+          href={PATHS.AUTH_SIGN_UP}
+          className={cn(
+            buttonVariants({ variant: "ghost", size: "sm" }),
+            "absolute right-4 bottom-2",
+          )}
+        >
+          注册
+        </Link>
       </Wrapper>
     </footer>
   );

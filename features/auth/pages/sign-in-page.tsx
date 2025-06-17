@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useForm } from "react-hook-form";
 
 import { useRouter } from "next/navigation";
@@ -26,7 +27,14 @@ import { Input } from "@/components/ui/input";
 
 import { IconBrandGithub, IconLogoGoogle } from "@/components/icons";
 import { ModeToggle } from "@/components/mode-toggle";
-import { showErrorToast } from "@/components/ui/toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 import { PATHS } from "@/constants";
 
@@ -39,6 +47,8 @@ import { type SignInDTO, signInSchema } from "../types";
 
 export const SignInPage = () => {
   const router = useRouter();
+  const [errorOpen, setErrorOpen] = React.useState(false);
+  const [errorMsg, setErrorMsg] = React.useState("");
   const form = useForm<SignInDTO>({
     resolver: zodResolver(signInSchema),
     defaultValues: { email: "", password: "" },
@@ -124,6 +134,14 @@ export const SignInPage = () => {
                 variant="default"
                 className="!w-full"
                 type="button"
+                onClick={handleGoSignUp}
+              >
+                注册
+              </Button>
+              <Button
+                variant="default"
+                className="!w-full"
+                type="button"
                 onClick={handleGoHome}
               >
                 回首页
@@ -132,6 +150,19 @@ export const SignInPage = () => {
           </Form>
         </CardFooter>
       </Card>
+      <AlertDialog open={errorOpen} onOpenChange={setErrorOpen}>
+        <AlertDialogContent>
+          <AlertDialogTrigger>
+            <AlertDialogTitle>登录失败</AlertDialogTitle>
+            <p className="mt-2 text-sm text-muted-foreground">{errorMsg}</p>
+          </AlertDialogTrigger>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setErrorOpen(false)}>
+              确定
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 
@@ -147,12 +178,17 @@ export const SignInPage = () => {
     router.push(PATHS.SITE_HOME);
   }
 
+  function handleGoSignUp() {
+    router.push(PATHS.AUTH_SIGN_UP);
+  }
+
   async function handleSubmit(values: SignInDTO) {
     try {
       const url = await signInWithCredentials(values);
       router.push(url);
     } catch (error) {
-      showErrorToast((error as Error).message);
+      setErrorMsg((error as Error).message);
+      setErrorOpen(true);
     }
   }
 };

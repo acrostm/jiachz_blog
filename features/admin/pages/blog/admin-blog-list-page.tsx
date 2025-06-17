@@ -170,12 +170,19 @@ export const AdminBlogListPage = () => {
         </div>
       ),
       cell: ({ row }) => {
-        return (
+        const canEdit = row.original.author === session?.user?.name;
+        return canEdit ? (
           <ToggleBlogPublishSwitch
             id={row.original.id}
             published={row.original.published}
             refreshAsync={getBlogsQuery.refreshAsync}
           />
+        ) : (
+          <span>
+            {row.original.published
+              ? PUBLISHED_LABEL_MAP[PUBLISHED_ENUM.PUBLISHED]
+              : PUBLISHED_LABEL_MAP[PUBLISHED_ENUM.NO_PUBLISHED]}
+          </span>
         );
       },
     },
@@ -228,6 +235,8 @@ export const AdminBlogListPage = () => {
     {
       id: "actions",
       cell: ({ row }) => {
+        const canEdit = row.original.author === session?.user?.name;
+        if (!canEdit) return null;
         return (
           <div className="flex items-center gap-2">
             <Link

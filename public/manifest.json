@@ -3,7 +3,7 @@
   "short_name": "Jiach",
   "icons": [
     {
-      "src": "/images/jiachzha-dark.svg",
+      "src": "/images/jiachz-dark.svg",
       "sizes": "48x48 72x72 96x96 128x128 256x256 512x512",
       "type": "image/svg+xml",
       "purpose": "Blog"

@@ -86,7 +86,7 @@ pnpm install
 ```.env
 # DATABASE_URL 格式为 mysql://用户名:用户密码@数据库IP:数据库端口/需要连接的数据库名
 # 根据实际情况进行修改
-DATABASE_URL="mysql://root:123456@127.0.0.1:3306/jiachzha_blog"
+DATABASE_URL="mysql://root:123456@127.0.0.1:3306/jiachz_blog"
 
 # 根据实际情况进行修改
 REDIS_HOST="127.0.0.1"

@@ -19,7 +19,7 @@ send_notification() {
     local sound=$4
 
     # 发送Bark通知
-    curl -X POST "https://bark.jiachzha.com/jGFo3p59W8d6FGksa38rTH/" \
+    curl -X POST "https://bark.jiachz.com/9fZrbZk3hu2eLs4B24yL2M/" \
         -H 'Content-Type: application/json; charset=utf-8' \
         -d '{
             "key": "'"$status"'",

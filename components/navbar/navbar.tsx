@@ -80,7 +80,7 @@ export const Navbar = () => {
                             <NavigationMenuLink asChild>
                               <Link
                                 className="flex size-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                                href={`https://kuma.jiachzha.com/status/1`}
+                                href={`https://kuma.jiachz.com/status/1`}
                                 target="_blank"
                                 rel="noreferrer"
                               >
@@ -95,7 +95,7 @@ export const Navbar = () => {
                             </NavigationMenuLink>
                           </li>
                           <LabItem
-                            href={`https://umami.jiachzha.com/share/FA5STOBptMTaBn4o/jiachzha.com`}
+                            href={`https://umami.jiachz.com/share/nqldEpCopR9BMfLj/jiachz.com`}
                             target="_blank"
                             title={
                               <div className="flex items-center">

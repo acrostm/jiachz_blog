@@ -28,7 +28,7 @@ send_notification() {
             "sound": "'"$sound"'",
             "group": "Blog",
             "category": "服务监控",
-            "icon": "https://r2.jiachzha.com/jiachzha-light.svg"
+            "icon": "https://r2.jiachz.com/jiachz-light.svg"
         }'
 }
 

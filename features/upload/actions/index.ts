@@ -69,7 +69,7 @@ const uploadToR2 = async (
   const command = new PutObjectCommand(uploadParams);
   await s3.send(command);
 
-  return `https://r2.jiachzha.com/${key}`;
+  return `https://r2.jiachz.com/${key}`;
 };
 
 const getContentType = (fileName: string): string => {

@@ -5,9 +5,24 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { ChevronDown, ChevronRight, EggFried, MenuIcon } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  EggFried,
+  MenuIcon,
+  UserCog,
+} from "lucide-react";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
@@ -19,7 +34,9 @@ import {
 
 import { IconLogoUmami } from "@/components/icons";
 
-import { SLOGAN, WEBSITE } from "@/constants";
+import { PATHS, SLOGAN, WEBSITE } from "@/constants";
+import { SignOutDialog } from "@/features/auth";
+import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
 
 import { navItems } from "./config";
@@ -28,6 +45,8 @@ export const MobileNav = () => {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
   const [subMenuOpen, setSubMenuOpen] = React.useState(false);
+  const { user, isAuthenticated } = useAuth();
+  const [signOutOpen, setSignOutOpen] = React.useState(false);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -185,6 +204,65 @@ export const MobileNav = () => {
               )}
             </div>
           ))}
+          {/* 后台管理/用户菜单 */}
+          <div className="mt-4 border-t pt-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                {isAuthenticated ? (
+                  <Avatar
+                    className={cn(
+                      buttonVariants({ variant: "outline", size: "icon" }),
+                      "cursor-pointer",
+                    )}
+                  >
+                    <AvatarImage
+                      src={user?.image ?? ""}
+                      className="!size-6 rounded-[8px]"
+                      alt={user?.name ?? "U"}
+                    />
+                    <AvatarFallback className="line-clamp-1 size-6 text-ellipsis rounded-[8px]">
+                      {user?.name ?? "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                ) : (
+                  <Button variant="outline" size="icon" aria-label="后台管理">
+                    <UserCog className="size-4" />
+                  </Button>
+                )}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                {!isAuthenticated ? (
+                  <>
+                    <DropdownMenuItem asChild>
+                      <Link href={PATHS.AUTH_SIGN_IN}>登录</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href={PATHS.AUTH_SIGN_UP}>注册</Link>
+                    </DropdownMenuItem>
+                  </>
+                ) : (
+                  <>
+                    <DropdownMenuLabel className="cursor-pointer"></DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href={PATHS.ADMIN_HOME}>后台管理</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/coming-soon">个人资料</Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() => setSignOutOpen(true)}
+                      className="cursor-pointer"
+                    >
+                      退出登录
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <SignOutDialog open={signOutOpen} setOpen={setSignOutOpen} />
+          </div>
         </div>
       </SheetContent>
     </Sheet>

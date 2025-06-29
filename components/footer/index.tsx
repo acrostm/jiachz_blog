@@ -20,7 +20,7 @@ export const Footer = async () => {
         )}
       >
         <dl className="flex flex-col gap-3">
-          <dt className="text-lg font-semibold text-primary">导航</dt>
+          <dt className="text-lg font-semibold text-primary">导航 🧭</dt>
           {navItems.map((el) => (
             <dd key={el.link}>
               <Link
@@ -41,7 +41,7 @@ export const Footer = async () => {
           </dd>
         </dl>
         <dl className="flex flex-col gap-3">
-          <dt className="text-lg font-semibold text-primary">统计</dt>
+          <dt className="text-lg font-semibold text-primary">统计 📊</dt>
           <dd>
             今日 <span>{formatNum(todayPV)}</span> 次浏览
           </dd>
@@ -61,7 +61,7 @@ export const Footer = async () => {
       <Wrapper className="flex flex-col items-center justify-center space-y-1 pt-24 text-sm text-muted-foreground md:flex-row md:space-x-4 md:space-y-0">
         <div className="order-3">
           &copy; {new Date().getFullYear()} {`Jiach`}&nbsp;&nbsp;·&nbsp;&nbsp;
-          {SLOGAN}
+          {SLOGAN} 🚀
         </div>
       </Wrapper>
     </footer>

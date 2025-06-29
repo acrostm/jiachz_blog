@@ -27,7 +27,7 @@ export const HeroSection = () => {
           animationDelay: `${getDelay()}ms`,
         }}
       >
-        你好，我是
+        你好，我是 👋
       </p>
       <strong
         className={cn(
@@ -58,7 +58,7 @@ export const HeroSection = () => {
           animationDelay: `${getDelay()}ms`,
         }}
       >
-        学习
+        学习 📚
         <span className={`font-semibold text-[#00d8ff]`}>Java</span>、
         <span className={`font-semibold text-[#007acc]`}>Spring</span>
         <span className="ml-4">~ \owo/ ~ </span>
@@ -72,7 +72,7 @@ export const HeroSection = () => {
           animationDelay: `${getDelay()}ms`,
         }}
       >
-        我在这个网站记录我的学习，文章 ！
+        我在这个网站记录我的学习，文章！📝
       </p>
       <div
         className={cn("flex space-x-4", "animate-fade-up animate-ease-in-out")}

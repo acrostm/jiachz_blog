@@ -14,7 +14,7 @@ export default function Page() {
       <div className="grid gap-8">
         <IllustrationIdle className="size-[320px]" />
         <h3 className="text-center text-2xl font-semibold tracking-tight">
-          页面开发中......
+          页面开发中……🚧
         </h3>
         <p className="mx-auto max-w-md text-center text-lg text-muted-foreground">
           We&apos;re working hard to bring you something amazing. Stay tuned for

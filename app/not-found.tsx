@@ -14,7 +14,7 @@ export default function Page() {
       <div className="grid gap-8">
         <IllustrationNotFound className="size-[320px]" />
         <h3 className="text-center text-2xl font-semibold tracking-tight">
-          页面未找到
+          页面未找到 🧐
         </h3>
         <Button asChild>
           <Link href={PATHS.SITE_HOME}>返回首页</Link>

@@ -122,7 +122,7 @@ export const AdminContentLayout = ({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel className="cursor-pointer">
-                我的账号
+                {session?.data?.user?.name ?? PLACEHOLDER_TEXT}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem

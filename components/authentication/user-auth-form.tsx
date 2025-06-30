@@ -1,73 +1,197 @@
 "use client";
 
 import * as React from "react";
+import { useState } from "react";
+
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-import { IconBrandGithub, IconLogoSpinner } from "@/components/icons";
+import { IconLogoSpinner } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 
 type UserAuthFormProps = React.HTMLAttributes<HTMLDivElement>;
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const [avatar, setAvatar] = useState<File | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
+  const [avatarError, setAvatarError] = useState<string | null>(null);
 
-  function onSubmit(event: React.SyntheticEvent) {
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsLoading(true);
-
-    setTimeout(() => {
+    setError(null);
+    setAvatarError(null);
+    const formData = new FormData(event.currentTarget);
+    const email = formData.get("email") as string;
+    const name = formData.get("name") as string;
+    const password = formData.get("password") as string;
+    const confirmPassword = formData.get("confirmPassword") as string;
+    if (!email || !name || !password || !confirmPassword) {
+      setError("请填写所有字段");
       setIsLoading(false);
-    }, 3000);
+      return;
+    }
+    if (password !== confirmPassword) {
+      setError("两次输入的密码不一致");
+      setIsLoading(false);
+      return;
+    }
+    let image = "";
+    if (avatar) {
+      if (avatar.size > 1024 * 1024) {
+        setAvatarError("头像文件不能超过1MB");
+        setIsLoading(false);
+        return;
+      }
+      const avatarForm = new FormData();
+      avatarForm.append("file", avatar);
+      const res = await fetch("/api/upload/avatar", {
+        method: "POST",
+        body: avatarForm,
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) {
+        setAvatarError(data.error || "头像上传失败");
+        setIsLoading(false);
+        return;
+      }
+      image = data.url;
+      setAvatarUrl(image);
+    }
+    try {
+      // 调用自定义注册API
+      const res = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, name, password, image }),
+      });
+      const data = await res.json();
+      let errorMsg = "注册失败";
+      if (!res.ok) {
+        if (
+          typeof data === "object" &&
+          data &&
+          "message" in data &&
+          typeof data.message === "string"
+        ) {
+          errorMsg = data.message;
+        }
+        setError(errorMsg);
+        setIsLoading(false);
+        return;
+      }
+      // 注册成功后自动登录
+      await signIn("credentials", {
+        email,
+        password,
+        callbackUrl: "/admin",
+      });
+      router.push("/admin");
+    } catch (e) {
+      setError("注册失败，请重试");
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
     <div className={cn("grid gap-6", className)} {...props}>
       <form onSubmit={onSubmit}>
-        <div className="grid gap-2">
+        <div className="grid gap-4">
           <div className="grid gap-1">
-            <Label className="sr-only" htmlFor="email">
-              Email
-            </Label>
+            <Label htmlFor="avatar">头像（不超过1MB）</Label>
+            <Input
+              id="avatar"
+              name="avatar"
+              type="file"
+              accept="image/*"
+              disabled={isLoading}
+              onChange={e => {
+                setAvatarError(null);
+                if (e.target.files && e.target.files[0]) {
+                  setAvatar(e.target.files[0]);
+                } else {
+                  setAvatar(null);
+                }
+              }}
+            />
+            {avatarError && (
+              <div className="text-sm text-red-500">{avatarError}</div>
+            )}
+            {avatarUrl && (
+              <img src={avatarUrl} alt="头像预览" className="mt-2 h-16 w-16 rounded-full object-cover" />
+            )}
+          </div>
+          <div className="grid gap-1">
+            <Label htmlFor="email">邮箱</Label>
             <Input
               id="email"
+              name="email"
               placeholder="name@example.com"
               type="email"
               autoCapitalize="none"
               autoComplete="email"
               autoCorrect="off"
               disabled={isLoading}
+              required
             />
           </div>
-          <Button disabled={isLoading}>
+          <div className="grid gap-1">
+            <Label htmlFor="name">姓名</Label>
+            <Input
+              id="name"
+              name="name"
+              placeholder="请输入姓名"
+              type="text"
+              autoCapitalize="none"
+              autoCorrect="off"
+              disabled={isLoading}
+              required
+            />
+          </div>
+          <div className="grid gap-1">
+            <Label htmlFor="password">密码</Label>
+            <Input
+              id="password"
+              name="password"
+              placeholder="请输入密码"
+              type="password"
+              autoComplete="new-password"
+              disabled={isLoading}
+              required
+            />
+          </div>
+          <div className="grid gap-1">
+            <Label htmlFor="confirmPassword">确认密码</Label>
+            <Input
+              id="confirmPassword"
+              name="confirmPassword"
+              placeholder="请再次输入密码"
+              type="password"
+              autoComplete="new-password"
+              disabled={isLoading}
+              required
+            />
+          </div>
+          <Button disabled={isLoading} type="submit">
             {isLoading && (
               <IconLogoSpinner className="mr-2 size-4 animate-spin" />
             )}
-            Sign In with Email
+            注册
           </Button>
+          {error && (
+            <div className="mt-2 text-center text-sm text-red-500">{error}</div>
+          )}
         </div>
       </form>
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">
-            Or continue with
-          </span>
-        </div>
-      </div>
-      <Button variant="outline" type="button" disabled={isLoading}>
-        {isLoading ? (
-          <IconLogoSpinner className="mr-2 size-4 animate-spin" />
-        ) : (
-          <IconBrandGithub className="mr-2 size-4" />
-        )}{" "}
-        GitHub
-      </Button>
     </div>
   );
 }

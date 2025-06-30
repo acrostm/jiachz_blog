@@ -8,6 +8,7 @@ export const PATHS = {
   SITE_COMING: "/coming-soon",
   SITE_ABOUT: "/about",
   SITE_CHAT: "/chat",
+  SITE_PROFILE: "/profile",
   SITEMAP: "/sitemap.xml",
 
   /** ************* ADMIN ****************** */
@@ -37,7 +38,7 @@ export const PATHS_MAP: Record<string, string> = {
   [PATHS.SITE_BLOG]: "博客",
   [PATHS.SITE_SNIPPET]: "片段",
   [PATHS.SITE_COMING]: "实验室",
-  [PATHS.AUTH_SIGN_UP]: "注册",
+  [PATHS.SITE_PROFILE]: "个人资料",
   [PATHS.SITE_ABOUT]: "关于",
   [PATHS.SITEMAP]: "站点地图",
 
@@ -55,6 +56,7 @@ export const PATHS_MAP: Record<string, string> = {
 
   /** ************* AUTH ****************** */
   [PATHS.AUTH_SIGN_IN]: "登录",
+  [PATHS.AUTH_SIGN_UP]: "注册",
 };
 
 export const PATH_DESCRIPTION_MAP: Record<string, string> = {

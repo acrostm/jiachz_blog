@@ -1,13 +1,8 @@
 import { type Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
-
-import { buttonVariants } from "@/components/ui/button";
 
 import { UserAuthForm } from "@/components/authentication/user-auth-form";
 import { Wrapper } from "@/components/wrapper";
-
-import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
   title: "Authentication",
@@ -16,49 +11,20 @@ export const metadata: Metadata = {
 
 export default function AuthenticationPage() {
   return (
-    <Wrapper className="flex min-h-screen flex-col px-6 pb-24 pt-8">
-      <div className="md:hidden">
-        <Image
-          src="/examples/authentication-light.png"
-          width={1280}
-          height={843}
-          alt="Authentication"
-          className="block dark:hidden"
-        />
-        <Image
-          src="/examples/authentication-dark.png"
-          width={1280}
-          height={843}
-          alt="Authentication"
-          className="hidden dark:block"
-        />
-      </div>
+    <Wrapper className="flex min-h-screen items-center justify-center px-6 pb-24 pt-8">
       <div className="container relative hidden h-[800px] flex-col items-center justify-center md:grid lg:max-w-none lg:grid-cols-2 lg:px-0">
-        <Link
-          href="/admin"
-          className={cn(
-            buttonVariants({ variant: "ghost" }),
-            "absolute right-4 top-4 md:right-8 md:top-8",
-          )}
-        >
-          Login
-        </Link>
         <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
           <div className="absolute inset-0 bg-zinc-900" />
+          <video
+            src={`https://r2.jiachz.com/sign-in-page-video.mp4`}
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute inset-0 size-full object-cover"
+          />
           <div className="relative z-20 flex items-center text-lg font-medium">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="mr-2 size-6"
-            >
-              <path d="M15 6v12a3 3 0 1 0 3-3H6a3 3 0 1 0 3 3V6a3 3 0 1 0-3 3h12a3 3 0 1 0-3-3" />
-            </svg>
-            Acme Inc
+            Jiachz.com
           </div>
           <div className="relative z-20 mt-auto">
             <blockquote className="space-y-2">

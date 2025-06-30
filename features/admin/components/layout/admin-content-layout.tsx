@@ -132,7 +132,7 @@ export const AdminContentLayout = ({
                 设置
               </DropdownMenuItem>
               <DropdownMenuItem className="cursor-pointer">
-                帮助
+                <Link href="/profile">个人资料</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem

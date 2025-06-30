@@ -203,7 +203,7 @@ export const Navbar = () => {
                     <Link href={PATHS.ADMIN_HOME}>后台管理</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/coming-soon">个人资料</Link>
+                    <Link href="/profile">个人资料</Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem

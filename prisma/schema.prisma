@@ -53,6 +53,8 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+  createdAt     DateTime  @default(now())
+  lastLoginAt   DateTime?
 }
 
 model VerificationToken {

@@ -50,11 +50,12 @@ const uploadToR2 = async (
   file: File,
   compressedFile: Buffer,
   useWebp: boolean,
+  upload_dir: string,
 ) => {
   // 使用 WebP 格式时，手动设置扩展名为 .webp
   const fileExtension = useWebp ? ".webp" : path.extname(file.name);
 
-  const key = `${R2_UPLOAD_DIR}${new Date().toISOString().split("T")[0]}/${
+  const key = `${upload_dir}${new Date().toISOString().split("T")[0]}/${
     createCuid() + fileExtension
   }`;
 
@@ -117,7 +118,12 @@ export const uploadFile = async (
   if (!(isWebp || fileSize < 1024 * 1024)) {
     try {
       const compressedFile = await compressImage(file);
-      const uploadedUrl = await uploadToR2(file, compressedFile, true); // 使用 WebP 格式
+      const uploadedUrl = await uploadToR2(
+        file,
+        compressedFile,
+        true,
+        R2_UPLOAD_DIR ?? "uploads/",
+      ); // 使用 WebP 格式
       return { url: uploadedUrl };
     } catch (error) {
       return { error: "Upload failed" };
@@ -128,6 +134,56 @@ export const uploadFile = async (
         file,
         Buffer.from(await file.arrayBuffer()),
         false,
+        R2_UPLOAD_DIR ?? "uploads/",
+      );
+      return { url: uploadedUrl };
+    } catch (error) {
+      return { error: "Upload failed" };
+    }
+  }
+};
+
+export const uploadAvatar = async (
+  formData: FormData,
+): Promise<{ error?: string; url?: string }> => {
+  // 不做权限校验，注册时可用
+  const file = formData.get("file") as File;
+  if (!file) {
+    return { error: "No file found" };
+  }
+
+  const { isImage, isWebp } = await getImageInfo(file);
+  if (!isImage) {
+    return { error: "Uploaded file is not an image" };
+  }
+
+  const fileSize = file.size;
+  const sizeLimit = 1024 * 1024 * 1; // 1MB
+
+  if (fileSize > sizeLimit) {
+    return { error: "File size too large (max 1MB)" };
+  }
+
+  if (!(isWebp || fileSize < 1024 * 1024)) {
+    try {
+      const compressedFile = await compressImage(file);
+      const uploadedUrl = await uploadToR2(
+        file,
+        compressedFile,
+        true,
+        "avatars/",
+      ); // 使用 WebP 格式
+      return { url: uploadedUrl };
+    } catch (error) {
+      return { error: "Upload failed" };
+    }
+  } else {
+    try {
+      const uploadedUrl = await uploadToR2(
+        file,
+        Buffer.from(await file.arrayBuffer()),
+        false,
+        "avatars/",
       );
       return { url: uploadedUrl };
     } catch (error) {

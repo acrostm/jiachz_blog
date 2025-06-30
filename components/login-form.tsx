@@ -24,7 +24,11 @@ export function LoginForm({
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <form className={cn("flex flex-col gap-6", className)} {...props}>
+    <form
+      className={cn("flex flex-col gap-6", className)}
+      {...props}
+      onSubmit={handleSubmit}
+    >
       <div className="flex flex-col items-center gap-2 text-center">
         <h1 className="text-2xl font-bold">登录到你的账户</h1>
         <p className="text-balance text-sm text-muted-foreground">
@@ -34,7 +38,13 @@ export function LoginForm({
       <div className="grid gap-6">
         <div className="grid gap-2">
           <Label htmlFor="email">邮箱</Label>
-          <Input id="email" type="email" placeholder="m@example.com" />
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="m@example.com"
+            required
+          />
         </div>
         <div className="grid gap-2">
           <div className="flex items-center">
@@ -46,7 +56,7 @@ export function LoginForm({
               Forgot your password?
             </a> */}
           </div>
-          <Input id="password" type="password" />
+          <Input id="password" name="password" type="password" required />
         </div>
         <Button type="submit" className="w-full" disabled={loading}>
           登录
@@ -124,5 +134,31 @@ export function LoginForm({
 
   function handleGoHome() {
     router.push(PATHS.SITE_HOME);
+  }
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    try {
+      const res = await signIn("credentials", {
+        redirect: false,
+        email,
+        password,
+        callbackUrl: PATHS.ADMIN_HOME,
+      });
+      if (res?.error) {
+        setError(res.error);
+      } else if (res?.ok) {
+        router.push(PATHS.ADMIN_HOME);
+      }
+    } catch (e) {
+      setError("用户名密码登录失败，请重试");
+    } finally {
+      setLoading(false);
+    }
   }
 }

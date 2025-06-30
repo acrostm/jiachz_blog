@@ -4,3 +4,5 @@ export * from "./components/sign-out-dialog";
 export * from "./pages/sign-in-page";
 
 export * from "./types";
+
+export * from "./utils/get-user-linked-accounts";

@@ -11,8 +11,6 @@ import { NODE_ENV } from "@/config";
 import { PATHS } from "@/constants";
 import { prisma } from "@/lib/prisma";
 
-// import { prisma } from "./prisma";
-
 export const { handlers, auth, signOut, signIn } = NextAuth({
   adapter: PrismaAdapter(prisma),
   // 解决这个错误：Error: PrismaClient is not configured to run in Vercel Edge Functions or Edge Middleware.

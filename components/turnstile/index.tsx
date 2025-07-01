@@ -1,18 +1,25 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import { Turnstile } from '@marsidev/react-turnstile';
-import { NEXT_PUBLIC_TURNSTILE_SITE_KEY } from '@/config/env';
+import React from "react";
+
+import { Turnstile } from "@marsidev/react-turnstile";
+
+import { NEXT_PUBLIC_TURNSTILE_SITE_KEY } from "@/config/env";
 
 interface TurnstileWidgetProps {
   onVerify: (token: string) => void;
   onError?: () => void;
   onExpire?: () => void;
+  theme?: "light" | "dark";
 }
 
-const TurnstileWidget: React.FC<TurnstileWidgetProps> = ({ onVerify, onError, onExpire }) => {
+const TurnstileWidget: React.FC<TurnstileWidgetProps> = ({
+  onVerify,
+  onError,
+  onExpire,
+  theme,
+}) => {
   if (!NEXT_PUBLIC_TURNSTILE_SITE_KEY) {
-    console.error('Turnstile site key is not configured.');
     return <p>Turnstile无法加载：站点密钥未配置。</p>;
   }
 
@@ -23,10 +30,9 @@ const TurnstileWidget: React.FC<TurnstileWidgetProps> = ({ onVerify, onError, on
       onError={onError}
       onExpire={onExpire}
       options={{
-        theme: 'auto', // 或者 'dark', 'auto'
-        size: 'compact', // 或者 'compact'
-        retry: 'auto', // 或者 'never'
-        // 您可以在此处添加更多Turnstile选项
+        theme: theme || "auto",
+        size: "compact",
+        retry: "auto",
       }}
     />
   );

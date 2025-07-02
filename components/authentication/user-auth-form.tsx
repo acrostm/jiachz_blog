@@ -6,6 +6,9 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
+import { AlertCircleIcon } from "lucide-react";
+
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,12 +16,13 @@ import { Label } from "@/components/ui/label";
 import { IconLogoSpinner } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
+import { showErrorToast } from "@/components/ui/toast";
 
 type UserAuthFormProps = React.HTMLAttributes<HTMLDivElement>;
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const router = useRouter();
   const [avatar, setAvatar] = useState<File | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string>("");
@@ -85,6 +89,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           errorMsg = data.message;
         }
         setError(errorMsg);
+        showErrorToast(errorMsg);
         setIsLoading(false);
         return;
       }
@@ -97,6 +102,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       router.push("/admin");
     } catch (e) {
       setError("注册失败，请重试");
+      showErrorToast("注册失败，请重试");
     } finally {
       setIsLoading(false);
     }
@@ -114,9 +120,9 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               type="file"
               accept="image/*"
               disabled={isLoading}
-              onChange={e => {
+              onChange={(e) => {
                 setAvatarError(null);
-                if (e.target.files && e.target.files[0]) {
+                if (e.target.files?.[0]) {
                   setAvatar(e.target.files[0]);
                 } else {
                   setAvatar(null);
@@ -124,10 +130,27 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
               }}
             />
             {avatarError && (
-              <div className="text-sm text-red-500">{avatarError}</div>
+              <Alert variant="destructive">
+                <AlertCircleIcon />
+                <AlertTitle>头像上传失败！</AlertTitle>
+                <AlertDescription>
+                  <p>{avatarError}</p>
+                </AlertDescription>
+              </Alert>
+            )}
+            {!avatarUrl && (
+              <img
+                src={`https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y`}
+                alt="头像预览"
+                className="mt-2 size-16 rounded-full object-cover"
+              />
             )}
             {avatarUrl && (
-              <img src={avatarUrl} alt="头像预览" className="mt-2 h-16 w-16 rounded-full object-cover" />
+              <img
+                src={avatarUrl}
+                alt="头像预览"
+                className="mt-2 size-16 rounded-full object-cover"
+              />
             )}
           </div>
           <div className="grid gap-1">
@@ -187,9 +210,6 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
             )}
             注册
           </Button>
-          {error && (
-            <div className="mt-2 text-center text-sm text-red-500">{error}</div>
-          )}
         </div>
       </form>
     </div>

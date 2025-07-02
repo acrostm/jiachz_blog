@@ -24,7 +24,7 @@ export default function AuthenticationPage() {
             className="absolute inset-0 size-full object-cover"
           />
           <div className="relative z-20 flex items-center text-lg font-medium">
-            Jiachz.com
+            <Link href="/">Jiachz.com</Link>
           </div>
           <div className="relative z-20 mt-auto">
             <blockquote className="space-y-2">

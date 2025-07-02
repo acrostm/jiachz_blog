@@ -125,6 +125,9 @@ export const AdminContentLayout = ({
                 {session?.data?.user?.name ?? PLACEHOLDER_TEXT}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem className="cursor-pointer">
+                <Link href="/">首页</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem
                 className="cursor-pointer"
                 onClick={() => setSettingsModalOpen(true)}

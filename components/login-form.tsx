@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import * as React from "react";
 
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
@@ -8,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { showErrorToast } from "@/components/ui/toast";
 
 import { PATHS } from "@/constants";
 import { cn } from "@/lib/utils";
@@ -21,7 +23,7 @@ export function LoginForm({
 }: React.ComponentPropsWithoutRef<"form">) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
 
   return (
     <form
@@ -62,7 +64,7 @@ export function LoginForm({
           登录
         </Button>
         <Button
-          variant="default"
+          variant="outline"
           className="!w-full"
           type="button"
           onClick={handleGoHome}
@@ -91,9 +93,6 @@ export function LoginForm({
         >
           <IconLogoGoogle className="mr-2 text-base" /> 使用 Google 登录
         </Button>
-        {error && (
-          <div className="mt-2 text-center text-sm text-red-500">{error}</div>
-        )}
       </div>
       <div className="text-center text-sm">
         还没有账户？{" "}
@@ -111,9 +110,13 @@ export function LoginForm({
       const res = await signIn("github", { callbackUrl: "/" });
       // next-auth/react的signIn返回undefined，跳转由next-auth处理
       // 但如果有报错，可以捕获
-      if (res?.error) setError(res.error);
+      if (res?.error) {
+        setError(res.error);
+        showErrorToast(res.error);
+      }
     } catch (e) {
       setError("Github 登录失败，请重试");
+      showErrorToast("Github 登录失败，请重试");
     } finally {
       setLoading(false);
     }
@@ -124,9 +127,13 @@ export function LoginForm({
     setError(null);
     try {
       const res = await signIn("google", { callbackUrl: "/" });
-      if (res?.error) setError(res.error);
+      if (res?.error) {
+        setError(res.error);
+        showErrorToast(res.error);
+      }
     } catch (e) {
       setError("Google 登录失败，请重试");
+      showErrorToast("Google 登录失败，请重试");
     } finally {
       setLoading(false);
     }
@@ -152,11 +159,13 @@ export function LoginForm({
       });
       if (res?.error) {
         setError(res.error);
+        showErrorToast(res.error);
       } else if (res?.ok) {
         router.push(PATHS.ADMIN_HOME);
       }
     } catch (e) {
       setError("用户名密码登录失败，请重试");
+      showErrorToast("用户名密码登录失败，请重试");
     } finally {
       setLoading(false);
     }

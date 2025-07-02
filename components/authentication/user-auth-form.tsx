@@ -12,11 +12,11 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { showErrorToast } from "@/components/ui/toast";
 
 import { IconLogoSpinner } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
-import { showErrorToast } from "@/components/ui/toast";
 
 type UserAuthFormProps = React.HTMLAttributes<HTMLDivElement>;
 

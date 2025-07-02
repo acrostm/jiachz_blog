@@ -128,14 +128,16 @@ export const AdminContentLayout = ({
               <DropdownMenuItem className="cursor-pointer">
                 <Link href="/">首页</Link>
               </DropdownMenuItem>
-              <DropdownMenuItem
-                className="cursor-pointer"
-                onClick={() => setSettingsModalOpen(true)}
-              >
-                设置
-              </DropdownMenuItem>
+              {isAdmin(session?.data?.user?.email) && (
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => setSettingsModalOpen(true)}
+                >
+                  设置
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem className="cursor-pointer">
-                <Link href="/profile">个人资料</Link>
+                <Link href="/admin/profile">个人资料</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
@@ -158,13 +160,7 @@ export const AdminContentLayout = ({
       <BackToTop scrollRef={scrollRef} />
 
       <SignOutDialog open={signOutDialogOpen} setOpen={setSignOutDialogOpen} />
-
-      {isAdmin(session?.data?.user?.email) && (
-        <SettingsModal
-          open={settingsModalOpen}
-          setOpen={setSettingsModalOpen}
-        />
-      )}
+      <SettingsModal open={settingsModalOpen} setOpen={setSettingsModalOpen} />
     </div>
   );
 };

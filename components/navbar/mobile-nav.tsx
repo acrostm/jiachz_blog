@@ -248,7 +248,7 @@ export const MobileNav = () => {
                       <Link href={PATHS.ADMIN_HOME}>后台管理</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/profile">个人资料</Link>
+                      <Link href="/admin/profile">个人资料</Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem

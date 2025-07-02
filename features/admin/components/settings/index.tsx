@@ -6,6 +6,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 type Props = {
   open: boolean;
@@ -20,7 +21,14 @@ export const SettingsModal = ({ open, setOpen }: Props) => {
           <DialogTitle>设置</DialogTitle>
         </DialogHeader>
 
-        <div className="flex space-x-4"></div>
+        <div className="flex space-x-4">
+          <a href="/coming-soon">
+            <Button variant="default">用户管理</Button>
+          </a>
+          <a href="/coming-soon">
+            <Button variant="secondary">修改密码</Button>
+          </a>
+        </div>
       </DialogContent>
     </Dialog>
   );

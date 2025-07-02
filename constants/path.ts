@@ -8,7 +8,7 @@ export const PATHS = {
   SITE_COMING: "/coming-soon",
   SITE_ABOUT: "/about",
   SITE_CHAT: "/chat",
-  SITE_PROFILE: "/profile",
+  SITE_PROFILE: "/admin/profile",
   SITEMAP: "/sitemap.xml",
 
   /** ************* ADMIN ****************** */

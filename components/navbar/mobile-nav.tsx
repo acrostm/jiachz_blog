@@ -204,6 +204,23 @@ export const MobileNav = () => {
               )}
             </div>
           ))}
+          {/* 留言板入口 */}
+          <Link
+            href="/messages"
+            className={cn(
+              buttonVariants({
+                variant: pathname === "/messages" ? "default" : "ghost",
+              }),
+              "text-md px-4 py-2 flex gap-2 items-center !justify-start w-full",
+            )}
+            onClick={() => {
+              setOpen(false);
+              setSubMenuOpen(false);
+            }}
+          >
+            <span className="text-lg">💬</span>
+            <span>留言板</span>
+          </Link>
           {/* 后台管理/用户菜单 */}
           <div className="mt-4 border-t pt-4">
             <DropdownMenu>

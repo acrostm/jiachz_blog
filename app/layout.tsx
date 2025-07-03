@@ -1,6 +1,7 @@
 import React from "react";
 
 import { type Metadata } from "next";
+import { Inter } from "next/font/google";
 
 import { GoogleAnalytics } from "@next/third-parties/google";
 
@@ -8,6 +9,7 @@ import { NODE_ENV } from "@/config";
 
 import { ThemeProvider } from "@/providers";
 
+import { ClickSpark } from "@/components/ui/click-spark";
 import { ReactHotToaster } from "@/components/ui/toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -19,6 +21,11 @@ import { ImageAssets, NICKNAME, SLOGAN, WEBSITE } from "@/constants";
 import "@/styles/custom-code-block.css";
 import "@/styles/global.css";
 
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: {
     template: `%s - ${WEBSITE}`,
@@ -28,9 +35,13 @@ export const metadata: Metadata = {
   keywords: NICKNAME,
 };
 
-export default function RootLayout({ children }: React.PropsWithChildren) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html suppressHydrationWarning lang="zh-CN">
+    <html lang="zh-CN" suppressHydrationWarning>
       <head>
         <link rel="icon" type="image/svg+xml" href={ImageAssets.logoDark} />
         {/*TODO*/}
@@ -46,24 +57,32 @@ export default function RootLayout({ children }: React.PropsWithChildren) {
         ></script>
       </head>
       {/* eslint-disable-next-line tailwindcss/no-custom-classname */}
-      <body className="debug-screens overflow-x-clip scroll-smooth">
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
+      <body className={inter.className} suppressHydrationWarning={true}>
+        <ClickSpark
+          sparkColor="#fff"
+          sparkSize={10}
+          sparkRadius={15}
+          sparkCount={8}
+          duration={400}
         >
-          <TooltipProvider>
-            {children}
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <TooltipProvider>
+              {children}
 
-            <Favicon />
-            <ReactHotToaster />
+              <Favicon />
+              <ReactHotToaster />
 
-            <Console />
+              <Console />
 
-            <Fingerprint />
-          </TooltipProvider>
-        </ThemeProvider>
+              <Fingerprint />
+            </TooltipProvider>
+          </ThemeProvider>
+        </ClickSpark>
       </body>
 
       {/*TODO*/}

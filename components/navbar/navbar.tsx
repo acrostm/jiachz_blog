@@ -119,8 +119,8 @@ export const Navbar = () => {
                           >
                             流量监控
                           </LabItem>
-                          <LabItem href="/chat" title="聊天室">
-                            简易聊天室
+                          <LabItem href="/messages" title="留言板">
+                            来留言！
                           </LabItem>
                           <LabItem href={el.link} title="Project 3">
                             Description of Project 3 in the lab.

@@ -7,7 +7,7 @@ export const PATHS = {
   SITE_SNIPPET: "/snippet",
   SITE_COMING: "/coming-soon",
   SITE_ABOUT: "/about",
-  SITE_CHAT: "/chat",
+  SITE_MESSAGES: "/messages",
   SITE_PROFILE: "/admin/profile",
   SITEMAP: "/sitemap.xml",
 
@@ -67,7 +67,7 @@ export const PATH_DESCRIPTION_MAP: Record<string, string> = {
   [PATHS.SITE_COMING]: "实验室，这里会有一些实验性的东西",
   [PATHS.AUTH_SIGN_UP]: "注册一个账号，加入我们",
   [PATHS.SITE_ABOUT]: `你有一份关于${NICKNAME}的简介`,
-  [PATHS.SITE_CHAT]: "与我聊天，分享你的想法",
+  [PATHS.SITE_MESSAGES]: "请留言，分享你的想法",
 
   /** ************* ADMIN ****************** */
   [PATHS.ADMIN_HOME]: "欢迎回来",

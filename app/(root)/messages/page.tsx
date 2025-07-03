@@ -49,6 +49,8 @@ const EmojiPicker = ({ onSelect }: { onSelect: (emoji: string) => void }) => (
       "💡",
       "🔥",
       "💯",
+      "👀",
+      "👋",
     ].map((e) => (
       <button key={e} className="text-2xl" onClick={() => onSelect(e)}>
         {e}
@@ -215,10 +217,6 @@ export default function MessagesPage() {
               <pre className="whitespace-pre-wrap break-words px-1 font-sans text-[1.08rem] leading-relaxed tracking-wide text-foreground">
                 {msg.content}
               </pre>
-              {/* <div className="mt-2 flex gap-2 text-xs text-muted-foreground">
-                <span>终端: {msg.userAgent}</span>
-                <span>IP: {msg.ip}</span>
-              </div> */}
             </Card>
           );
         })}

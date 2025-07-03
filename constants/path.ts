@@ -25,6 +25,7 @@ export const PATHS = {
 
   ADMIN_TAG: "/admin/tag",
   ADMIN_NOTE: "/admin/note",
+  ADMIN_USER: "/admin/user",
 
   /** ************* AUTH ****************** */
   AUTH_SIGN_IN: "/auth/sign_in",
@@ -38,6 +39,7 @@ export const PATHS_MAP: Record<string, string> = {
   [PATHS.SITE_BLOG]: "博客",
   [PATHS.SITE_SNIPPET]: "片段",
   [PATHS.SITE_COMING]: "实验室",
+  [PATHS.SITE_MESSAGES]: "留言",
   [PATHS.SITE_PROFILE]: "个人资料",
   [PATHS.SITE_ABOUT]: "关于",
   [PATHS.SITEMAP]: "站点地图",
@@ -53,6 +55,7 @@ export const PATHS_MAP: Record<string, string> = {
   [PATHS.ADMIN_SNIPPET_EDIT]: "编辑片段",
   [PATHS.ADMIN_TAG]: "标签",
   [PATHS.ADMIN_NOTE]: "笔记",
+  [PATHS.ADMIN_USER]: "用户管理",
 
   /** ************* AUTH ****************** */
   [PATHS.AUTH_SIGN_IN]: "登录",
@@ -80,6 +83,7 @@ export const PATH_DESCRIPTION_MAP: Record<string, string> = {
   [PATHS.ADMIN_SNIPPET_EDIT]: "修修补补，总比没有好",
   [PATHS.ADMIN_TAG]: `标签管理，在这里对标签进行操作`,
   [PATHS.ADMIN_NOTE]: "好记性不如烂笔头",
+  [PATHS.ADMIN_USER]: "管理所有用户",
 
   /** ************* AUTH ****************** */
   [PATHS.AUTH_SIGN_IN]: "登录",

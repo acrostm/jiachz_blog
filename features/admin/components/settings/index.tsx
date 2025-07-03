@@ -22,7 +22,7 @@ export const SettingsModal = ({ open, setOpen }: Props) => {
         </DialogHeader>
 
         <div className="flex space-x-4">
-          <a href="/coming-soon">
+          <a href="/admin/user">
             <Button variant="default">用户管理</Button>
           </a>
           <a href="/coming-soon">

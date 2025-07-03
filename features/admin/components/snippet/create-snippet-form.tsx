@@ -76,99 +76,137 @@ export const CreateSnippetForm = () => {
         </div>
 
         <div className="grid gap-4 px-1 pb-24">
-          <FormField
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>标题</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="请输入标题" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="slug"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>slug</FormLabel>
-                <FormControl>
-                  <div className="flex w-full items-center gap-4">
-                    <Input {...field} placeholder="请输入slug" />
-                    <Button type="button" onClick={handleFormatSlug}>
-                      格式化
-                    </Button>
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>描述</FormLabel>
-                <FormControl>
-                  <Textarea {...field} placeholder="请输入描述" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="published"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>是否发布</FormLabel>
-                <FormControl>
-                  <div>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="tags"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>标签</FormLabel>
-                <FormControl>
-                  <div className="grid grid-cols-12 items-center gap-4">
-                    <div className="col-span-10">
-                      <Combobox
-                        options={
-                          tags?.map((el) => ({
-                            label: el.name,
-                            value: el.id,
-                          })) ?? []
-                        }
-                        multiple
-                        clearable
-                        selectPlaceholder="请选择标签"
-                        value={field.value}
-                        onValueChange={field.onChange}
+          {/* 第一行：标题、slug、标签、是否发布，右侧留空 */}
+          <div className="flex flex-col gap-6 md:flex-row">
+            <div className="w-full md:w-80">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>标题</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder="请输入标题"
+                        className="w-full"
+                        value={field.value ?? ""}
                       />
-                    </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="flex w-full items-end gap-2 md:w-96">
+              <FormField
+                control={form.control}
+                name="slug"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>slug</FormLabel>
+                    <FormControl>
+                      <div className="flex w-full items-center gap-2">
+                        <Input
+                          {...field}
+                          placeholder="slug"
+                          className="w-full"
+                          value={field.value ?? ""}
+                        />
+                        <Button
+                          type="button"
+                          onClick={handleFormatSlug}
+                          size="sm"
+                          className="shrink-0"
+                        >
+                          格式化
+                        </Button>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="flex w-full items-end gap-2 md:w-96">
+              <FormField
+                control={form.control}
+                name="tags"
+                render={({ field }) => (
+                  <FormItem className="w-full">
+                    <FormLabel>标签</FormLabel>
+                    <FormControl>
+                      <div className="flex w-full items-center gap-2">
+                        <Combobox
+                          options={
+                            tags?.map((el) => ({
+                              label: el.name,
+                              value: el.id,
+                            })) ?? []
+                          }
+                          multiple
+                          clearable
+                          selectPlaceholder="标签"
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        />
+                        <CreateTagButton
+                          refreshAsync={getTagsQuery.refreshAsync}
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="flex w-full items-end md:w-32">
+              <FormField
+                control={form.control}
+                name="published"
+                render={({ field }) => (
+                  <FormItem className="flex items-center h-full">
+                    <FormLabel className="mb-0 mr-2 flex items-center h-full">是否发布</FormLabel>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        className="ml-2"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <div className="flex-1" />
+          </div>
 
-                    <CreateTagButton refreshAsync={getTagsQuery.refreshAsync} />
-                  </div>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* 第二行：描述 */}
+          <div className="flex flex-col gap-6 md:flex-row">
+            <div className="flex-1">
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>描述</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        {...field}
+                        placeholder="请输入描述"
+                        value={field.value ?? ""}
+                        className="h-32"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </div>
+
+          {/* 内容编辑器 */}
           <FormField
             control={form.control}
             name="body"

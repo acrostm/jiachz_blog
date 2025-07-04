@@ -2,7 +2,7 @@
 
 import { hashSync } from "bcryptjs";
 
-import { ADMIN_EMAILS } from "@/constants";
+import { ADMIN_EMAILS, ERROR_NO_PERMISSION } from "@/constants";
 import { type SignupDTO, signupSchema } from "@/features/auth";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -46,4 +46,15 @@ export const noPermission = async () => {
     // 如果当前用户邮箱存在admin邮箱中，返回false，说明有权限
     return !ADMIN_EMAILS.includes(session.user.email);
   }
+};
+
+export const deleteUserByID = async (id: string) => {
+  if (await noPermission()) {
+    throw ERROR_NO_PERMISSION;
+  }
+  const user = await prisma.user.findUnique({ where: { id } });
+  if (!user) {
+    throw new Error("用户不存在");
+  }
+  await prisma.user.delete({ where: { id } });
 };

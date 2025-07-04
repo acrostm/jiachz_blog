@@ -3,9 +3,19 @@
 import React, { useEffect, useState } from "react";
 
 import { type Row } from "@tanstack/react-table";
+import { Trash } from "lucide-react";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 
@@ -13,6 +23,7 @@ import { PageBreadcrumb } from "@/components/page-header";
 
 import { PATHS } from "@/constants";
 import { AdminContentLayout } from "@/features/admin/components/layout/admin-content-layout";
+import { useDeleteUser } from "@/features/user";
 import { formatRelativeTime } from "@/lib/utils";
 
 interface Account {
@@ -38,21 +49,24 @@ interface UsersApiResponse {
 export default function AdminUserPage() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const deleteUserQuery = useDeleteUser();
+  const [dialogOpenId, setDialogOpenId] = useState<string | null>(null);
+
+  async function refreshUsers() {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/users");
+      const data = (await res.json()) as UsersApiResponse;
+      setUsers(data.users || []);
+    } catch (err) {
+      setUsers([]);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   useEffect(() => {
-    async function loadUsers() {
-      try {
-        const res = await fetch("/api/users");
-        const data = (await res.json()) as UsersApiResponse;
-        setUsers(data.users || []);
-      } catch (err) {
-        setUsers([]);
-        // 可选：console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    void loadUsers();
+    void refreshUsers();
   }, []);
 
   function formatLocalTime(dateStr?: string) {
@@ -116,6 +130,55 @@ export default function AdminUserPage() {
       header: "最后登录",
       cell: ({ row }: { row: Row<User> }) =>
         formatRelativeTimeLocal(row.original.lastLoginAt),
+    },
+    {
+      id: "actions",
+      header: "操作",
+      cell: ({ row }: { row: Row<User> }) => (
+        <>
+          <Button
+            size="icon"
+            variant="outline"
+            onClick={() => setDialogOpenId(row.original.id)}
+            disabled={deleteUserQuery.loading}
+            title="删除用户"
+          >
+            <Trash className="size-4 text-destructive" />
+          </Button>
+          <AlertDialog
+            open={dialogOpenId === row.original.id}
+            onOpenChange={(open) =>
+              setDialogOpenId(open ? row.original.id : null)
+            }
+          >
+            <AlertDialogContent className="max-w-sm p-8 text-center">
+              <div className="mb-2 flex flex-col items-center gap-2">
+                <span className="text-4xl">⚠️</span>
+                <AlertDialogTitle className="mb-1 mt-2 text-xl font-bold">
+                  确定要删除该用户吗？
+                </AlertDialogTitle>
+                <AlertDialogDescription className="mb-2 text-base text-muted-foreground">
+                  删除后不可恢复，请谨慎操作！
+                </AlertDialogDescription>
+              </div>
+              <div className="mt-6 flex justify-center gap-4">
+                <AlertDialogCancel className="w-28">取消</AlertDialogCancel>
+                <AlertDialogAction
+                  className="w-28"
+                  onClick={async () => {
+                    await deleteUserQuery.runAsync(row.original.id);
+                    setDialogOpenId(null);
+                    void refreshUsers();
+                  }}
+                  disabled={deleteUserQuery.loading}
+                >
+                  确定
+                </AlertDialogAction>
+              </div>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
+      ),
     },
   ];
 

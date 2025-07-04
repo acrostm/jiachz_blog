@@ -110,3 +110,24 @@ export const isBrowser = () => {
     window.document.createElement
   );
 };
+
+/**
+ * 返回类似“刚刚”、“5分钟前”、“2天前”的相对时间字符串
+ */
+export function formatRelativeTime(dateStr?: string | Date | number): string {
+  if (!dateStr) return "-";
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return "-";
+  const now = new Date();
+  const diff = now.getTime() - date.getTime();
+  if (diff < 60 * 1000) return "刚刚";
+  if (diff < 60 * 60 * 1000) return `${Math.floor(diff / 60000)}分钟前`;
+  if (diff < 24 * 60 * 60 * 1000) return `${Math.floor(diff / 3600000)}小时前`;
+  if (diff < 30 * 24 * 60 * 60 * 1000)
+    return `${Math.floor(diff / (24 * 3600000))}天前`;
+  if (diff < 30 * 24 * 60 * 60 * 1000 * 7)
+    return `${Math.floor(diff / (24 * 3600000 * 7))}周前`;
+  if (diff < 365 * 24 * 60 * 60 * 1000)
+    return `${Math.floor(diff / (24 * 3600000 * 30))}月前`;
+  return dayjs(date).locale("zh-cn").format("YYYY年M月D日 HH:mm:ss");
+}

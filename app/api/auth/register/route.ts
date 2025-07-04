@@ -1,5 +1,3 @@
-"use client";
-
 import { type NextRequest, NextResponse } from "next/server";
 
 import bcrypt from "bcryptjs";
@@ -52,6 +50,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ message: "注册成功" });
   } catch (e) {
-    return NextResponse.json({ message: "注册失败", e }, { status: 500 });
+    return NextResponse.json({ message: "注册失败" }, { status: 500 });
   }
 }

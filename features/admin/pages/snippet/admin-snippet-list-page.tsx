@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { TagTypeEnum } from "@prisma/client";
-import { type ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef, type Row } from "@tanstack/react-table";
 import { useSetState } from "ahooks";
 import { isUndefined } from "lodash-es";
 import {
@@ -123,7 +123,7 @@ export const AdminSnippetListPage = () => {
           <span>标题</span>
         </div>
       ),
-      cell: ({ row }) => {
+      cell: ({ row }: { row: Row<Snippet> }) => {
         return (
           <Highlight
             sourceString={row.original.title}
@@ -140,7 +140,7 @@ export const AdminSnippetListPage = () => {
           <span>标签</span>
         </div>
       ),
-      cell: ({ row }) => {
+      cell: ({ row }: { row: Row<Snippet> }) => {
         return (
           <div className="flex flex-wrap gap-2">
             {row.original.tags?.length
@@ -160,7 +160,7 @@ export const AdminSnippetListPage = () => {
           <span>发布状态</span>
         </div>
       ),
-      cell: ({ row }) => {
+      cell: ({ row }: { row: Row<Snippet> }) => {
         return (
           <ToggleSnippetPublishSwitch
             id={row.original.id}
@@ -189,7 +189,7 @@ export const AdminSnippetListPage = () => {
           )}
         </Button>
       ),
-      cell({ row }) {
+      cell({ row }: { row: Row<Snippet> }) {
         return toSlashDateString(row.original.createdAt);
       },
     },
@@ -212,13 +212,13 @@ export const AdminSnippetListPage = () => {
           )}
         </Button>
       ),
-      cell({ row }) {
+      cell({ row }: { row: Row<Snippet> }) {
         return toSlashDateString(row.original.updatedAt);
       },
     },
     {
       id: "actions",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: Row<Snippet> }) => {
         return (
           <div className="flex items-center gap-2">
             <Link

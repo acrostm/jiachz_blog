@@ -18,7 +18,15 @@ import { IconLogoSpinner } from "@/components/icons";
 
 import { cn } from "@/lib/utils";
 
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+
 type UserAuthFormProps = React.HTMLAttributes<HTMLDivElement>;
+
+interface RegisterResponse {
+  message?: string;
+  url?: string;
+  error?: string;
+}
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -61,7 +69,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         method: "POST",
         body: avatarForm,
       });
-      const data = await res.json();
+      const data = (await res.json()) as RegisterResponse;
       if (!res.ok || !data.url) {
         setAvatarError(data.error || "头像上传失败");
         setIsLoading(false);
@@ -77,7 +85,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, name, password, image }),
       });
-      const data = await res.json();
+      const data = (await res.json()) as RegisterResponse;
       let errorMsg = "注册失败";
       if (!res.ok) {
         if (
@@ -138,20 +146,10 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
                 </AlertDescription>
               </Alert>
             )}
-            {!avatarUrl && (
-              <img
-                src={`https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y`}
-                alt="头像预览"
-                className="mt-2 size-16 rounded-full object-cover"
-              />
-            )}
-            {avatarUrl && (
-              <img
-                src={avatarUrl}
-                alt="头像预览"
-                className="mt-2 size-16 rounded-full object-cover"
-              />
-            )}
+            <Avatar>
+              <AvatarImage src={avatarUrl} alt="@shadcn" />
+              <AvatarFallback>CN</AvatarFallback>
+            </Avatar>
           </div>
           <div className="grid gap-1">
             <Label htmlFor="email">邮箱</Label>

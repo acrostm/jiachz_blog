@@ -10,6 +10,7 @@ import { AdminContentLayout } from "@/features/admin/components/layout";
 import { getUserLinkedAccounts } from "@/features/auth";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { formatRelativeTime } from "@/lib/utils";
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -61,7 +62,7 @@ export default async function ProfilePage() {
             </div>
             <div className="text-foreground">
               {userDb?.lastLoginAt
-                ? new Date(userDb.lastLoginAt).toLocaleString()
+                ? formatRelativeTime(userDb.lastLoginAt)
                 : "-"}
             </div>
           </div>

@@ -7,7 +7,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import { TagTypeEnum } from "@prisma/client";
-import { type ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef, type Row } from "@tanstack/react-table";
 import { useSetState } from "ahooks";
 import { isUndefined } from "lodash-es";
 import {
@@ -120,7 +120,7 @@ export const AdminBlogListPage = () => {
           <span>标题</span>
         </div>
       ),
-      cell: ({ row }) => {
+      cell: ({ row }: { row: Row<Blog> }) => {
         return (
           <Highlight
             sourceString={row.original.title}
@@ -137,7 +137,7 @@ export const AdminBlogListPage = () => {
           <span>作者</span>
         </div>
       ),
-      cell: ({ row }) => {
+      cell: ({ row }: { row: Row<Blog> }) => {
         return row?.original?.author?.length ? row?.original?.author : NICKNAME;
       },
     },
@@ -149,7 +149,7 @@ export const AdminBlogListPage = () => {
           <span>标签</span>
         </div>
       ),
-      cell: ({ row }) => {
+      cell: ({ row }: { row: Row<Blog> }) => {
         return (
           <div className="flex flex-wrap gap-2">
             {row.original.tags?.length
@@ -169,7 +169,7 @@ export const AdminBlogListPage = () => {
           <span>发布状态</span>
         </div>
       ),
-      cell: ({ row }) => {
+      cell: ({ row }: { row: Row<Blog> }) => {
         return (
           <ToggleBlogPublishSwitch
             id={row.original.id}
@@ -198,7 +198,7 @@ export const AdminBlogListPage = () => {
           )}
         </Button>
       ),
-      cell({ row }) {
+      cell({ row }: { row: Row<Blog> }) {
         return toSlashDateString(row.original.createdAt);
       },
     },
@@ -221,13 +221,13 @@ export const AdminBlogListPage = () => {
           )}
         </Button>
       ),
-      cell({ row }) {
+      cell({ row }: { row: Row<Blog> }) {
         return toSlashDateString(row.original.updatedAt);
       },
     },
     {
       id: "actions",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: Row<Blog> }) => {
         return (
           <div className="flex items-center gap-2">
             <Link

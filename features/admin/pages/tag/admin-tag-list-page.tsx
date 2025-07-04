@@ -3,7 +3,7 @@
 import React from "react";
 
 import { TagTypeEnum } from "@prisma/client";
-import { type ColumnDef } from "@tanstack/react-table";
+import { type ColumnDef, type Row } from "@tanstack/react-table";
 import { useSetState } from "ahooks";
 import { isUndefined } from "lodash-es";
 import {
@@ -106,7 +106,7 @@ export const AdminTagListPage = () => {
           <span>名称</span>
         </div>
       ),
-      cell: ({ row }) => {
+      cell: ({ row }: { row: Row<Tag> }) => {
         return (
           <Highlight
             sourceString={row.original.name}
@@ -123,7 +123,7 @@ export const AdminTagListPage = () => {
           <span>类型</span>
         </div>
       ),
-      cell({ row }) {
+      cell({ row }: { row: Row<Tag> }) {
         const originalType = row.original.type;
         const typeLabel = TAG_TYPE_MAP[originalType];
         if (!typeLabel) {
@@ -153,7 +153,7 @@ export const AdminTagListPage = () => {
           <span>浅色图标</span>
         </div>
       ),
-      cell: ({ row }) => {
+      cell: ({ row }: { row: Row<Tag> }) => {
         return row.original.icon ? (
           <img src={row.original.icon} className="size-6" alt="" />
         ) : (
@@ -169,7 +169,7 @@ export const AdminTagListPage = () => {
           <span>深色图标</span>
         </div>
       ),
-      cell: ({ row }) => {
+      cell: ({ row }: { row: Row<Tag> }) => {
         return row.original.iconDark ? (
           <img src={row.original.iconDark} className="size-6" alt="" />
         ) : (
@@ -185,7 +185,7 @@ export const AdminTagListPage = () => {
           <span>博客</span>
         </div>
       ),
-      cell({ row }) {
+      cell({ row }: { row: Row<Tag> }) {
         return row.original._count.blogs || PLACEHOLDER_TEXT;
       },
     },
@@ -197,7 +197,7 @@ export const AdminTagListPage = () => {
           <span>片段</span>
         </div>
       ),
-      cell({ row }) {
+      cell({ row }: { row: Row<Tag> }) {
         return row.original._count.snippets || PLACEHOLDER_TEXT;
       },
     },
@@ -209,7 +209,7 @@ export const AdminTagListPage = () => {
           <span>笔记</span>
         </div>
       ),
-      cell({ row }) {
+      cell({ row }: { row: Row<Tag> }) {
         return row.original._count.snippets || PLACEHOLDER_TEXT;
       },
     },
@@ -232,7 +232,7 @@ export const AdminTagListPage = () => {
           )}
         </Button>
       ),
-      cell({ row }) {
+      cell({ row }: { row: Row<Tag> }) {
         return toSlashDateString(row.original.createdAt);
       },
     },
@@ -255,13 +255,13 @@ export const AdminTagListPage = () => {
           )}
         </Button>
       ),
-      cell({ row }) {
+      cell({ row }: { row: Row<Tag> }) {
         return toSlashDateString(row.original.updatedAt);
       },
     },
     {
       id: "actions",
-      cell: ({ row }) => {
+      cell: ({ row }: { row: Row<Tag> }) => {
         const record = row.original;
         return (
           <div className="flex items-center gap-2">

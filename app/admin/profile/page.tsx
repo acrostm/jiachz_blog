@@ -12,16 +12,30 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatRelativeTime } from "@/lib/utils";
 
+type LinkedAccount = {
+  provider: string;
+  providerAccountId: string;
+};
+
+type UserDbData = {
+  createdAt?: Date;
+  lastLoginAt?: Date;
+};
+
 export default async function ProfilePage() {
   const session = await auth();
   const user = session?.user;
-  let userDb: { createdAt?: Date; lastLoginAt?: Date } | null = null;
+  let userDb: UserDbData | null = null;
   if (user?.id) {
-    userDb = ((await prisma.user.findUnique({
+    userDb = await prisma.user.findUnique({
       where: { id: user.id },
-    })) ?? null) as { createdAt?: Date; lastLoginAt?: Date } | null;
+      select: {
+        createdAt: true,
+        lastLoginAt: true,
+      },
+    });
   }
-  const accounts = await getUserLinkedAccounts(user?.id);
+  const accounts: LinkedAccount[] = await getUserLinkedAccounts(user?.id);
 
   return (
     <AdminContentLayout
@@ -67,26 +81,24 @@ export default async function ProfilePage() {
               已绑定账号
             </div>
             <div className="flex flex-wrap gap-2">
-              {accounts?.length > 0 ? (
-                accounts.map(
-                  (acc: { provider: string; providerAccountId: string }) => (
-                    <Badge
-                      key={acc.provider}
-                      className="flex items-center gap-1 px-2 py-1 text-sm"
-                    >
-                      {acc.provider === "github" && (
-                        <IconBrandGithub className="text-lg" />
-                      )}
-                      {acc.provider === "google" && (
-                        <IconLogoGoogle className="text-lg" />
-                      )}
-                      <span>
-                        {acc.provider.charAt(0).toUpperCase() +
-                          acc.provider.slice(1)}
-                      </span>
-                    </Badge>
-                  ),
-                )
+              {accounts.length > 0 ? (
+                accounts.map((acc) => (
+                  <Badge
+                    key={acc.provider}
+                    className="flex items-center gap-1 px-2 py-1 text-sm"
+                  >
+                    {acc.provider === "github" && (
+                      <IconBrandGithub className="text-lg" />
+                    )}
+                    {acc.provider === "google" && (
+                      <IconLogoGoogle className="text-lg" />
+                    )}
+                    <span>
+                      {acc.provider.charAt(0).toUpperCase() +
+                        acc.provider.slice(1)}
+                    </span>
+                  </Badge>
+                ))
               ) : (
                 <span className="text-foreground/60">无</span>
               )}

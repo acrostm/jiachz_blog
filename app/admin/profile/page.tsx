@@ -50,7 +50,7 @@ export default async function ProfilePage() {
             </div>
             <div className="text-foreground">
               {userDb?.createdAt
-                ? new Date(userDb.createdAt).toLocaleString()
+                ? new Date(userDb?.createdAt).toLocaleString()
                 : "-"}
             </div>
             <div className="mb-2 mt-4 text-sm font-medium text-foreground">
@@ -58,7 +58,7 @@ export default async function ProfilePage() {
             </div>
             <div className="text-foreground">
               {userDb?.lastLoginAt
-                ? formatRelativeTime(userDb.lastLoginAt)
+                ? formatRelativeTime(userDb?.lastLoginAt)
                 : "-"}
             </div>
           </div>

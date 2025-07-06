@@ -9,6 +9,7 @@ export const PATHS = {
   SITE_ABOUT: "/about",
   SITE_MESSAGES: "/messages",
   SITE_PROFILE: "/admin/profile",
+  SITE_USERS: "/admin/user",
   SITEMAP: "/sitemap.xml",
 
   /** ************* ADMIN ****************** */
@@ -41,6 +42,7 @@ export const PATHS_MAP: Record<string, string> = {
   [PATHS.SITE_COMING]: "实验室",
   [PATHS.SITE_MESSAGES]: "留言",
   [PATHS.SITE_PROFILE]: "个人资料",
+  [PATHS.SITE_USERS]: "用户管理",
   [PATHS.SITE_ABOUT]: "关于",
   [PATHS.SITEMAP]: "站点地图",
 

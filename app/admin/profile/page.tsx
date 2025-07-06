@@ -6,26 +6,11 @@ import { IconLogoGoogle } from "@/components/icons/logos";
 import { PageBreadcrumb } from "@/components/page-header";
 
 import { PATHS } from "@/constants";
+import { AdminContentLayout } from "@/features/admin";
 import { getUserLinkedAccounts } from "@/features/auth";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatRelativeTime } from "@/lib/utils";
-
-// Simple inline layout component to avoid import restrictions
-function AdminContentLayout({
-  children,
-  breadcrumb,
-}: {
-  children: React.ReactNode;
-  breadcrumb?: React.ReactNode;
-}) {
-  return (
-    <div className="container mx-auto p-4">
-      {breadcrumb && <div className="mb-4">{breadcrumb}</div>}
-      {children}
-    </div>
-  );
-}
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -46,7 +31,7 @@ export default async function ProfilePage() {
         />
       }
     >
-      <div className="mx-auto mt-8 max-w-xl space-y-6">
+      <div className="mx-auto max-w-xl space-y-6">
         <div className="flex flex-col items-center gap-4 rounded-lg border bg-background p-6 shadow-sm">
           <AvatarUpload
             currentImage={user?.image}

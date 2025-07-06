@@ -114,7 +114,21 @@ export const ClickSpark: React.FC<ClickSparkProps> = ({
         const x2 = spark.x + (distance + lineLength) * Math.cos(spark.angle);
         const y2 = spark.y + (distance + lineLength) * Math.sin(spark.angle);
 
-        ctx.strokeStyle = sparkColor;
+        // Use CSS variable for theme-aware color or fallback to sparkColor prop
+        let computedColor = sparkColor;
+        if (sparkColor.startsWith("--")) {
+          const cssValue = getComputedStyle(document.documentElement)
+            .getPropertyValue(sparkColor)
+            .trim();
+          if (cssValue) {
+            // Handle HSL values from Tailwind CSS variables
+            computedColor = cssValue.includes("hsl")
+              ? cssValue
+              : `hsl(${cssValue})`;
+          }
+        }
+
+        ctx.strokeStyle = computedColor;
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(x1, y1);

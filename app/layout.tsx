@@ -59,7 +59,7 @@ export default function RootLayout({
       {/* eslint-disable-next-line tailwindcss/no-custom-classname */}
       <body className={inter.className} suppressHydrationWarning={true}>
         <ClickSpark
-          sparkColor="#fff"
+          sparkColor="--click-spark"
           sparkSize={10}
           sparkRadius={15}
           sparkCount={8}

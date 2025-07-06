@@ -31,6 +31,31 @@ export async function GET() {
   return NextResponse.json({ users });
 }
 
+export async function PATCH(req: Request) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "未登录" }, { status: 401 });
+  }
+
+  try {
+    const { image } = (await req.json()) as { image: string };
+    if (!image) {
+      return NextResponse.json({ error: "头像URL不能为空" }, { status: 400 });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { id: session.user.id },
+      data: { image },
+      select: { id: true, image: true },
+    });
+
+    return NextResponse.json({ success: true, user: updatedUser });
+  } catch (e: unknown) {
+    const errorMsg = e instanceof Error ? e.message : String(e);
+    return NextResponse.json({ error: errorMsg }, { status: 500 });
+  }
+}
+
 export async function DELETE(req: Request) {
   const session = await auth();
   if (!session?.user?.email || !isAdmin(session.user.email)) {

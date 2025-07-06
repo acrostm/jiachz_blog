@@ -71,7 +71,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       });
       const data = (await res.json()) as RegisterResponse;
       if (!res.ok || !data.url) {
-        setAvatarError(data.error || "头像上传失败");
+        setAvatarError(data.error ?? "头像上传失败");
         setIsLoading(false);
         return;
       }

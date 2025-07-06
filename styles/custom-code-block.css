@@ -1,9 +1,9 @@
 .code-block-wrapper {
   position: relative;
   margin-bottom: 1.8em; /* 略微增加底部间距 */
-  padding-top: 35px;    /* 为窗口控件和标题栏留出更多空间 */
+  padding-top: 35px; /* 为窗口控件和标题栏留出更多空间 */
   background-color: #f0f0f0; /* 更柔和的浅色模式窗口背景 */
-  border-radius: 10px;   /* 更大的圆角 */
+  border-radius: 10px; /* 更大的圆角 */
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12); /* 更柔和自然的阴影 */
   overflow: hidden;
   border: 1px solid #d1d1d1; /* 浅色模式下的边框 */
@@ -25,14 +25,15 @@
   height: 12px;
   background-color: #ff605c; /* Red button - 经典颜色 */
   border-radius: 50%;
-  border: 0.5px solid rgba(0,0,0,0.1);
-  box-shadow: 22px 0 0 #ffbd44, /* Yellow button - 经典颜色 */
-              44px 0 0 #00ca4e; /* Green button - 经典颜色 */
+  border: 0.5px solid rgba(0, 0, 0, 0.1);
+  box-shadow:
+    22px 0 0 #ffbd44,
+    /* Yellow button - 经典颜色 */ 44px 0 0 #00ca4e; /* Green button - 经典颜色 */
   z-index: 10;
 }
 
 .dark .code-block-wrapper::before {
-    border: 0.5px solid rgba(255,255,255,0.1);
+  border: 0.5px solid rgba(255, 255, 255, 0.1);
 }
 
 .code-block-container {
@@ -50,7 +51,7 @@
 
 .copy-button {
   position: absolute;
-  top: 9px;  /* 调整到控件的垂直中心附近 */
+  top: 9px; /* 调整到控件的垂直中心附近 */
   right: 15px; /* 右侧对齐 */
   background-color: transparent; /* 按钮背景透明 */
   color: #666; /* 浅色模式图标颜色 */
@@ -60,7 +61,9 @@
   cursor: pointer;
   font-size: 0.9em;
   opacity: 0.5;
-  transition: opacity 0.2s ease-in-out, color 0.2s ease-in-out;
+  transition:
+    opacity 0.2s ease-in-out,
+    color 0.2s ease-in-out;
   z-index: 20;
 }
 
@@ -86,9 +89,9 @@
 
 /* 确保 pre 和 code 元素继承 wrapper 的圆角和背景 */
 .code-block-container pre {
-    margin: 0; /* 移除 pre 的默认 margin */
-    border-radius: inherit; /* 继承父元素的圆角 */
-    background-color: inherit !important; /* 强制继承背景色 */
+  margin: 0; /* 移除 pre 的默认 margin */
+  border-radius: inherit; /* 继承父元素的圆角 */
+  background-color: inherit !important; /* 强制继承背景色 */
 }
 
 .code-block-container code {
@@ -100,11 +103,11 @@
 
 /* 确保 highlight.js 的背景不覆盖我们的设置 */
 .hljs {
-    background: transparent !important;
-    padding: 0 !important; /* 移除 highlight.js 可能添加的 padding */
+  background: transparent !important;
+  padding: 0 !important; /* 移除 highlight.js 可能添加的 padding */
 }
 
 /* 针对特定主题的微调，如果需要 */
 .dark .hljs {
-    /* 暗色模式下，如果 highlight.js 主题自带背景，也需要覆盖 */
+  /* 暗色模式下，如果 highlight.js 主题自带背景，也需要覆盖 */
 }

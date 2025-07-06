@@ -79,9 +79,9 @@ export default function MessagesPage() {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/message-board")
-      .then((res) => res.json())
-      .then((data) => setMessages(data.messages || []));
+    void fetch("/api/message-board")
+      .then((res) => res.json() as Promise<{ messages?: Message[] }>)
+      .then((data) => setMessages(data.messages ?? []));
   }, []);
 
   const handleSend = async () => {
@@ -95,12 +95,12 @@ export default function MessagesPage() {
     setLoading(false);
     if (res.ok) {
       setContent("");
-      const data = await res.json();
+      const data = (await res.json()) as { message: Message };
       setMessages([data.message, ...messages]);
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = (id: string) => {
     setDeleteId(id);
   };
   const confirmDelete = async () => {
@@ -170,7 +170,7 @@ export default function MessagesPage() {
                   />
                 ) : (
                   <div className="flex size-9 items-center justify-center rounded-full border border-border bg-muted text-lg font-bold shadow-sm">
-                    {msg.userInfo?.name?.[0] || (msg.isLogin ? "U" : "A")}
+                    {msg.userInfo?.name?.[0] ?? (msg.isLogin ? "U" : "A")}
                   </div>
                 )}
                 <span className="text-base font-semibold text-primary">
@@ -183,7 +183,8 @@ export default function MessagesPage() {
                       {msg.userInfo?.name}
                     </GradientText>
                   ) : (
-                    msg.userInfo?.name || (msg.isLogin ? "已登录用户" : "匿名用户")
+                    (msg.userInfo?.name ??
+                    (msg.isLogin ? "已登录用户" : "匿名用户"))
                   )}
                 </span>
                 {/* 用户身份 tag */}

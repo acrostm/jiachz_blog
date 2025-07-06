@@ -2,7 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   try {
-    const { token } = await request.json();
+    const { token } = (await request.json()) as { token: string };
 
     if (!token) {
       return NextResponse.json(
@@ -13,7 +13,6 @@ export async function POST(request: NextRequest) {
 
     const secretKey = process.env.TURNSTILE_SECRET_KEY;
     if (!secretKey) {
-      console.error("Turnstile secret key is not configured.");
       return NextResponse.json(
         {
           success: false,
@@ -33,11 +32,14 @@ export async function POST(request: NextRequest) {
       "https://challenges.cloudflare.com/turnstile/v0/siteverify",
       {
         method: "POST",
-        body: formData,
+        body: formData as BodyInit,
       },
     );
 
-    const outcome = await response.json();
+    const outcome = (await response.json()) as {
+      success: boolean;
+      "error-codes"?: string[];
+    };
 
     if (outcome.success) {
       // 令牌验证成功
@@ -45,18 +47,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true });
     } else {
       // 令牌验证失败
-      console.error("Turnstile verification failed:", outcome["error-codes"]);
+      const errorCodes = outcome["error-codes"] ?? [];
       return NextResponse.json(
         {
           success: false,
           error: "Turnstile verification failed.",
-          "error-codes": outcome["error-codes"],
+          "error-codes": errorCodes,
         },
         { status: 400 },
       );
     }
   } catch (error) {
-    console.error("Error verifying Turnstile token:", error);
+    // Handle error silently
     return NextResponse.json(
       {
         success: false,

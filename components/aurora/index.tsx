@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
-import { Renderer, Program, Mesh, Color, Triangle } from "ogl";
+
+import { Color, Mesh, Program, Renderer, Triangle } from "ogl";
 
 const VERT = `#version 300 es
 in vec2 position;
@@ -141,7 +142,7 @@ export default function Aurora(props: AuroraProps) {
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.canvas.style.backgroundColor = "transparent";
 
-    let program: Program | undefined;
+    let program: Program;
 
     function resize() {
       if (!ctn) return;
@@ -156,7 +157,7 @@ export default function Aurora(props: AuroraProps) {
 
     const geometry = new Triangle(gl);
     if (geometry.attributes.uv) {
-      delete (geometry.attributes).uv;
+      delete geometry.attributes.uv;
     }
 
     const colorStopsArray = colorStops.map((hex) => {
@@ -209,5 +210,5 @@ export default function Aurora(props: AuroraProps) {
     };
   }, [amplitude]);
 
-  return <div ref={ctnDom} className="w-full h-full" />;
-} 
+  return <div ref={ctnDom} className="size-full" />;
+}

@@ -165,8 +165,10 @@ export const CreateSnippetForm = () => {
                 control={form.control}
                 name="published"
                 render={({ field }) => (
-                  <FormItem className="flex items-center h-full">
-                    <FormLabel className="mb-0 mr-2 flex items-center h-full">是否发布</FormLabel>
+                  <FormItem className="flex h-full items-center">
+                    <FormLabel className="mb-0 mr-2 flex h-full items-center">
+                      是否发布
+                    </FormLabel>
                     <FormControl>
                       <Switch
                         checked={field.value}

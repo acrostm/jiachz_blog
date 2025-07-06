@@ -12,11 +12,11 @@ function getClientIp(req: NextRequest) {
     return first ? first.trim() : "unknown";
   }
   // req.ip 可能 undefined，类型兼容
-  const ip =
+  return (
     (req as unknown as { ip?: string }).ip ??
     req.headers.get("x-real-ip") ??
-    "unknown";
-  return ip;
+    "unknown"
+  );
 }
 
 export async function GET() {
@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
     if (!content)
       return NextResponse.json({ error: "内容不能为空" }, { status: 400 });
     const ip = getClientIp(req);
-    const userAgent = req.headers.get("user-agent") || "unknown";
+    const userAgent = req.headers.get("user-agent") ?? "unknown";
     const isLogin = !!session?.user?.id;
     const userId = isLogin ? session.user!.id : undefined;
     if (!prisma?.messageBoard?.create) {

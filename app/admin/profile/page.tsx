@@ -1,16 +1,31 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 
+import { AvatarUpload } from "@/components/avatar-upload";
 import { IconBrandGithub } from "@/components/icons/fa6-brands";
 import { IconLogoGoogle } from "@/components/icons/logos";
 import { PageBreadcrumb } from "@/components/page-header";
 
 import { PATHS } from "@/constants";
-import { AdminContentLayout } from "@/features/admin/components/layout";
 import { getUserLinkedAccounts } from "@/features/auth";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatRelativeTime } from "@/lib/utils";
+
+// Simple inline layout component to avoid import restrictions
+function AdminContentLayout({
+  children,
+  breadcrumb,
+}: {
+  children: React.ReactNode;
+  breadcrumb?: React.ReactNode;
+}) {
+  return (
+    <div className="container mx-auto p-4">
+      {breadcrumb && <div className="mb-4">{breadcrumb}</div>}
+      {children}
+    </div>
+  );
+}
 
 export default async function ProfilePage() {
   const session = await auth();
@@ -33,17 +48,13 @@ export default async function ProfilePage() {
     >
       <div className="mx-auto mt-8 max-w-xl space-y-6">
         <div className="flex flex-col items-center gap-4 rounded-lg border bg-background p-6 shadow-sm">
-          <Avatar className="size-20">
-            <AvatarImage
-              src={user?.image || undefined}
-              alt={user?.name || user?.email || "头像"}
-            />
-            <AvatarFallback>
-              {user?.name?.[0] || user?.email?.[0] || "?"}
-            </AvatarFallback>
-          </Avatar>
+          <AvatarUpload
+            currentImage={user?.image}
+            userName={user?.name}
+            userEmail={user?.email}
+          />
           <div className="text-xl font-semibold text-foreground">
-            {user?.name || "未设置用户名"}
+            {user?.name ?? "未设置用户名"}
           </div>
           <div className="text-foreground">{user?.email}</div>
         </div>

@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-import { uploadAvatar } from "@/features/upload/actions";
+import { uploadAvatar } from "@/features/upload";
 
 export async function POST(req: NextRequest) {
   const formData = await req.formData();

@@ -87,10 +87,7 @@ export const Combobox = React.forwardRef(
 
     const filteredOptions = React.useMemo(() => {
       return props.options.filter((el) =>
-        el.label
-          .toLowerCase()
-          .trim()
-          .includes(search?.trim()?.toLowerCase()),
+        el.label.toLowerCase().trim().includes(search?.trim()?.toLowerCase()),
       );
     }, [props?.options, search]);
 

@@ -41,7 +41,7 @@ const LoadingSpinner = ({ color }: { color: string }) => (
     fill={color}
   >
     <style>{`.spinner_V8m1{transform-origin:center;animation:spinner_zKoa 2s linear infinite}.spinner_V8m1 circle{stroke-linecap:round;animation:spinner_YpZS 1.5s ease-in-out infinite}@keyframes spinner_zKoa{100%{transform:rotate(360deg)}}@keyframes spinner_YpZS{0%{stroke-dasharray:0 150;stroke-dashoffset:0}47.5%{stroke-dasharray:42 150;stroke-dashoffset:-16}95%,100%{stroke-dasharray:42 150;stroke-dashoffset:-59}}`}</style>
-    <g className="spinner_V8m1">
+    <g>
       <circle cx="12" cy="12" r="9.5" fill="none" strokeWidth="3"></circle>
     </g>
   </svg>
@@ -82,16 +82,19 @@ const TurnstileGuard: React.FC<TurnstileGuardProps> = ({ children }) => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token }),
       });
-      const data = await response.json();
+      const data = (await response.json()) as {
+        success: boolean;
+        error?: string;
+      };
       if (data.success) {
         setIsVerified(true);
         sessionStorage.setItem("turnstileVerified", "true");
       } else {
-        setError(data.error || "Turnstile verification failed.");
+        setError(data.error ?? "Turnstile verification failed.");
         sessionStorage.removeItem("turnstileVerified");
       }
     } catch (err) {
-      console.error("Error verifying Turnstile:", err);
+      // Handle error silently
       setError("An error occurred during verification.");
       sessionStorage.removeItem("turnstileVerified");
     }
@@ -196,7 +199,17 @@ const TurnstileGuard: React.FC<TurnstileGuardProps> = ({ children }) => {
           speed={0.5}
         />
       </div>
-      <div style={{ position: "relative", zIndex: 1, width: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+      <div
+        style={{
+          position: "relative",
+          zIndex: 1,
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
         <div style={{ marginBottom: "2rem" }}>
           <h1 style={styles.title}>正在验证您的连接</h1>
           <p style={styles.subtitle}>请稍候，这通常只需要几秒钟。</p>

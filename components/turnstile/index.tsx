@@ -4,7 +4,7 @@ import React from "react";
 
 import { Turnstile } from "@marsidev/react-turnstile";
 
-import { NEXT_PUBLIC_TURNSTILE_SITE_KEY } from "@/config/env";
+import { NEXT_PUBLIC_TURNSTILE_SITE_KEY } from "@/config";
 
 interface TurnstileWidgetProps {
   onVerify: (token: string) => void;
@@ -30,7 +30,7 @@ const TurnstileWidget: React.FC<TurnstileWidgetProps> = ({
       onError={onError}
       onExpire={onExpire}
       options={{
-        theme: theme || "auto",
+        theme: theme ?? "auto",
         size: "compact",
         retry: "auto",
       }}

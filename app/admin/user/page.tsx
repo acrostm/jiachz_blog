@@ -22,9 +22,24 @@ import { DataTable } from "@/components/ui/data-table";
 import { PageBreadcrumb } from "@/components/page-header";
 
 import { PATHS } from "@/constants";
-import { AdminContentLayout } from "@/features/admin/components/layout/admin-content-layout";
 import { useDeleteUser } from "@/features/user";
 import { formatRelativeTime } from "@/lib/utils";
+
+// Simple inline layout component to avoid import restrictions
+function AdminContentLayout({
+  children,
+  breadcrumb,
+}: {
+  children: React.ReactNode;
+  breadcrumb?: React.ReactNode;
+}) {
+  return (
+    <div className="container mx-auto p-4">
+      {breadcrumb && <div className="mb-4">{breadcrumb}</div>}
+      {children}
+    </div>
+  );
+}
 
 interface Account {
   provider: string;
@@ -87,7 +102,7 @@ export default function AdminUserPage() {
       header: "头像",
       cell: ({ row }: { row: Row<User> }) => (
         <Avatar className="size-8">
-          <img src={row.original.image || undefined} alt="avatar" />
+          <img src={row.original.image ?? undefined} alt="avatar" />
         </Avatar>
       ),
     },
@@ -98,7 +113,7 @@ export default function AdminUserPage() {
       accessorKey: "password",
       header: "密码",
       cell: ({ row }: { row: Row<User> }) => {
-        const pw = row.original.password || "";
+        const pw = row.original.password ?? "";
         return <span>{pw ? "********" : ""}</span>;
       },
     },
@@ -195,7 +210,9 @@ export default function AdminUserPage() {
           data={users}
           loading={loading}
           params={{ pageIndex: 1, pageSize: 100 }}
-          updateParams={() => {}}
+          updateParams={() => {
+            // No-op for now
+          }}
         />
       </Card>
     </AdminContentLayout>

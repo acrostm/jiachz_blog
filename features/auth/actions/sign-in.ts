@@ -1,6 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
+
 import { PATHS } from "@/constants";
 
 export const signInWithGithub = async () => {

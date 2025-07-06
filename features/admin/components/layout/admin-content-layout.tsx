@@ -150,7 +150,7 @@ export const AdminContentLayout = ({
           </DropdownMenu>
         </div>
       </header>
-      <ScrollArea ref={scrollRef} className="h-screen px-6 pt-6">
+      <ScrollArea ref={scrollRef} className="h-screen px-6 pt-20 sm:pt-6">
         {children}
 
         {/* padding */}

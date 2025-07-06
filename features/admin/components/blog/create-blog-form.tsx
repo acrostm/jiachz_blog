@@ -3,6 +3,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
 
+import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -44,6 +45,7 @@ import { toSlug } from "@/lib/utils";
 
 export const CreateBlogForm = () => {
   const router = useRouter();
+  const { data: session } = useSession();
 
   const getTagsQuery = useGetAllTags(TagTypeEnum.BLOG);
   const tags = React.useMemo(() => {
@@ -62,7 +64,6 @@ export const CreateBlogForm = () => {
       body: "",
       published: true,
       cover: "",
-      author: "",
       tags: [],
     },
   });
@@ -70,7 +71,7 @@ export const CreateBlogForm = () => {
   return (
     <Form {...form}>
       <form autoComplete="off">
-        <div className="fixed inset-x-24 bottom-10 z-10 md:inset-x-[20vw]">
+        <div className="fixed inset-x-6 bottom-8 z-10 md:inset-x-[15vw] lg:inset-x-[25vw]">
           <Button
             type="button"
             onClick={() => form.handleSubmit(handleSubmit)()}
@@ -81,214 +82,190 @@ export const CreateBlogForm = () => {
           </Button>
         </div>
 
-        <div className="grid gap-4 px-1 pb-24">
-          {/* 第一行：标题和slug，右侧留空 */}
-          <div className="flex flex-col gap-6 md:flex-row">
-            <div className="w-full md:w-80">
-              <FormField
-                control={form.control}
-                name="title"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>标题</FormLabel>
-                    <FormControl>
+        <div className="grid gap-6 px-1 pb-24">
+          {/* 标题 */}
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>标题</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    placeholder="请输入标题"
+                    value={field.value ?? ""}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Slug和标签 */}
+          <div className="grid gap-4 md:grid-cols-[1fr_1fr]">
+            <FormField
+              control={form.control}
+              name="slug"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Slug</FormLabel>
+                  <FormControl>
+                    <div className="flex gap-2">
                       <Input
                         {...field}
-                        placeholder="请输入标题"
-                        className="w-full"
+                        placeholder="slug"
                         value={field.value ?? ""}
+                        className="flex-1"
                       />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="flex w-full items-end gap-2 md:w-96">
-              <FormField
-                control={form.control}
-                name="slug"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormLabel>slug</FormLabel>
-                    <FormControl>
-                      <div className="flex w-full items-center gap-2">
-                        <Input
-                          {...field}
-                          placeholder="slug"
-                          className="w-full"
-                          value={field.value ?? ""}
-                        />
-                        <Button
-                          type="button"
-                          onClick={handleFormatSlug}
-                          size="sm"
-                          className="shrink-0"
-                        >
-                          格式化
-                        </Button>
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="flex-1" />
+                      <Button
+                        type="button"
+                        onClick={handleFormatSlug}
+                        size="sm"
+                        variant="outline"
+                        className="px-4"
+                      >
+                        格式化
+                      </Button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>标签</FormLabel>
+                  <FormControl>
+                    <div className="flex gap-2">
+                      <Combobox
+                        options={
+                          tags?.map((el) => ({
+                            label: el.name,
+                            value: el.id,
+                          })) ?? []
+                        }
+                        multiple
+                        clearable
+                        selectPlaceholder="选择标签"
+                        value={field.value}
+                        onValueChange={field.onChange}
+                        className="flex-1"
+                      />
+                      <CreateTagButton
+                        refreshAsync={getTagsQuery.refreshAsync}
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
-          {/* 第二行：作者、标签、是否发布，右侧留空 */}
-          <div className="flex flex-col gap-6 md:flex-row">
-            <div className="w-full md:w-80">
-              <FormField
-                control={form.control}
-                name="author"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>作者</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder="请输入作者"
-                        className="w-full"
-                        value={field.value ?? ""}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="flex w-full items-end gap-2 md:w-96">
-              <FormField
-                control={form.control}
-                name="tags"
-                render={({ field }) => (
-                  <FormItem className="w-full">
-                    <FormLabel>标签</FormLabel>
-                    <FormControl>
-                      <div className="flex w-full items-center gap-2">
-                        <Combobox
-                          options={
-                            tags?.map((el) => ({
-                              label: el.name,
-                              value: el.id,
-                            })) ?? []
-                          }
-                          multiple
-                          clearable
-                          selectPlaceholder="标签"
-                          value={field.value}
-                          onValueChange={field.onChange}
-                        />
-                        <CreateTagButton
-                          refreshAsync={getTagsQuery.refreshAsync}
-                        />
-                      </div>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="flex w-full items-end md:w-24">
-              <FormField
-                control={form.control}
-                name="published"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>是否发布</FormLabel>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                        className="ml-2"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="flex-1" />
+          {/* 发布状态 */}
+          <div className="flex items-center gap-2">
+            <FormField
+              control={form.control}
+              name="published"
+              render={({ field }) => (
+                <FormItem className="flex items-center gap-3">
+                  <FormLabel className="text-sm font-medium">
+                    是否发布
+                  </FormLabel>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
-          {/* 第三行：描述和封面 */}
-          <div className="flex flex-col gap-6 md:flex-row">
-            <div className="flex-1">
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>描述</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        {...field}
-                        placeholder="请输入描述"
-                        value={field.value ?? ""}
-                        className="h-32"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="flex-1">
-              <FormField
-                control={form.control}
-                name="cover"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>封面</FormLabel>
-                    <FormControl>
+          {/* 描述和封面 */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>描述</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      {...field}
+                      placeholder="请输入描述"
+                      value={field.value ?? ""}
+                      className="min-h-[140px] resize-y"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="cover"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>封面</FormLabel>
+                  <FormControl>
+                    <div className="space-y-3">
                       <Textarea
                         {...field}
                         placeholder="请输入封面链接"
                         value={field.value ?? ""}
+                        className="min-h-[80px] resize-y"
                       />
-                    </FormControl>
-                    <FormMessage />
-                    <Input
-                      type="file"
-                      onChange={async (e) => {
-                        try {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            const fd = new FormData();
-                            fd.append("file", file);
-                            const toastID = showLoadingToast("上传中");
-                            const { url, error } = await uploadFile(fd);
-                            hideToast(toastID);
-                            if (error) {
-                              showErrorToast(error);
-                              return [];
+                      <Input
+                        type="file"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          try {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              const fd = new FormData();
+                              fd.append("file", file);
+                              const toastID = showLoadingToast("上传中");
+                              const { url, error } = await uploadFile(fd);
+                              hideToast(toastID);
+                              if (error) {
+                                showErrorToast(error);
+                                return [];
+                              }
+                              if (url) {
+                                showSuccessToast("上传成功");
+                              }
+                              setCover(url ?? "");
+                              form.setValue("cover", url ?? "");
+                            } else {
+                              showInfoToast("请选择一个文件");
                             }
-                            if (url) {
-                              showSuccessToast("上传成功");
-                            }
-                            setCover(url ?? "");
-                            form.setValue("cover", url ?? "");
-                          } else {
-                            showInfoToast("请选择一个文件");
+                          } catch (error) {
+                            showErrorToast(error as string);
                           }
-                        } catch (error) {
-                          showErrorToast(error as string);
-                        }
-                      }}
-                    />
-                    {Boolean(cover) && (
-                      <img
-                        src={cover}
-                        className="mt-2 h-[120px] object-scale-down"
-                        alt={""}
+                        }}
                       />
-                    )}
-                  </FormItem>
-                )}
-              />
-            </div>
+                      {Boolean(cover) && (
+                        <div className="relative">
+                          <img
+                            src={cover}
+                            className="max-h-[120px] w-full rounded-md border object-contain"
+                            alt="封面预览"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
           </div>
 
           {/* 内容编辑器 */}
@@ -316,7 +293,10 @@ export const CreateBlogForm = () => {
   );
 
   async function handleSubmit(values: CreateBlogDTO) {
-    await createBlogQuery.runAsync(values);
+    await createBlogQuery.runAsync({
+      ...values,
+      author: session?.user?.name ?? "",
+    });
     router.push(PATHS.ADMIN_BLOG);
   }
 

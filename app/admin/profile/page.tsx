@@ -18,8 +18,8 @@ type LinkedAccount = {
 };
 
 type UserDbData = {
-  createdAt?: Date;
-  lastLoginAt?: Date;
+  createdAt: Date;
+  lastLoginAt: Date | null;
 };
 
 export default async function ProfilePage() {

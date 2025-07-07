@@ -3,6 +3,7 @@ import React from "react";
 import { type Metadata } from "next";
 import { Inter } from "next/font/google";
 
+// eslint-disable-next-line import/no-unresolved
 import { GoogleAnalytics } from "@next/third-parties/google";
 
 import { NODE_ENV } from "@/config";

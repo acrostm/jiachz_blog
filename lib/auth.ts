@@ -32,12 +32,12 @@ export const { handlers, auth, signOut, signIn } = NextAuth({
           throw new Error("请输入邮箱和密码");
         }
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email },
+          where: { email: credentials.email as string },
         });
         if (!user?.password) {
           throw new Error("用户不存在或未设置密码");
         }
-        const plainPassword = String(credentials.password);
+        const plainPassword = credentials.password as string;
         const hashedPassword = String(user.password);
         const isValid = await bcrypt.compare(plainPassword, hashedPassword);
         if (!isValid) {

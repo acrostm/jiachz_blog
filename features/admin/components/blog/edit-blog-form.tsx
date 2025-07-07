@@ -165,7 +165,6 @@ export const EditBlogForm = () => {
                         selectPlaceholder="选择标签"
                         value={field.value}
                         onValueChange={field.onChange}
-                        className="flex-1"
                       />
                       <CreateTagButton
                         refreshAsync={getTagsQuery.refreshAsync}

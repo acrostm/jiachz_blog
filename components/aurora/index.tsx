@@ -142,6 +142,7 @@ export default function Aurora(props: AuroraProps) {
     gl.blendFunc(gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
     gl.canvas.style.backgroundColor = "transparent";
 
+    // eslint-disable-next-line prefer-const
     let program: Program;
 
     function resize() {
@@ -150,6 +151,7 @@ export default function Aurora(props: AuroraProps) {
       const height = ctn.offsetHeight;
       renderer.setSize(width, height);
       if (program) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         program.uniforms.uResolution.value = [width, height];
       }
     }
@@ -185,10 +187,14 @@ export default function Aurora(props: AuroraProps) {
       animateId = requestAnimationFrame(update);
       const { time = t * 0.01, speed = 1.0 } = propsRef.current;
       if (program) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         program.uniforms.uTime.value = time * speed * 0.1;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         program.uniforms.uAmplitude.value = propsRef.current.amplitude ?? 1.0;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         program.uniforms.uBlend.value = propsRef.current.blend ?? blend;
         const stops = propsRef.current.colorStops ?? colorStops;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         program.uniforms.uColorStops.value = stops.map((hex: string) => {
           const c = new Color(hex);
           return [c.r, c.g, c.b];
@@ -208,7 +214,7 @@ export default function Aurora(props: AuroraProps) {
       }
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
-  }, [amplitude]);
+  }, [amplitude, blend, colorStops]);
 
   return <div ref={ctnDom} className="size-full" />;
 }

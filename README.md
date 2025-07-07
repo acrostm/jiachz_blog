@@ -1,4 +1,4 @@
-# <div align="center">Jiachzha_blog</div>
+# <div align="center">Jiachz_blog</div>
 
 ## 简介
 
@@ -58,7 +58,7 @@
 
 ```bash
 # this is private repository for now
-git clone https://github.com/acrostm/jiachzha_blog.git
+git clone https://github.com/acrostm/jiachz_blog.git
 ```
 
 ### 安装依赖

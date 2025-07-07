@@ -39,7 +39,7 @@ export const plugins = [
 ];
 
 export const sanitize: EditorProps["sanitize"] = (schema) => {
-  const customerSchema = merge(schema, {
+  return merge(schema, {
     tagNames: ["iframe"],
     attributes: {
       iframe: [
@@ -56,6 +56,4 @@ export const sanitize: EditorProps["sanitize"] = (schema) => {
       ],
     },
   } as typeof schema);
-
-  return customerSchema;
 };

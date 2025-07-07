@@ -10,7 +10,7 @@ export const redis =
   globalForRedis.redis ??
   new Redis({
     host: REDIS_HOST ?? "127.0.0.1",
-    port: Number(REDIS_PORT) ?? 6379,
+    port: REDIS_PORT ? Number(REDIS_PORT) : 6379,
     password: REDIS_PASSWORD ?? "",
     keyPrefix: REDIS_KEY_PREFIX,
   });

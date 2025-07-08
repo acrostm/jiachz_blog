@@ -78,7 +78,8 @@ export async function POST(_req: NextRequest) {
     });
 
     return NextResponse.json({ message: "验证码已发送" });
-  } catch {
+  } catch (e) {
+    console.error("Send OTP error:", e);
     return NextResponse.json({ message: "发送验证码失败" }, { status: 500 });
   }
 }

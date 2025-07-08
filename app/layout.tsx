@@ -3,7 +3,6 @@ import React from "react";
 import { type Metadata } from "next";
 import { Inter } from "next/font/google";
 
-// eslint-disable-next-line import/no-unresolved
 import { GoogleAnalytics } from "@next/third-parties/google";
 
 import { NODE_ENV } from "@/config";
@@ -11,7 +10,7 @@ import { NODE_ENV } from "@/config";
 import { ThemeProvider } from "@/providers";
 
 import { ClickSpark } from "@/components/ui/click-spark";
-import { ReactHotToaster } from "@/components/ui/toast";
+import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 import { Console } from "@/components/console";
@@ -57,7 +56,6 @@ export default function RootLayout({
           data-website-id="56094296-ecd7-4340-bc0b-dfc93a182c75"
         ></script>
       </head>
-      {/* eslint-disable-next-line tailwindcss/no-custom-classname */}
       <body className={inter.className} suppressHydrationWarning={true}>
         <ClickSpark
           sparkColor="--click-spark"
@@ -76,7 +74,7 @@ export default function RootLayout({
               {children}
 
               <Favicon />
-              <ReactHotToaster />
+              <Toaster />
 
               <Console />
 

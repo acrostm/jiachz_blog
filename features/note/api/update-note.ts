@@ -1,6 +1,5 @@
 import { useRequest } from "ahooks";
-
-import { showErrorToast, showSuccessToast } from "@/components/ui/toast";
+import { toast } from "sonner";
 
 import { toggleNotePublished, updateNote } from "../actions";
 
@@ -9,10 +8,10 @@ export const useUpdateNote = () => {
     manual: true,
     loadingDelay: 300,
     onSuccess() {
-      showSuccessToast("笔记已更新");
+      toast.success("笔记已更新");
     },
     onError(error) {
-      showErrorToast(`笔记更新失败: ${error.message}`);
+      toast.error(`笔记更新失败: ${error.message}`);
     },
   });
 };
@@ -22,10 +21,10 @@ export const useToggleNotePublish = () => {
     manual: true,
     loadingDelay: 300,
     onSuccess() {
-      showSuccessToast("笔记发布状态已更新");
+      toast.success("笔记发布状态已更新");
     },
     onError(error) {
-      showErrorToast(`笔记更新失败: ${error.message}`);
+      toast.error(`笔记更新失败: ${error.message}`);
     },
   });
 };

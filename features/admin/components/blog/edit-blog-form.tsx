@@ -10,6 +10,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { TagTypeEnum } from "@prisma/client";
 import { isNil } from "lodash-es";
 import { Save } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
@@ -24,13 +25,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  hideToast,
-  showErrorToast,
-  showInfoToast,
-  showLoadingToast,
-  showSuccessToast,
-} from "@/components/ui/toast";
 
 import { BytemdEditor } from "@/components/bytemd";
 
@@ -241,26 +235,26 @@ export const EditBlogForm = () => {
                             if (file) {
                               const fd = new FormData();
                               fd.append("file", file);
-                              const toastID = showLoadingToast("上传中");
+                              const toastID = toast.loading("上传中");
                               const { url, error } = await uploadFile(fd);
-                              hideToast(toastID);
+                              toast.dismiss(toastID);
 
                               if (error) {
-                                showErrorToast(error);
+                                toast.error(error);
                                 return [];
                               }
 
                               if (url) {
-                                showSuccessToast("上传成功");
+                                toast.success("上传成功");
                               }
 
                               setCover(url ?? "");
                               form.setValue("cover", url ?? "");
                             } else {
-                              showInfoToast("请选择一个文件");
+                              toast.info("请选择一个文件");
                             }
                           } catch (error) {
-                            showErrorToast(error as string);
+                            toast.error(error as string);
                           }
                         }}
                       />

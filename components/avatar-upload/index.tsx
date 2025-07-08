@@ -1,11 +1,11 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { toast } from "react-hot-toast";
 
 import { useRouter } from "next/navigation";
 
 import { Loader2, Upload } from "lucide-react";
+import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";

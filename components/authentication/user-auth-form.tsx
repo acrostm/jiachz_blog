@@ -7,12 +7,12 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 import { AlertCircleIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { showErrorToast } from "@/components/ui/toast";
 
 import { IconLogoSpinner } from "@/components/icons";
 
@@ -97,7 +97,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
           errorMsg = data.message;
         }
         setError(errorMsg);
-        showErrorToast(errorMsg);
+        toast.error(errorMsg);
         setIsLoading(false);
         return;
       }
@@ -110,7 +110,7 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       router.push("/admin/profile");
     } catch {
       setError("注册失败，请重试");
-      showErrorToast("注册失败，请重试");
+      toast.error("注册失败，请重试");
     } finally {
       setIsLoading(false);
     }

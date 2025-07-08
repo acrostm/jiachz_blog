@@ -6,10 +6,11 @@ import * as React from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
+import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { showErrorToast } from "@/components/ui/toast";
 
 import { PATHS } from "@/constants";
 import { cn } from "@/lib/utils";
@@ -112,11 +113,11 @@ export function LoginForm({
       // 但如果有报错，可以捕获
       if (res?.error) {
         setError(res.error);
-        showErrorToast(res.error);
+        toast.error(res.error);
       }
-    } catch (e) {
+    } catch {
       setError("Github 登录失败，请重试");
-      showErrorToast("Github 登录失败，请重试");
+      toast.error("Github 登录失败，请重试");
     } finally {
       setLoading(false);
     }
@@ -129,11 +130,11 @@ export function LoginForm({
       const res = await signIn("google", { callbackUrl: "/" });
       if (res?.error) {
         setError(res.error);
-        showErrorToast(res.error);
+        toast.error(res.error);
       }
-    } catch (e) {
+    } catch {
       setError("Google 登录失败，请重试");
-      showErrorToast("Google 登录失败，请重试");
+      toast.error("Google 登录失败，请重试");
     } finally {
       setLoading(false);
     }
@@ -159,13 +160,13 @@ export function LoginForm({
       });
       if (res?.error) {
         setError(res.error);
-        showErrorToast(res.error);
+        toast.error(res.error);
       } else if (res?.ok) {
         router.push(PATHS.ADMIN_HOME);
       }
-    } catch (e) {
+    } catch {
       setError("用户名密码登录失败，请重试");
-      showErrorToast("用户名密码登录失败，请重试");
+      toast.error("用户名密码登录失败，请重试");
     } finally {
       setLoading(false);
     }

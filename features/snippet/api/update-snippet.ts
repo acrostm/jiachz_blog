@@ -1,6 +1,5 @@
 import { useRequest } from "ahooks";
-
-import { showErrorToast, showSuccessToast } from "@/components/ui/toast";
+import { toast } from "sonner";
 
 import { toggleSnippetPublished, updateSnippet } from "../actions";
 
@@ -9,10 +8,10 @@ export const useUpdateSnippet = () => {
     manual: true,
     loadingDelay: 300,
     onSuccess() {
-      showSuccessToast("片段已更新");
+      toast.success("片段已更新");
     },
     onError(error) {
-      showErrorToast(`片段更新: ${error.message}`);
+      toast.error(`片段更新: ${error.message}`);
     },
   });
 };
@@ -22,10 +21,10 @@ export const useToggleSnippetPublish = () => {
     manual: true,
     loadingDelay: 300,
     onSuccess() {
-      showSuccessToast("片段发布状态已更新");
+      toast.success("片段发布状态已更新");
     },
     onError(error) {
-      showErrorToast(`片段发布状态更新失败: ${error.message}`);
+      toast.error(`片段发布状态更新失败: ${error.message}`);
     },
   });
 };

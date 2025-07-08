@@ -22,11 +22,14 @@ type BlogListItemProps = {
 };
 
 export const BlogListItem = ({ blog, uvMap }: BlogListItemProps) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isVerified } = useAuth();
   const [showLoginPrompt, setShowLoginPrompt] = React.useState(false);
 
   const handleClick = (e: React.MouseEvent) => {
     if (!isAuthenticated) {
+      e.preventDefault();
+      setShowLoginPrompt(true);
+    } else if (!isVerified) {
       e.preventDefault();
       setShowLoginPrompt(true);
     }
@@ -40,7 +43,7 @@ export const BlogListItem = ({ blog, uvMap }: BlogListItemProps) => {
         className={cn(
           "flex flex-col justify-between h-full text-primary px-6 py-4 transition-colors rounded-lg",
           "bg-transparent hover:bg-primary-foreground",
-          !isAuthenticated &&
+          (!isAuthenticated || !isVerified) &&
             "opacity-50 cursor-not-allowed hover:bg-transparent",
         )}
       >

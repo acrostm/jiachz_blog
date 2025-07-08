@@ -1,6 +1,5 @@
 import { useRequest } from "ahooks";
-
-import { showErrorToast, showSuccessToast } from "@/components/ui/toast";
+import { toast } from "sonner";
 
 import { createSnippet } from "../actions";
 
@@ -9,10 +8,10 @@ export const useCreateSnippet = () => {
     manual: true,
     loadingDelay: 300,
     onSuccess() {
-      showSuccessToast("片段已创建");
+      toast.success("片段已创建");
     },
     onError(error) {
-      showErrorToast(`片段创建失败: ${error.message}`);
+      toast.error(`片段创建失败: ${error.message}`);
     },
   });
 };

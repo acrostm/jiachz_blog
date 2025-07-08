@@ -1,6 +1,5 @@
 import { useRequest } from "ahooks";
-
-import { showErrorToast, showSuccessToast } from "@/components/ui/toast";
+import { toast } from "sonner";
 
 import { deleteNoteByID } from "../actions";
 
@@ -9,10 +8,10 @@ export const useDeleteNote = () => {
     manual: true,
     loadingDelay: 300,
     onSuccess() {
-      showSuccessToast("笔记已删除");
+      toast.success("笔记已删除");
     },
     onError(error) {
-      showErrorToast(`笔记删除失败: ${error.message}`);
+      toast.error(`笔记删除失败: ${error.message}`);
     },
   });
 };

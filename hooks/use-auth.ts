@@ -8,6 +8,7 @@ export const useAuth = () => {
   return {
     user: session?.user,
     isAuthenticated: !!session?.user,
+    isVerified: !!session?.user?.emailVerified,
     isLoading: status === "loading",
     status,
   };

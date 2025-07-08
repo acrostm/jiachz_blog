@@ -1,6 +1,5 @@
 import { useRequest } from "ahooks";
-
-import { showErrorToast, showSuccessToast } from "@/components/ui/toast";
+import { toast } from "sonner";
 
 export const useDeleteUser = () => {
   return useRequest(
@@ -18,11 +17,11 @@ export const useDeleteUser = () => {
       manual: true,
       loadingDelay: 300,
       onSuccess() {
-        showSuccessToast("用户已删除");
+        toast.success("用户已删除");
       },
       onError(error) {
-        showErrorToast(
-          `用户删除失败: ${error instanceof Error ? error.message : String(error)}`,
+        toast.error(
+          `用户删除失败: ${(error.message)}`,
         );
       },
     },

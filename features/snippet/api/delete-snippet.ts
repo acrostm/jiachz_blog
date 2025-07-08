@@ -1,6 +1,5 @@
 import { useRequest } from "ahooks";
-
-import { showErrorToast, showSuccessToast } from "@/components/ui/toast";
+import { toast } from "sonner";
 
 import { deleteSnippetByID } from "../actions";
 
@@ -9,10 +8,10 @@ export const useDeleteSnippet = () => {
     manual: true,
     loadingDelay: 300,
     onSuccess() {
-      showSuccessToast("片段已删除");
+      toast.success("片段已删除");
     },
     onError(error) {
-      showErrorToast(`片段删除失败: ${error.message}`);
+      toast.error(`片段删除失败: ${error.message}`);
     },
   });
 };

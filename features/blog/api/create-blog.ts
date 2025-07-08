@@ -1,6 +1,5 @@
 import { useRequest } from "ahooks";
-
-import { showErrorToast, showSuccessToast } from "@/components/ui/toast";
+import { toast } from "sonner";
 
 import { createBlog } from "../actions";
 
@@ -9,10 +8,10 @@ export const useCreateBlog = () => {
     manual: true,
     loadingDelay: 300,
     onSuccess() {
-      showSuccessToast("博客创建成功");
+      toast.success("博客创建成功");
     },
     onError(error) {
-      showErrorToast(`博客创建失败: ${error.message}`);
+      toast.error(`博客创建失败: ${error.message}`);
     },
   });
 };

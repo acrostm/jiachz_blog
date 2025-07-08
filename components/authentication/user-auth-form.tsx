@@ -105,10 +105,10 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
       await signIn("credentials", {
         email,
         password,
-        callbackUrl: "/admin",
+        callbackUrl: "/admin/profile",
       });
-      router.push("/admin");
-    } catch (e) {
+      router.push("/admin/profile");
+    } catch {
       setError("注册失败，请重试");
       showErrorToast("注册失败，请重试");
     } finally {

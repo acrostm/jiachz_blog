@@ -12,6 +12,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatRelativeTime } from "@/lib/utils";
 
+import { ProfileEmailVerification } from "./components/profile-email-verification";
+
 type LinkedAccount = {
   provider: string;
   providerAccountId: string;
@@ -20,6 +22,7 @@ type LinkedAccount = {
 type UserDbData = {
   createdAt: Date;
   lastLoginAt: Date | null;
+  emailVerified: Date | null;
 };
 
 export default async function ProfilePage() {
@@ -32,6 +35,7 @@ export default async function ProfilePage() {
       select: {
         createdAt: true,
         lastLoginAt: true,
+        emailVerified: true,
       },
     });
   }
@@ -46,6 +50,11 @@ export default async function ProfilePage() {
       }
     >
       <div className="mx-auto max-w-xl space-y-6">
+        {/* 未验证邮箱提示 */}
+        {!userDb?.emailVerified && user?.email && (
+          <ProfileEmailVerification userEmail={user.email} />
+        )}
+
         <div className="flex flex-col items-center gap-4 rounded-lg border bg-background p-6 shadow-sm">
           <AvatarUpload
             currentImage={user?.image}
@@ -55,7 +64,14 @@ export default async function ProfilePage() {
           <div className="text-xl font-semibold text-foreground">
             {user?.name ?? "未设置用户名"}
           </div>
-          <div className="text-foreground">{user?.email}</div>
+          <div className="flex items-center gap-2 text-foreground">
+            <span>{user?.email}</span>
+            {userDb?.emailVerified && (
+              <Badge variant="secondary" className="text-xs">
+                已验证
+              </Badge>
+            )}
+          </div>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <div className="rounded-lg border bg-background p-4">
@@ -82,9 +98,9 @@ export default async function ProfilePage() {
             </div>
             <div className="flex flex-wrap gap-2">
               {accounts.length > 0 ? (
-                accounts.map((acc) => (
+                accounts.map((acc, index) => (
                   <Badge
-                    key={acc.provider}
+                    key={`${acc.provider}-${acc.providerAccountId}-${index}`}
                     className="flex items-center gap-1 px-2 py-1 text-sm"
                   >
                     {acc.provider === "github" && (

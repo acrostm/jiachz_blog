@@ -8,8 +8,7 @@ export const NICKNAME = "Jiach";
 export const GITHUB_PAGE = "https://github.com/acrostm";
 
 /** 网站代码 Github 地址 */
-export const SOURCE_CODE_GITHUB_PAGE =
-  "https://github.com/acrostm/jiachz_blog";
+export const SOURCE_CODE_GITHUB_PAGE = "https://github.com/acrostm/jiachz_blog";
 
 /** 掘金个人页 */
 export const JUEJIN_PAGE = "https://juejin.cn/user/2118131136345764";

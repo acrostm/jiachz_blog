@@ -13,6 +13,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatRelativeTime } from "@/lib/utils";
 
+import { PasswordChange } from "./components/password-change";
 import { ProfileEmailVerification } from "./components/profile-email-verification";
 
 type LinkedAccount = {
@@ -118,6 +119,9 @@ export default async function ProfilePage() {
             </div>
           </div>
         </div>
+
+        {/* 修改密码 */}
+        <PasswordChange />
       </div>
     </AdminContentLayout>
   );

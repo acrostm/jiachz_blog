@@ -25,7 +25,7 @@ export const SettingsModal = ({ open, setOpen }: Props) => {
           <a href="/admin/user">
             <Button variant="default">用户管理</Button>
           </a>
-          <a href="/coming-soon">
+          <a href="/admin/profile">
             <Button variant="secondary">修改密码</Button>
           </a>
         </div>

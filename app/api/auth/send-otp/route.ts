@@ -7,30 +7,36 @@ import { prisma } from "@/lib/prisma";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function POST(_req: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
     const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json({ message: "未登录" }, { status: 401 });
     }
 
+    const body = (await req.json()) as Record<string, unknown>;
+    const type =
+      typeof body.type === "string" ? body.type : "email-verification";
+
     const userEmail = session.user.email;
 
-    // 检查用户是否已经验证
-    const user = await prisma.user.findUnique({
-      where: { email: userEmail },
-      select: { emailVerified: true },
-    });
+    // 对于邮箱验证，检查用户是否已经验证
+    if (type === "email-verification") {
+      const user = await prisma.user.findUnique({
+        where: { email: userEmail },
+        select: { emailVerified: true },
+      });
 
-    if (user?.emailVerified) {
-      return NextResponse.json({ message: "邮箱已验证" }, { status: 400 });
+      if (user?.emailVerified) {
+        return NextResponse.json({ message: "邮箱已验证" }, { status: 400 });
+      }
     }
 
     // 检查是否有未过期的OTP
     const existingOtp = await prisma.verificationToken.findFirst({
       where: {
         identifier: userEmail,
-        type: "otp",
+        type: type === "password-change" ? "password-change-otp" : "otp",
         expires: { gt: new Date() },
       },
     });
@@ -55,19 +61,27 @@ export async function POST(_req: NextRequest) {
         identifier: userEmail,
         token: otp,
         expires: expiresAt,
-        type: "otp",
+        type: type === "password-change" ? "password-change-otp" : "otp",
       },
     });
 
     // 发送邮件
+    const subject =
+      type === "password-change" ? "修改密码验证码" : "邮箱验证码";
+    const title = type === "password-change" ? "修改密码验证码" : "邮箱验证码";
+    const description =
+      type === "password-change"
+        ? "您正在修改密码，验证码是："
+        : "您的验证码是：";
+
     await resend.emails.send({
       from: "noreply@jiachz.com",
       to: userEmail,
-      subject: "邮箱验证码",
+      subject,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <h2 style="color: #333; text-align: center;">邮箱验证码</h2>
-          <p style="color: #666; font-size: 16px;">您的验证码是：</p>
+          <h2 style="color: #333; text-align: center;">${title}</h2>
+          <p style="color: #666; font-size: 16px;">${description}</p>
           <div style="background: #f5f5f5; padding: 20px; text-align: center; font-size: 32px; font-weight: bold; color: #333; letter-spacing: 5px; margin: 20px 0;">
             ${otp}
           </div>

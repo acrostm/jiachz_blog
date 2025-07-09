@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 
-import { useSession } from "next-auth/react";
-
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,26 +18,28 @@ import {
 
 import { useCountdown } from "@/hooks/use-countdown";
 
-interface EmailVerificationDialogProps {
+interface PasswordChangeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  userEmail: string;
-  onSuccess: () => void;
+  passwordData: {
+    currentPassword: string;
+    newPassword: string;
+  };
+  onSuccess?: () => void;
 }
 
-export function EmailVerificationDialog({
+export function PasswordChangeDialog({
   open,
   onOpenChange,
-  userEmail,
+  passwordData,
   onSuccess,
-}: EmailVerificationDialogProps) {
+}: PasswordChangeDialogProps) {
   const [otp, setOtp] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
   const { count, start, isActive } = useCountdown(60);
-  const { update } = useSession();
 
   const handleSendOtp = async () => {
     if (isActive) return;
@@ -50,7 +50,7 @@ export function EmailVerificationDialog({
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ type: "email-verification" }),
+        body: JSON.stringify({ type: "password-change" }),
       });
 
       const data = (await response.json()) as { message?: string };
@@ -69,44 +69,34 @@ export function EmailVerificationDialog({
     }
   };
 
-  const handleVerifyOtp = async (value: string) => {
+  const handleVerifyOtpAndChangePassword = async (value: string) => {
     if (value.length !== 6) return;
 
     setIsSubmitting(true);
     setError("");
 
     try {
-      const response = await fetch("/api/auth/verify-otp", {
+      const response = await fetch("/api/auth/change-password", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ otp: value }),
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+          otp: value,
+        }),
       });
 
-      const data = (await response.json()) as {
-        message?: string;
-        shouldUpdateSession?: boolean;
-      };
-
       if (response.ok) {
-        setSuccess("验证成功！");
-
-        // 更新session以获取最新的验证状态
-        if (data.shouldUpdateSession) {
-          await update();
-        }
-
+        setSuccess("密码修改成功，即将跳转到登录页面...");
+        onSuccess?.();
         setTimeout(() => {
-          onSuccess();
-          onOpenChange(false);
-          // 重置状态
-          setOtp("");
-          setError("");
-          setSuccess("");
-        }, 1000);
+          window.location.href = "/auth/sign_in";
+        }, 2000);
       } else {
-        setError(data.message ?? "验证失败");
+        const error = (await response.json()) as { message?: string };
+        setError(error.message ?? "密码修改失败");
         setOtp("");
       }
     } catch {
@@ -133,9 +123,7 @@ export function EmailVerificationDialog({
         <DialogHeader>
           <DialogTitle>验证您的邮箱</DialogTitle>
           <DialogDescription>
-            我们将向{" "}
-            <span className="font-medium text-foreground">{userEmail}</span>{" "}
-            发送验证码
+            密码验证已通过，请输入发送到您邮箱的验证码来完成密码修改
           </DialogDescription>
         </DialogHeader>
 
@@ -220,7 +208,7 @@ export function EmailVerificationDialog({
                 onChange={(value: string) => {
                   setOtp(value);
                   if (value.length === 6) {
-                    void handleVerifyOtp(value);
+                    void handleVerifyOtpAndChangePassword(value);
                   }
                 }}
                 disabled={isSubmitting}

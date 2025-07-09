@@ -74,9 +74,19 @@ export const { handlers, auth, signOut, signIn } = NextAuth({
   },
   debug: NODE_ENV === "development",
   callbacks: {
-    session({ session, token }) {
+    async session({ session, token }) {
       if (session.user && token?.sub) {
         session.user.id = token.sub;
+
+        // Fetch user data from database to get emailVerified
+        const user = await prisma.user.findUnique({
+          where: { id: token.sub },
+          select: { emailVerified: true },
+        });
+
+        if (user) {
+          session.user.emailVerified = user.emailVerified;
+        }
       }
       return session;
     },
@@ -89,13 +99,7 @@ export const { handlers, auth, signOut, signIn } = NextAuth({
       // 其它路径直接放行
       return true;
     },
-    async signIn({
-      user,
-      account: _account,
-      profile: _profile,
-      email: _email,
-      credentials: _credentials,
-    }) {
+    async signIn({ user }) {
       if (user?.id) {
         await prisma.user.update({
           where: { id: user.id },

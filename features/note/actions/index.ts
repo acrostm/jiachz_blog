@@ -105,19 +105,28 @@ export const deleteNoteByID = async (id: string) => {
 
 export const createNote = async (params: CreateNoteDTO) => {
   if (await noPermission()) {
-    throw ERROR_NO_PERMISSION;
+    return {
+      success: false,
+      error: "权限不足，仅管理员和已验证用户可以创建笔记",
+    };
   }
-  const { body, published, tags } = await createNoteSchema.parseAsync(params);
 
-  await prisma.note.create({
-    data: {
-      body,
-      published,
-      tags: {
-        connect: tags?.map((tagID) => ({ id: tagID })) || [],
+  try {
+    const { body, published, tags } = await createNoteSchema.parseAsync(params);
+
+    await prisma.note.create({
+      data: {
+        body,
+        published,
+        tags: {
+          connect: tags?.map((tagID) => ({ id: tagID })) || [],
+        },
       },
-    },
-  });
+    });
+    return { success: true };
+  } catch {
+    return { success: false, error: "创建笔记失败，请重试" };
+  }
 };
 
 export const toggleNotePublished = async (id: string) => {
@@ -146,14 +155,17 @@ export const toggleNotePublished = async (id: string) => {
 
 export const updateNote = async (params: UpdateNoteDTO) => {
   if (await noPermission()) {
-    throw ERROR_NO_PERMISSION;
+    return {
+      success: false,
+      error: "权限不足，仅管理员和已验证用户可以编辑笔记",
+    };
   }
 
   const result = await updateNoteSchema.safeParseAsync(params);
 
   if (!result.success) {
     const error = result.error.format()._errors?.join(";");
-    throw new Error(error);
+    return { success: false, error };
   }
 
   const { id, body, published, tags } = result.data;
@@ -164,26 +176,31 @@ export const updateNote = async (params: UpdateNoteDTO) => {
   });
 
   if (!note) {
-    throw new Error("Note不存在");
+    return { success: false, error: "Note不存在" };
   }
 
-  const noteTagIDs = note.tags.map(({ id }) => id);
-  const connectTags = tags
-    ?.filter((tagID) => !noteTagIDs.includes(tagID))
-    ?.map((id) => ({ id }));
-  const disconnectTags = note.tags
-    .filter(({ id }) => !tags?.includes(id))
-    .map(({ id }) => ({ id }));
+  try {
+    const noteTagIDs = note.tags.map(({ id }) => id);
+    const connectTags = tags
+      ?.filter((tagID) => !noteTagIDs.includes(tagID))
+      ?.map((id) => ({ id }));
+    const disconnectTags = note.tags
+      .filter(({ id }) => !tags?.includes(id))
+      .map(({ id }) => ({ id }));
 
-  await prisma.note.update({
-    where: { id },
-    data: {
-      body,
-      published,
-      tags: {
-        connect: connectTags?.length ? connectTags : undefined,
-        disconnect: disconnectTags?.length ? disconnectTags : undefined,
+    await prisma.note.update({
+      where: { id },
+      data: {
+        body,
+        published,
+        tags: {
+          connect: connectTags?.length ? connectTags : undefined,
+          disconnect: disconnectTags?.length ? disconnectTags : undefined,
+        },
       },
-    },
-  });
+    });
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: "更新笔记失败，请重试" };
+  }
 };

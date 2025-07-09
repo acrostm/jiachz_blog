@@ -39,13 +39,27 @@ export const createUser = async (params: SignupDTO) => {
 export const noPermission = async () => {
   const session = await auth();
 
-  // 没有邮箱或者未配置admin邮箱，返回true，无权限
-  if (!session?.user?.email || !ADMIN_EMAILS?.length) {
+  // 没有登录用户，返回true，无权限
+  if (!session?.user?.email) {
     return true;
-  } else {
-    // 如果当前用户邮箱存在admin邮箱中，返回false，说明有权限
-    return !ADMIN_EMAILS.includes(session.user.email);
   }
+
+  // 如果是admin用户，返回false，有权限
+  if (ADMIN_EMAILS?.length && ADMIN_EMAILS.includes(session.user.email)) {
+    return false;
+  }
+
+  // 检查用户是否已验证邮箱
+  if (
+    session.user &&
+    "emailVerified" in session.user &&
+    session.user.emailVerified
+  ) {
+    return false; // 已验证用户有权限
+  }
+
+  // 其他情况返回true，无权限
+  return true;
 };
 
 export const deleteUserByID = async (id: string) => {

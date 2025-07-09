@@ -131,13 +131,16 @@ export const deleteSnippetByID = async (id: string) => {
 
 export const createSnippet = async (params: CreateSnippetDTO) => {
   if (await noPermission()) {
-    throw ERROR_NO_PERMISSION;
+    return {
+      success: false,
+      error: "权限不足，仅管理员和已验证用户可以创建片段",
+    };
   }
   const result = await createSnippetSchema.safeParseAsync(params);
 
   if (!result.success) {
     const error = result.error.format()._errors?.join(";");
-    throw new Error(error);
+    return { success: false, error };
   }
 
   const existingSnippets = await prisma.snippet.findMany({
@@ -147,17 +150,22 @@ export const createSnippet = async (params: CreateSnippetDTO) => {
   });
 
   if (existingSnippets.length) {
-    throw new Error("标题或者slug重复");
+    return { success: false, error: "标题或者slug重复" };
   }
 
-  await prisma.snippet.create({
-    data: {
-      ...result.data,
-      tags: {
-        connect: result.data.tags?.map((tagID) => ({ id: tagID })) || [],
+  try {
+    await prisma.snippet.create({
+      data: {
+        ...result.data,
+        tags: {
+          connect: result.data.tags?.map((tagID) => ({ id: tagID })) ?? [],
+        },
       },
-    },
-  });
+    });
+    return { success: true };
+  } catch {
+    return { success: false, error: "创建片段失败，请重试" };
+  }
 };
 
 export const toggleSnippetPublished = async (id: string) => {
@@ -186,32 +194,40 @@ export const toggleSnippetPublished = async (id: string) => {
 
 export const updateSnippet = async (params: UpdateSnippetDTO) => {
   if (await noPermission()) {
-    throw ERROR_NO_PERMISSION;
+    return {
+      success: false,
+      error: "权限不足，仅管理员和已验证用户可以编辑片段",
+    };
   }
   const result = await updateSnippetSchema.safeParseAsync(params);
 
   if (!result.success) {
-    throw new Error(result.error.format()._errors?.join(";"));
+    return { success: false, error: result.error.format()._errors?.join(";") };
   }
 
-  const snippet = await prisma.snippet.update({
-    where: { id: result.data.id },
-    data: {
-      title: result.data.title,
-      description: result.data.description,
-      slug: result.data.slug,
-      body: result.data.body,
-      published: result.data.published,
-      tags: {
-        set: result.data.tags?.map((el) => {
-          return { id: el };
-        }),
+  try {
+    const snippet = await prisma.snippet.update({
+      where: { id: result.data.id },
+      data: {
+        title: result.data.title,
+        description: result.data.description,
+        slug: result.data.slug,
+        body: result.data.body,
+        published: result.data.published,
+        tags: {
+          set: result.data.tags?.map((el) => {
+            return { id: el };
+          }),
+        },
       },
-    },
-    include: { tags: true },
-  });
+      include: { tags: true },
+    });
 
-  if (!snippet) {
-    throw new Error("Snippet不存在");
+    if (!snippet) {
+      return { success: false, error: "Snippet不存在" };
+    }
+    return { success: true };
+  } catch {
+    return { success: false, error: "更新片段失败，请重试" };
   }
 };

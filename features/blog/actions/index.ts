@@ -47,7 +47,7 @@ export const getBlogs = async (params: GetBlogsDTO) => {
 
   const published = await noPermission();
   if (published || !isUndefined(result.data.published)) {
-    cond.published = PUBLISHED_MAP[result.data.published!] || published;
+    cond.published = PUBLISHED_MAP[result.data.published!] ?? published;
   }
 
   const sort: Prisma.BlogOrderByWithRelationInput | undefined =
@@ -145,13 +145,16 @@ export const deleteBlogByID = async (id: string) => {
 
 export const createBlog = async (params: CreateBlogDTO) => {
   if (await noPermission()) {
-    throw ERROR_NO_PERMISSION;
+    return {
+      success: false,
+      error: "权限不足，仅管理员和已验证用户可以创建博客",
+    };
   }
   const result = await createBlogSchema.safeParseAsync(params);
 
   if (!result.success) {
     const error = result.error.format()._errors?.join(";");
-    throw new Error(error);
+    return { success: false, error };
   }
 
   const { title, slug, description, body, published, cover, author, tags } =
@@ -164,25 +167,30 @@ export const createBlog = async (params: CreateBlogDTO) => {
   });
 
   if (blogs.length) {
-    throw new Error("标题或者slug重复");
+    return { success: false, error: "标题或者slug重复" };
   }
 
-  await prisma.blog.create({
-    data: {
-      title,
-      slug,
-      description,
-      body,
-      published,
-      cover,
-      author,
-      tags: tags
-        ? {
-            connect: tags.map((tagID) => ({ id: tagID })),
-          }
-        : undefined,
-    },
-  });
+  try {
+    await prisma.blog.create({
+      data: {
+        title,
+        slug,
+        description,
+        body,
+        published,
+        cover,
+        author,
+        tags: tags
+          ? {
+              connect: tags.map((tagID) => ({ id: tagID })),
+            }
+          : undefined,
+      },
+    });
+    return { success: true };
+  } catch {
+    return { success: false, error: "创建博客失败，请重试" };
+  }
 };
 
 export const toggleBlogPublished = async (id: string) => {
@@ -211,13 +219,16 @@ export const toggleBlogPublished = async (id: string) => {
 
 export const updateBlog = async (params: UpdateBlogDTO) => {
   if (await noPermission()) {
-    throw ERROR_NO_PERMISSION;
+    return {
+      success: false,
+      error: "权限不足，仅管理员和已验证用户可以编辑博客",
+    };
   }
   const result = await updateBlogSchema.safeParseAsync(params);
 
   if (!result.success) {
     const error = result.error.format()._errors?.join(";");
-    throw new Error(error);
+    return { success: false, error };
   }
 
   const { id, title, description, slug, cover, author, body, published, tags } =
@@ -229,31 +240,36 @@ export const updateBlog = async (params: UpdateBlogDTO) => {
   });
 
   if (!blog) {
-    throw new Error("Blog不存在");
+    return { success: false, error: "Blog不存在" };
   }
 
-  const blogTags = new Set(blog.tags.map((el) => el.id));
-  const tagsToConnect = tags
-    ?.filter((tagID) => !blogTags.has(tagID))
-    .map((tagID) => ({ id: tagID }));
-  const tagsToDisconnect = Array.from(blogTags)
-    .filter((tagID) => !tags?.includes(tagID))
-    .map((tagID) => ({ id: tagID }));
+  try {
+    const blogTags = new Set(blog.tags.map((el) => el.id));
+    const tagsToConnect = tags
+      ?.filter((tagID) => !blogTags.has(tagID))
+      .map((tagID) => ({ id: tagID }));
+    const tagsToDisconnect = Array.from(blogTags)
+      .filter((tagID) => !tags?.includes(tagID))
+      .map((tagID) => ({ id: tagID }));
 
-  await prisma.blog.update({
-    where: { id },
-    data: {
-      title: title ?? blog.title,
-      description: description ?? blog.description,
-      slug: slug ?? blog.slug,
-      cover: cover ?? blog.cover,
-      author: author ?? blog.author,
-      body: body ?? blog.body,
-      published: published ?? blog.published,
-      tags: {
-        connect: tagsToConnect?.length ? tagsToConnect : undefined,
-        disconnect: tagsToDisconnect?.length ? tagsToDisconnect : undefined,
+    await prisma.blog.update({
+      where: { id },
+      data: {
+        title: title ?? blog.title,
+        description: description ?? blog.description,
+        slug: slug ?? blog.slug,
+        cover: cover ?? blog.cover,
+        author: author ?? blog.author,
+        body: body ?? blog.body,
+        published: published ?? blog.published,
+        tags: {
+          connect: tagsToConnect?.length ? tagsToConnect : undefined,
+          disconnect: tagsToDisconnect?.length ? tagsToDisconnect : undefined,
+        },
       },
-    },
-  });
+    });
+    return { success: true };
+  } catch {
+    return { success: false, error: "更新博客失败，请重试" };
+  }
 };

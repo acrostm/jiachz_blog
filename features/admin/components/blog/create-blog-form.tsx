@@ -286,11 +286,13 @@ export const CreateBlogForm = () => {
   );
 
   async function handleSubmit(values: CreateBlogDTO) {
-    await createBlogQuery.runAsync({
+    const result = await createBlogQuery.runAsync({
       ...values,
       author: session?.user?.name ?? "",
     });
-    router.push(PATHS.ADMIN_BLOG);
+    if (result.success) {
+      router.push(PATHS.ADMIN_BLOG);
+    }
   }
 
   function handleFormatSlug() {

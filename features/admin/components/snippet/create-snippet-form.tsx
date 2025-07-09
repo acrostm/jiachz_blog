@@ -233,8 +233,10 @@ export const CreateSnippetForm = () => {
   );
 
   async function handleSubmit(values: CreateSnippetDTO) {
-    await createSnippetQuery.runAsync(values);
-    router.push(PATHS.ADMIN_SNIPPET);
+    const result = await createSnippetQuery.runAsync(values);
+    if (result.success) {
+      router.push(PATHS.ADMIN_SNIPPET);
+    }
   }
 
   function handleFormatSlug() {

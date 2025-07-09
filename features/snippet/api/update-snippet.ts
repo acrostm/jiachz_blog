@@ -7,11 +7,15 @@ export const useUpdateSnippet = () => {
   return useRequest(updateSnippet, {
     manual: true,
     loadingDelay: 300,
-    onSuccess() {
-      toast.success("片段已更新");
+    onSuccess(result) {
+      if (result.success) {
+        toast.success("片段已更新");
+      } else {
+        toast.error(`片段更新失败: ${result.error}`);
+      }
     },
     onError(error) {
-      toast.error(`片段更新: ${error.message}`);
+      toast.error(`片段更新失败: ${error.message}`);
     },
   });
 };

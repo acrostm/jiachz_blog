@@ -7,8 +7,12 @@ export const useUpdateBlog = () => {
   return useRequest(updateBlog, {
     manual: true,
     loadingDelay: 300,
-    onSuccess() {
-      toast.success("博客已更新");
+    onSuccess(result) {
+      if (result.success) {
+        toast.success("博客已更新");
+      } else {
+        toast.error(`博客更新失败: ${result.error}`);
+      }
     },
     onError(error) {
       toast.error(`博客更新失败: ${error.message}`);

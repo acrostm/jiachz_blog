@@ -93,41 +93,57 @@ export default function AdminUserPage() {
         </Avatar>
       ),
     },
-    { accessorKey: "id", header: "ID" },
+    {
+      accessorKey: "id",
+      header: "ID",
+      cell: ({ row }: { row: Row<User> }) => (
+        <div className="min-w-[60px] font-mono text-xs">{row.original.id}</div>
+      ),
+    },
     {
       accessorKey: "name",
-      header: "用户名",
+      header: "用户信息",
       cell: ({ row }: { row: Row<User> }) => (
-        <div className="flex items-center gap-2">
-          <span>{row.original.name}</span>
-          {row.original.emailVerified && (
-            <VerifiedBadge size="md" showText={false} />
-          )}
+        <div className="min-w-[120px]">
+          <div className="flex items-center gap-2">
+            <span className="font-medium">{row.original.name}</span>
+            {row.original.emailVerified && (
+              <VerifiedBadge size="md" showText={false} />
+            )}
+          </div>
+          <div className="mt-1 text-xs text-muted-foreground">
+            {row.original.email}
+          </div>
         </div>
       ),
     },
-    { accessorKey: "email", header: "邮箱" },
     {
       accessorKey: "password",
       header: "密码",
       cell: ({ row }: { row: Row<User> }) => {
         const pw = row.original.password ?? "";
-        return <span>{pw ? "********" : ""}</span>;
+        return (
+          <span className="block min-w-[60px]">{pw ? "********" : "-"}</span>
+        );
       },
     },
     {
       accessorKey: "accounts",
       header: "账号绑定",
       cell: ({ row }: { row: Row<User> }) => (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex min-w-[100px] flex-wrap gap-1">
           {row.original.accounts?.length ? (
             row.original.accounts.map((acc: Account) => (
-              <Badge key={acc.provider + acc.providerAccountId}>
-                {acc.provider}: {acc.providerAccountId}
+              <Badge
+                key={acc.provider + acc.providerAccountId}
+                variant="secondary"
+                className="text-xs"
+              >
+                {acc.provider}
               </Badge>
             ))
           ) : (
-            <span className="text-muted-foreground">无</span>
+            <span className="text-xs text-muted-foreground">无</span>
           )}
         </div>
       ),
@@ -135,20 +151,26 @@ export default function AdminUserPage() {
     {
       accessorKey: "createdAt",
       header: "注册时间",
-      cell: ({ row }: { row: Row<User> }) =>
-        formatLocalTime(row.original.createdAt),
+      cell: ({ row }: { row: Row<User> }) => (
+        <div className="min-w-[140px] text-xs">
+          {formatLocalTime(row.original.createdAt)}
+        </div>
+      ),
     },
     {
       accessorKey: "lastLoginAt",
       header: "最后登录",
-      cell: ({ row }: { row: Row<User> }) =>
-        formatRelativeTimeLocal(row.original.lastLoginAt),
+      cell: ({ row }: { row: Row<User> }) => (
+        <div className="min-w-[80px] text-xs">
+          {formatRelativeTimeLocal(row.original.lastLoginAt)}
+        </div>
+      ),
     },
     {
       id: "actions",
       header: "操作",
       cell: ({ row }: { row: Row<User> }) => (
-        <>
+        <div className="min-w-[60px]">
           <Button
             size="icon"
             variant="outline"
@@ -164,20 +186,22 @@ export default function AdminUserPage() {
               setDialogOpenId(open ? row.original.id : null)
             }
           >
-            <AlertDialogContent className="max-w-sm p-8 text-center">
+            <AlertDialogContent className="mx-4 max-w-sm p-6 text-center">
               <div className="mb-2 flex flex-col items-center gap-2">
                 <span className="text-4xl">⚠️</span>
-                <AlertDialogTitle className="mb-1 mt-2 text-xl font-bold">
+                <AlertDialogTitle className="mb-1 mt-2 text-lg font-bold lg:text-xl">
                   确定要删除该用户吗？
                 </AlertDialogTitle>
-                <AlertDialogDescription className="mb-2 text-base text-muted-foreground">
+                <AlertDialogDescription className="mb-2 text-sm text-muted-foreground lg:text-base">
                   删除后不可恢复，请谨慎操作！
                 </AlertDialogDescription>
               </div>
               <div className="mt-6 flex justify-center gap-4">
-                <AlertDialogCancel className="w-28">取消</AlertDialogCancel>
+                <AlertDialogCancel className="w-24 lg:w-28">
+                  取消
+                </AlertDialogCancel>
                 <AlertDialogAction
-                  className="w-28"
+                  className="w-24 lg:w-28"
                   onClick={async () => {
                     await deleteUserQuery.runAsync(row.original.id);
                     setDialogOpenId(null);
@@ -190,7 +214,7 @@ export default function AdminUserPage() {
               </div>
             </AlertDialogContent>
           </AlertDialog>
-        </>
+        </div>
       ),
     },
   ];
@@ -201,17 +225,21 @@ export default function AdminUserPage() {
         <PageBreadcrumb breadcrumbList={[PATHS.ADMIN_HOME, PATHS.ADMIN_USER]} />
       }
     >
-      <Card className="p-4">
-        <h2 className="mb-4 text-xl font-bold">用户管理</h2>
-        <DataTable
-          columns={columns}
-          data={users}
-          loading={loading}
-          params={{ pageIndex: 1, pageSize: 100 }}
-          updateParams={() => {
-            // No-op for now
-          }}
-        />
+      <Card className="p-3 lg:p-4">
+        <h2 className="mb-4 text-lg font-bold lg:text-xl">用户管理</h2>
+        <div className="-mx-3 overflow-x-auto lg:-mx-4">
+          <div className="min-w-[800px] px-3 lg:px-4">
+            <DataTable
+              columns={columns}
+              data={users}
+              loading={loading}
+              params={{ pageIndex: 1, pageSize: 100 }}
+              updateParams={() => {
+                // No-op for now
+              }}
+            />
+          </div>
+        </div>
       </Card>
     </AdminContentLayout>
   );

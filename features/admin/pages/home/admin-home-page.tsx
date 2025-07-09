@@ -23,15 +23,22 @@ export const AdminHomePage = () => {
     <AdminContentLayout
       breadcrumb={<PageBreadcrumb breadcrumbList={[PATHS.ADMIN_HOME]} />}
     >
-      <div className="mt-[18vh] grid place-content-center gap-4">
-        <h2 className="text-3xl font-medium">{sayHi()} 欢迎使用后台管理系统</h2>
-        <p className="text-lg text-muted-foreground">你可能想 🤔</p>
+      <div className="mt-[10vh] grid place-content-center gap-4 px-4 lg:mt-[18vh]">
+        <h2 className="text-center text-xl font-medium lg:text-3xl">
+          {sayHi()} 欢迎使用后台管理系统
+        </h2>
+        <p className="text-center text-base text-muted-foreground lg:text-lg">
+          你可能想 🤔
+        </p>
 
-        <div className="flex space-x-4">
+        <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:gap-0 sm:space-x-4">
           {guessList.map((el) => (
             <Link
               key={el.link}
-              className={cn(buttonVariants({ variant: "default" }))}
+              className={cn(
+                buttonVariants({ variant: "default" }),
+                "w-full sm:w-auto",
+              )}
               href={el.link}
             >
               {el.label}

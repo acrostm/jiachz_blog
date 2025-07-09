@@ -76,14 +76,14 @@ export const AdminContentLayout = ({
 
   return (
     <div className="h-screen flex-1 overflow-hidden">
-      <header className="fixed inset-x-0 top-0 z-10 flex h-14 items-center justify-between gap-4 border-b bg-background px-4 py-2 sm:static sm:h-auto sm:px-6">
+      <header className="fixed inset-x-0 top-0 z-10 flex h-14 items-center justify-between gap-4 border-b bg-background px-4 py-2 lg:static lg:h-auto lg:px-6">
         <Sheet>
           <SheetTrigger asChild>
-            <Button size="icon" variant="outline" className="sm:hidden">
+            <Button size="icon" variant="outline" className="lg:hidden">
               <PanelLeft className="size-4" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="sm:max-w-xs">
+          <SheetContent side="left" className="max-w-xs">
             <nav className="grid gap-6 text-lg font-medium">
               {adminNavItems.map((el) => (
                 <Link
@@ -150,7 +150,10 @@ export const AdminContentLayout = ({
           </DropdownMenu>
         </div>
       </header>
-      <ScrollArea ref={scrollRef} className="h-screen px-6 pt-20 sm:pt-6">
+      <ScrollArea
+        ref={scrollRef}
+        className="h-screen px-4 pt-20 lg:px-6 lg:pt-6"
+      >
         {children}
 
         {/* padding */}

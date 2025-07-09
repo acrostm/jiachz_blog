@@ -25,14 +25,14 @@ export const AdminLayout = ({ children }: React.PropsWithChildren) => {
       <div className="flex min-h-screen w-full bg-muted/40">
         <aside
           className={cn(
-            "hidden flex-col border-r bg-background sm:flex transition-all",
+            "hidden lg:flex flex-col border-r bg-background transition-all",
             open ? "w-36" : "w-14",
           )}
         >
           <Link
             href={PATHS.ADMIN_HOME}
             className={cn(
-              "hidden sm:flex mt-[10vh] mb-[5vh] justify-center items-center whitespace-nowrap",
+              "hidden lg:flex mt-[10vh] mb-[5vh] justify-center items-center whitespace-nowrap",
             )}
             aria-label={NICKNAME}
           >
@@ -45,7 +45,7 @@ export const AdminLayout = ({ children }: React.PropsWithChildren) => {
           </Link>
           <nav
             className={cn(
-              "h-full flex flex-col items-center gap-4 sm:py-5",
+              "h-full flex flex-col items-center gap-4 py-5",
               open ? "px-4" : "px-2",
             )}
           >
@@ -66,7 +66,7 @@ export const AdminLayout = ({ children }: React.PropsWithChildren) => {
               </Link>
             ))}
           </nav>
-          <nav className="mt-auto flex flex-col items-center gap-4 px-2 sm:py-5">
+          <nav className="mt-auto flex flex-col items-center gap-4 px-2 py-5">
             <Button size={"icon"} variant={"outline"}>
               {open ? (
                 <PanelLeftClose

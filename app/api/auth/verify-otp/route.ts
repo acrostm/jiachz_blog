@@ -70,7 +70,10 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    return NextResponse.json({ message: "邮箱验证成功" });
+    return NextResponse.json({
+      message: "邮箱验证成功",
+      shouldUpdateSession: true,
+    });
   } catch {
     return NextResponse.json({ message: "验证失败，请重试" }, { status: 500 });
   }

@@ -20,9 +20,7 @@ export const useDeleteUser = () => {
         toast.success("用户已删除");
       },
       onError(error) {
-        toast.error(
-          `用户删除失败: ${(error.message)}`,
-        );
+        toast.error(`用户删除失败: ${error.message}`);
       },
     },
   );

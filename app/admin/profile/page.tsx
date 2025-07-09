@@ -4,6 +4,7 @@ import { AvatarUpload } from "@/components/avatar-upload";
 import { IconBrandGithub } from "@/components/icons/fa6-brands";
 import { IconLogoGoogle } from "@/components/icons/logos";
 import { PageBreadcrumb } from "@/components/page-header";
+import { VerifiedBadge } from "@/components/verified-badge";
 
 import { PATHS } from "@/constants";
 import { AdminContentLayout } from "@/features/admin";
@@ -66,11 +67,7 @@ export default async function ProfilePage() {
           </div>
           <div className="flex items-center gap-2 text-foreground">
             <span>{user?.email}</span>
-            {userDb?.emailVerified && (
-              <Badge variant="secondary" className="text-xs">
-                已验证
-              </Badge>
-            )}
+            {userDb?.emailVerified && <VerifiedBadge size="md" />}
           </div>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

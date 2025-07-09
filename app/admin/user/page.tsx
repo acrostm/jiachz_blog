@@ -20,6 +20,7 @@ import { Card } from "@/components/ui/card";
 import { DataTable } from "@/components/ui/data-table";
 
 import { PageBreadcrumb } from "@/components/page-header";
+import { VerifiedBadge } from "@/components/verified-badge";
 
 import { PATHS } from "@/constants";
 import { AdminContentLayout } from "@/features/admin";
@@ -37,6 +38,7 @@ interface User {
   email?: string;
   password?: string;
   image?: string;
+  emailVerified?: string;
   accounts: Account[];
   createdAt: string;
   lastLoginAt?: string;
@@ -58,7 +60,7 @@ export default function AdminUserPage() {
       const res = await fetch("/api/users");
       const data = (await res.json()) as UsersApiResponse;
       setUsers(data.users || []);
-    } catch (err) {
+    } catch {
       setUsers([]);
     } finally {
       setLoading(false);
@@ -92,7 +94,18 @@ export default function AdminUserPage() {
       ),
     },
     { accessorKey: "id", header: "ID" },
-    { accessorKey: "name", header: "昵称" },
+    {
+      accessorKey: "name",
+      header: "用户名",
+      cell: ({ row }: { row: Row<User> }) => (
+        <div className="flex items-center gap-2">
+          <span>{row.original.name}</span>
+          {row.original.emailVerified && (
+            <VerifiedBadge size="md" showText={false} />
+          )}
+        </div>
+      ),
+    },
     { accessorKey: "email", header: "邮箱" },
     {
       accessorKey: "password",

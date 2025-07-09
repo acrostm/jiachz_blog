@@ -24,6 +24,8 @@ import {
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
 
+import { VerifiedBadge } from "@/components/verified-badge";
+
 import { isAdmin } from "@/lib/utils";
 
 // 你需要先安装 frimousse 依赖，并引入 EmojiPicker 组件
@@ -67,7 +69,12 @@ interface Message {
   ip: string;
   isLogin: boolean;
   userId?: string;
-  userInfo?: { name?: string; image?: string; email?: string };
+  userInfo?: {
+    name?: string;
+    image?: string;
+    email?: string;
+    emailVerified?: string;
+  };
 }
 
 export default function MessagesPage() {
@@ -173,20 +180,25 @@ export default function MessagesPage() {
                     {msg.userInfo?.name?.[0] ?? (msg.isLogin ? "U" : "A")}
                   </div>
                 )}
-                <span className="text-base font-semibold text-primary">
-                  {isMsgAdmin ? (
-                    <GradientText
-                      colors={["#ffaa40", "#9c40ff", "#ffaa40"]}
-                      animationSpeed={1}
-                      className="inline-block"
-                    >
-                      {msg.userInfo?.name}
-                    </GradientText>
-                  ) : (
-                    (msg.userInfo?.name ??
-                    (msg.isLogin ? "已登录用户" : "匿名用户"))
+                <div className="flex items-center gap-2">
+                  <span className="text-base font-semibold text-primary">
+                    {isMsgAdmin ? (
+                      <GradientText
+                        colors={["#ffaa40", "#9c40ff", "#ffaa40"]}
+                        animationSpeed={1}
+                        className="inline-block"
+                      >
+                        {msg.userInfo?.name}
+                      </GradientText>
+                    ) : (
+                      (msg.userInfo?.name ??
+                      (msg.isLogin ? "已登录用户" : "匿名用户"))
+                    )}
+                  </span>
+                  {msg.userInfo?.emailVerified && (
+                    <VerifiedBadge size="md" showText={true} />
                   )}
-                </span>
+                </div>
                 {/* 用户身份 tag */}
                 {isMsgAdmin ? (
                   <span

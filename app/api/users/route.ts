@@ -17,6 +17,7 @@ export async function GET() {
       email: true,
       password: true,
       image: true,
+      emailVerified: true,
       createdAt: true,
       lastLoginAt: true,
       accounts: {

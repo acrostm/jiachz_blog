@@ -33,12 +33,18 @@ export async function GET() {
     const userIds = messages.filter((m) => m.userId).map((m) => m.userId!);
     let userMap: Record<
       string,
-      { name?: string; image?: string; email?: string }
+      { name?: string; image?: string; email?: string; emailVerified?: string }
     > = {};
     if (userIds.length > 0 && prisma?.user?.findMany) {
       const users = await prisma.user.findMany({
         where: { id: { in: userIds } },
-        select: { id: true, name: true, image: true, email: true },
+        select: {
+          id: true,
+          name: true,
+          image: true,
+          email: true,
+          emailVerified: true,
+        },
       });
       userMap = Object.fromEntries(
         users.map((u) => [
@@ -47,6 +53,7 @@ export async function GET() {
             name: u.name ?? undefined,
             image: u.image ?? undefined,
             email: u.email ?? undefined,
+            emailVerified: u.emailVerified?.toISOString() ?? undefined,
           },
         ]),
       );
@@ -95,12 +102,13 @@ export async function POST(req: NextRequest) {
     if (userId && prisma?.user?.findUnique) {
       const user = await prisma.user.findUnique({
         where: { id: userId },
-        select: { name: true, image: true },
+        select: { name: true, image: true, emailVerified: true },
       });
       if (user)
         userInfo = {
           name: user.name ?? undefined,
           image: user.image ?? undefined,
+          emailVerified: user.emailVerified?.toISOString() ?? undefined,
         };
     }
     return NextResponse.json({

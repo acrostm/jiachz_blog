@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 
+import { useSession } from "next-auth/react";
+
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -37,6 +39,7 @@ export function EmailVerificationDialog({
   const [success, setSuccess] = useState("");
 
   const { count, start, isActive } = useCountdown(60);
+  const { update } = useSession();
 
   const handleSendOtp = async () => {
     if (isActive) return;
@@ -80,10 +83,19 @@ export function EmailVerificationDialog({
         body: JSON.stringify({ otp: value }),
       });
 
-      const data = (await response.json()) as { message?: string };
+      const data = (await response.json()) as {
+        message?: string;
+        shouldUpdateSession?: boolean;
+      };
 
       if (response.ok) {
         setSuccess("验证成功！");
+
+        // 更新session以获取最新的验证状态
+        if (data.shouldUpdateSession) {
+          await update();
+        }
+
         setTimeout(() => {
           onSuccess();
           onOpenChange(false);

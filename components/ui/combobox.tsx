@@ -78,6 +78,7 @@ export const Combobox = React.forwardRef(
   (props: ComboboxProps, ref: React.ForwardedRef<HTMLInputElement>) => {
     const [open, setOpen] = React.useState(false);
     const [search, setSearch] = React.useState("");
+    const [tagsExpanded, setTagsExpanded] = React.useState(false);
 
     const tagMap = React.useMemo(() => {
       return new Map<string, string>(
@@ -90,6 +91,51 @@ export const Combobox = React.forwardRef(
         el.label.toLowerCase().trim().includes(search?.trim()?.toLowerCase()),
       );
     }, [props?.options, search]);
+
+    const renderMultipleSelectedTags = () => {
+      if (!props.multiple || !props.value?.length) return null;
+
+      const maxVisibleTags = 2;
+      const selectedTags = props.value;
+      const visibleTags = tagsExpanded
+        ? selectedTags
+        : selectedTags.slice(0, maxVisibleTags);
+      const hasMoreTags = selectedTags.length > maxVisibleTags;
+
+      return (
+        <div className="flex flex-wrap items-center gap-1">
+          {visibleTags.map((el) => (
+            <Badge key={el} variant="secondary" className="text-xs">
+              {tagMap.get(el)}
+            </Badge>
+          ))}
+          {hasMoreTags && !tagsExpanded && (
+            <Badge
+              variant="outline"
+              className="cursor-pointer text-xs hover:bg-secondary"
+              onClick={(e) => {
+                e.stopPropagation();
+                setTagsExpanded(true);
+              }}
+            >
+              +{selectedTags.length - maxVisibleTags} 更多
+            </Badge>
+          )}
+          {tagsExpanded && hasMoreTags && (
+            <Badge
+              variant="outline"
+              className="cursor-pointer text-xs hover:bg-secondary"
+              onClick={(e) => {
+                e.stopPropagation();
+                setTagsExpanded(false);
+              }}
+            >
+              收起
+            </Badge>
+          )}
+        </div>
+      );
+    };
 
     return (
       <Popover open={open} onOpenChange={setOpen}>
@@ -109,12 +155,7 @@ export const Combobox = React.forwardRef(
               )}
             >
               {/* 多选 */}
-              {props.multiple &&
-                props.value &&
-                Boolean(props.value.length) &&
-                props.value?.map((el) => (
-                  <Badge key={el}>{tagMap.get(el)}</Badge>
-                ))}
+              {renderMultipleSelectedTags()}
 
               {/* 单选 */}
               {!props.multiple &&

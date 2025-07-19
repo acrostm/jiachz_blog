@@ -205,42 +205,6 @@ export const updateSnippet = async (params: UpdateSnippetDTO) => {
     return { success: false, error: result.error.format()._errors?.join(";") };
   }
 
-  const { id, title, slug } = result.data;
-
-  // 获取现有的snippet信息用于比较
-  const existingSnippet = await prisma.snippet.findUnique({
-    where: { id },
-  });
-
-  if (!existingSnippet) {
-    return { success: false, error: "Snippet不存在" };
-  }
-
-  // 检查标题和slug的唯一性（排除当前snippet）
-  const conflicts = await prisma.snippet.findMany({
-    where: {
-      AND: [
-        { id: { not: id } }, // 排除当前snippet
-        {
-          OR: [
-            ...(title && title !== existingSnippet.title ? [{ title }] : []),
-            ...(slug && slug !== existingSnippet.slug ? [{ slug }] : []),
-          ],
-        },
-      ],
-    },
-  });
-
-  if (conflicts.length > 0) {
-    const conflictTypes = [];
-    if (conflicts.some((c) => c.title === title)) conflictTypes.push("标题");
-    if (conflicts.some((c) => c.slug === slug)) conflictTypes.push("Slug");
-    return {
-      success: false,
-      error: `${conflictTypes.join("和")}已存在，请使用其他${conflictTypes.join("和")}`,
-    };
-  }
-
   try {
     const snippet = await prisma.snippet.update({
       where: { id: result.data.id },
@@ -259,6 +223,9 @@ export const updateSnippet = async (params: UpdateSnippetDTO) => {
       include: { tags: true },
     });
 
+    if (!snippet) {
+      return { success: false, error: "Snippet不存在" };
+    }
     return { success: true };
   } catch {
     return { success: false, error: "更新片段失败，请重试" };

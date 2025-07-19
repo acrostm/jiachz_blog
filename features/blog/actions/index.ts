@@ -243,31 +243,6 @@ export const updateBlog = async (params: UpdateBlogDTO) => {
     return { success: false, error: "Blog不存在" };
   }
 
-  // 检查标题和slug的唯一性（排除当前博客）
-  const conflicts = await prisma.blog.findMany({
-    where: {
-      AND: [
-        { id: { not: id } }, // 排除当前博客
-        {
-          OR: [
-            ...(title && title !== blog.title ? [{ title }] : []),
-            ...(slug && slug !== blog.slug ? [{ slug }] : []),
-          ],
-        },
-      ],
-    },
-  });
-
-  if (conflicts.length > 0) {
-    const conflictTypes = [];
-    if (conflicts.some((c) => c.title === title)) conflictTypes.push("标题");
-    if (conflicts.some((c) => c.slug === slug)) conflictTypes.push("Slug");
-    return {
-      success: false,
-      error: `${conflictTypes.join("和")}已存在，请使用其他${conflictTypes.join("和")}`,
-    };
-  }
-
   try {
     const blogTags = new Set(blog.tags.map((el) => el.id));
     const tagsToConnect = tags

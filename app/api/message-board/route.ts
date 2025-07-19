@@ -82,7 +82,7 @@ export async function POST(req: NextRequest) {
     const ip = getClientIp(req);
     const userAgent = req.headers.get("user-agent") ?? "unknown";
     const isLogin = !!session?.user?.id;
-    const userId = isLogin ? session.user.id : undefined;
+    const userId = isLogin ? session.user!.id : undefined;
     if (!prisma?.messageBoard?.create) {
       return NextResponse.json(
         { error: "留言创建失败，数据库未连接" },

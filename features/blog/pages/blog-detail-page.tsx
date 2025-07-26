@@ -46,7 +46,7 @@ export const BlogDetailPage = ({ blog, uv = 0 }: BlogDetailProps) => {
         {blog.creatorLocation && (
           <div className="flex items-center space-x-1">
             <MapPin className="size-3.5" />
-            <span>来自：{blog.creatorLocation}</span>
+            <span>{blog.creatorLocation}</span>
           </div>
         )}
       </div>

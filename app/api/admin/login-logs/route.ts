@@ -100,12 +100,18 @@ export async function GET(req: NextRequest) {
 
     // Search in user name or email
     if (query.search) {
-      where.user = {
-        OR: [
-          { name: { contains: query.search, mode: "insensitive" } },
-          { email: { contains: query.search, mode: "insensitive" } },
-        ],
-      };
+      where.OR = [
+        {
+          user: {
+            name: { contains: query.search, mode: "insensitive" }
+          }
+        },
+        {
+          user: {
+            email: { contains: query.search, mode: "insensitive" }
+          }
+        }
+      ];
     }
 
     // Get total count

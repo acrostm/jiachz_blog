@@ -229,6 +229,8 @@ export const createBlog = async (params: CreateBlogDTO) => {
         published,
         cover,
         author,
+        creatorIp: "127.0.0.1",
+        creatorLocation: "本地环境",
         tags: tags
           ? {
               connect: tags.map((tagID) => ({ id: tagID })),

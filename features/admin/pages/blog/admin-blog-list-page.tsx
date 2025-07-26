@@ -15,12 +15,14 @@ import {
   ArrowUpNarrowWide,
   Calendar,
   Eye,
+  MapPin,
   Pen,
   Plus,
   RotateCw,
   Search,
   TagsIcon,
   TypeIcon,
+  Wifi,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
@@ -176,6 +178,41 @@ export const AdminBlogListPage = () => {
             published={row.original.published}
             refreshAsync={getBlogsQuery.refreshAsync}
           />
+        );
+      },
+    },
+    {
+      accessorKey: "creatorInfo",
+      header: () => (
+        <div className="flex items-center space-x-1">
+          <MapPin className="size-4" />
+          <span>创建地点</span>
+        </div>
+      ),
+      cell: ({ row }: { row: Row<Blog> }) => {
+        const blog = row.original;
+        return (
+          <div className="space-y-1">
+            {blog.creatorIp && (
+              <div className="flex items-center gap-1">
+                <Wifi className="size-3 text-muted-foreground" />
+                <span className="font-mono text-xs">{blog.creatorIp}</span>
+              </div>
+            )}
+            {blog.creatorLocation && (
+              <div className="flex items-center gap-1">
+                <MapPin className="size-3 text-muted-foreground" />
+                <span className="text-xs text-muted-foreground">
+                  {blog.creatorLocation}
+                </span>
+              </div>
+            )}
+            {!blog.creatorIp && !blog.creatorLocation && (
+              <span className="text-xs text-muted-foreground">
+                {PLACEHOLDER_TEXT}
+              </span>
+            )}
+          </div>
         );
       },
     },

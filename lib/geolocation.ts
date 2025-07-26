@@ -25,11 +25,19 @@ class GeolocationService {
    */
   async getLocationByIP(ip: string): Promise<GeolocationResult> {
     try {
-      // Skip local/private IPs
+      // Handle local IPs
+      if (ip === "127.0.0.1" || ip === "::1") {
+        return {
+          success: true,
+          location: "本地环境",
+        };
+      }
+
+      // Handle private IPs
       if (this.isPrivateIP(ip) || ip === "unknown") {
         return {
-          success: false,
-          location: "未知位置",
+          success: true,
+          location: "本地环境",
         };
       }
 

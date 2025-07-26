@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     const clientIp =
       req.headers.get("x-forwarded-for")?.split(",")[0] ??
       req.headers.get("x-real-ip") ??
-      "unknown";
+      "127.0.0.1";
 
     const location = await getIPLocation(clientIp);
 
@@ -75,8 +75,8 @@ export async function POST(req: NextRequest) {
         published,
         cover,
         author,
-        creatorIp: clientIp,
-        creatorLocation: location,
+        creatorIp: clientIp || "127.0.0.1",
+        creatorLocation: location || "本地环境",
         tags: tags
           ? {
               connect: tags.map((tagID) => ({ id: tagID })),

@@ -105,7 +105,7 @@ const fetchLoginLogs = async (
   const searchParams = new URLSearchParams();
 
   Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== "") {
+    if (value !== undefined && value !== "" && value !== "all") {
       searchParams.append(key, value.toString());
     }
   });
@@ -187,9 +187,9 @@ export const LoginLogsPage = () => {
   });
 
   const [filters, setFilters] = useSetState({
-    loginStatus: "",
-    loginMethod: "",
-    isSuspicious: "",
+    loginStatus: "all",
+    loginMethod: "all",
+    isSuspicious: "all",
     search: "",
   });
 
@@ -331,14 +331,17 @@ export const LoginLogsPage = () => {
 
   const clearFilters = () => {
     setFilters({
-      loginStatus: "",
-      loginMethod: "",
-      isSuspicious: "",
+      loginStatus: "all",
+      loginMethod: "all",
+      isSuspicious: "all",
       search: "",
     });
   };
 
-  const hasActiveFilters = Object.values(filters).some((value) => value !== "");
+  const hasActiveFilters = filters.search !== "" || 
+    filters.loginStatus !== "all" || 
+    filters.loginMethod !== "all" || 
+    filters.isSuspicious !== "all";
 
   return (
     <AdminContentLayout
@@ -409,7 +412,7 @@ export const LoginLogsPage = () => {
                     <SelectValue placeholder="选择状态" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">全部状态</SelectItem>
+                    <SelectItem value="all">全部状态</SelectItem>
                     <SelectItem value="SUCCESS">成功</SelectItem>
                     <SelectItem value="FAILED">失败</SelectItem>
                     <SelectItem value="BLOCKED">阻止</SelectItem>
@@ -428,7 +431,7 @@ export const LoginLogsPage = () => {
                     <SelectValue placeholder="选择方式" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">全部方式</SelectItem>
+                    <SelectItem value="all">全部方式</SelectItem>
                     <SelectItem value="CREDENTIALS">密码登录</SelectItem>
                     <SelectItem value="OAUTH_GITHUB">GitHub</SelectItem>
                     <SelectItem value="OAUTH_GOOGLE">Google</SelectItem>
@@ -447,7 +450,7 @@ export const LoginLogsPage = () => {
                     <SelectValue placeholder="选择状态" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">全部</SelectItem>
+                    <SelectItem value="all">全部</SelectItem>
                     <SelectItem value="false">正常</SelectItem>
                     <SelectItem value="true">可疑</SelectItem>
                   </SelectContent>

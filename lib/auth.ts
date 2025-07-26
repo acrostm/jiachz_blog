@@ -4,11 +4,13 @@ import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 
 import { PrismaAdapter } from "@auth/prisma-adapter";
+import { LoginMethod, LoginStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 import { NODE_ENV } from "@/config";
 
 import { PATHS } from "@/constants";
+import { loginTracker } from "@/lib/login-tracking";
 import { prisma } from "@/lib/prisma";
 
 export const { handlers, auth, signOut, signIn } = NextAuth({
@@ -99,12 +101,35 @@ export const { handlers, auth, signOut, signIn } = NextAuth({
       // 其它路径直接放行
       return true;
     },
-    async signIn({ user }) {
+    async signIn({ user, account }) {
       if (user?.id) {
+        // Update basic user login time (keeping existing functionality)
         await prisma.user.update({
           where: { id: user.id },
           data: { lastLoginAt: new Date() },
         });
+
+        // Determine login method
+        let loginMethod: LoginMethod = LoginMethod.CREDENTIALS;
+        if (account?.provider === "github") {
+          loginMethod = LoginMethod.OAUTH_GITHUB;
+        } else if (account?.provider === "google") {
+          loginMethod = LoginMethod.OAUTH_GOOGLE;
+        }
+
+        // Track the login (note: this will use "unknown" for IP since we don't have access to headers here)
+        // The comprehensive tracking will be done at the API route level
+        try {
+          await loginTracker.trackLogin({
+            userId: user.id,
+            loginMethod,
+            loginStatus: LoginStatus.SUCCESS,
+            sessionId: account?.providerAccountId,
+          });
+        } catch (error) {
+          console.error("Failed to track login in signIn callback:", error);
+          // Don't break the login flow
+        }
       }
       return true;
     },

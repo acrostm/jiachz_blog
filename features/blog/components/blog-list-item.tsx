@@ -4,7 +4,7 @@ import React from "react";
 
 import Link from "next/link";
 
-import { Calendar, Eye } from "lucide-react";
+import { Calendar, Eye, MapPin, User } from "lucide-react";
 
 import { LoginPrompt } from "@/components/login-prompt";
 
@@ -59,7 +59,7 @@ export const BlogListItem = ({ blog, uvMap }: BlogListItemProps) => {
         <p className="mb-3 line-clamp-2 text-sm text-muted-foreground">
           {blog.description}
         </p>
-        <div className="flex space-x-2 text-xs text-muted-foreground">
+        <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
           <div className="flex h-5 items-center space-x-1">
             <Calendar className="size-3" />
             <time dateTime={blog.createdAt.toISOString()}>
@@ -74,6 +74,18 @@ export const BlogListItem = ({ blog, uvMap }: BlogListItemProps) => {
                 : PLACEHOLDER_TEXT}
             </span>
           </div>
+          {blog.author && (
+            <div className="flex h-5 items-center space-x-1">
+              <User className="size-3" />
+              <span>{blog.author}</span>
+            </div>
+          )}
+          {blog.creatorLocation && (
+            <div className="flex h-5 items-center space-x-1">
+              <MapPin className="size-3" />
+              <span>{blog.creatorLocation}</span>
+            </div>
+          )}
         </div>
       </Link>
       <LoginPrompt open={showLoginPrompt} onOpenChange={setShowLoginPrompt} />

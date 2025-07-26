@@ -8,6 +8,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import { PATHS } from "@/constants";
+
 type Props = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -21,12 +23,21 @@ export const SettingsModal = ({ open, setOpen }: Props) => {
           <DialogTitle>设置</DialogTitle>
         </DialogHeader>
 
-        <div className="flex space-x-4">
-          <a href="/admin/user">
-            <Button variant="default">用户管理</Button>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <a href={PATHS.ADMIN_USER}>
+            <Button variant="default" className="w-full">
+              用户管理
+            </Button>
           </a>
-          <a href="/admin/profile">
-            <Button variant="secondary">修改密码</Button>
+          <a href={PATHS.ADMIN_LOGIN_LOGS}>
+            <Button variant="outline" className="w-full">
+              登录日志
+            </Button>
+          </a>
+          <a href={PATHS.SITE_PROFILE}>
+            <Button variant="secondary" className="w-full">
+              修改密码
+            </Button>
           </a>
         </div>
       </DialogContent>

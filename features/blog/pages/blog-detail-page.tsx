@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import { MoveLeft } from "lucide-react";
+import { MapPin, MoveLeft, User } from "lucide-react";
 
 import { BytemdViewer } from "@/components/bytemd";
 import { DetailSidebar } from "@/components/detail-sidebar";
@@ -34,9 +34,21 @@ export const BlogDetailPage = ({ blog, uv = 0 }: BlogDetailProps) => {
           <span>返回博客</span>
         </Link>
       </div>
-      <div className="flex items-center space-x-4 pb-4 pt-8 text-sm text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-4 pb-4 pt-8 text-sm text-muted-foreground">
         <p>发布于&nbsp;&nbsp;{prettyDateWithWeekday(blog.createdAt)}</p>
         <p>{uv || PLACEHOLDER_TEXT}&nbsp;&nbsp;人浏览过</p>
+        {blog.author && (
+          <div className="flex items-center space-x-1">
+            <User className="size-3.5" />
+            <span>作者：{blog.author}</span>
+          </div>
+        )}
+        {blog.creatorLocation && (
+          <div className="flex items-center space-x-1">
+            <MapPin className="size-3.5" />
+            <span>来自：{blog.creatorLocation}</span>
+          </div>
+        )}
       </div>
       <h1 className="break-all py-6 text-4xl font-semibold">{blog.title}</h1>
 

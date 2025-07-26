@@ -27,6 +27,7 @@ export const PATHS = {
   ADMIN_TAG: "/admin/tag",
   ADMIN_NOTE: "/admin/note",
   ADMIN_USER: "/admin/user",
+  ADMIN_LOGIN_LOGS: "/admin/login-logs",
 
   /** ************* AUTH ****************** */
   AUTH_SIGN_IN: "/auth/sign_in",
@@ -58,6 +59,7 @@ export const PATHS_MAP: Record<string, string> = {
   [PATHS.ADMIN_TAG]: "标签",
   [PATHS.ADMIN_NOTE]: "笔记",
   [PATHS.ADMIN_USER]: "用户管理",
+  [PATHS.ADMIN_LOGIN_LOGS]: "登录日志",
 
   /** ************* AUTH ****************** */
   [PATHS.AUTH_SIGN_IN]: "登录",
@@ -86,6 +88,7 @@ export const PATH_DESCRIPTION_MAP: Record<string, string> = {
   [PATHS.ADMIN_TAG]: `标签管理，在这里对标签进行操作`,
   [PATHS.ADMIN_NOTE]: "好记性不如烂笔头",
   [PATHS.ADMIN_USER]: "管理所有用户",
+  [PATHS.ADMIN_LOGIN_LOGS]: "查看和管理用户登录历史记录",
 
   /** ************* AUTH ****************** */
   [PATHS.AUTH_SIGN_IN]: "登录",

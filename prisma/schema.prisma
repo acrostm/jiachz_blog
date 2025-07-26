@@ -45,16 +45,91 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String         @id @default(cuid())
   name          String?
   password      String?
-  email         String?   @unique
+  email         String?        @unique
   emailVerified DateTime?
   image         String?
   accounts      Account[]
   sessions      Session[]
-  createdAt     DateTime  @default(now())
+  loginActivities LoginActivity[]
+  createdAt     DateTime       @default(now())
   lastLoginAt   DateTime?
+  lastLoginIp   String?
+  lastLoginLocation String?
+}
+
+enum LoginStatus {
+  SUCCESS
+  FAILED
+  BLOCKED
+  SUSPICIOUS
+}
+
+enum LoginMethod {
+  CREDENTIALS
+  OAUTH_GITHUB
+  OAUTH_GOOGLE
+  OTP
+}
+
+enum DeviceType {
+  DESKTOP
+  MOBILE
+  TABLET
+  UNKNOWN
+}
+
+model LoginActivity {
+  id            String      @id @default(cuid())
+  userId        String
+  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  // Basic login info
+  loginAt       DateTime    @default(now())
+  loginStatus   LoginStatus
+  loginMethod   LoginMethod
+  sessionId     String?
+  
+  // Network & Location info
+  ipAddress     String
+  location      String?     // Formatted location (e.g., "广东", "美国")
+  country       String?     // Country name
+  region        String?     // State/Province
+  city          String?     // City name
+  countryCode   String?     // ISO country code (CN, US, etc.)
+  
+  // Device & Browser info
+  userAgent     String      @db.Text
+  browserName   String?
+  browserVersion String?
+  operatingSystem String?
+  deviceType    DeviceType  @default(UNKNOWN)
+  deviceFingerprint String? // Browser fingerprint for device tracking
+  
+  // Security analysis
+  isSuspicious  Boolean     @default(false)
+  suspiciousReasons String? @db.Text // JSON array of reasons
+  riskScore     Int         @default(0) // 0-100 risk score
+  
+  // Previous login comparison
+  previousLoginIp String?
+  previousLoginLocation String?
+  timeSinceLastLogin Int? // Minutes since last login
+  locationChanged Boolean @default(false)
+  newDevice     Boolean     @default(false)
+  
+  // Additional metadata
+  failureReason String?     // If login failed, why?
+  blockedReason String?     // If login was blocked, why?
+  
+  createdAt     DateTime    @default(now())
+  
+  @@index([userId])
+  @@index([loginAt])
+  @@index([ipAddress])
+  @@index([isSuspicious])
 }
 
 model VerificationToken {
@@ -102,6 +177,8 @@ model Blog {
   author      String?
   published   Boolean @default(false)
   tags        Tag[]
+  creatorIp   String?
+  creatorLocation String?
 
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())

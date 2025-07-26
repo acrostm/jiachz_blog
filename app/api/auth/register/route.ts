@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 
 import bcrypt from "bcryptjs";
 
+import { notifyNewUserRegistered } from "@/lib/notification";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
@@ -48,8 +49,30 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Send notification for new user registration
+    const clientIp =
+      req.headers.get("x-forwarded-for") ??
+      req.headers.get("x-real-ip") ??
+      "unknown";
+    const registrationTime = now.toLocaleString("zh-CN", {
+      timeZone: "Asia/Shanghai",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+
+    notifyNewUserRegistered(name, email, registrationTime, clientIp).catch(
+      (error) => {
+        // Silently handle notification errors
+        void error;
+      },
+    );
+
     return NextResponse.json({ message: "注册成功" });
-  } catch (e) {
+  } catch {
     return NextResponse.json({ message: "注册失败" }, { status: 500 });
   }
 }

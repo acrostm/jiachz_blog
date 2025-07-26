@@ -6,6 +6,7 @@ import { isUndefined } from "lodash-es";
 import { ERROR_NO_PERMISSION, PUBLISHED_MAP } from "@/constants";
 import { batchGetBlogUV } from "@/features/statistics";
 import { noPermission } from "@/features/user";
+import { notifyNewBlogCreated } from "@/lib/notification";
 import { prisma } from "@/lib/prisma";
 import { getSkip } from "@/utils";
 
@@ -187,6 +188,25 @@ export const createBlog = async (params: CreateBlogDTO) => {
           : undefined,
       },
     });
+
+    // Send notification for new blog creation
+    const creationTime = new Date().toLocaleString("zh-CN", {
+      timeZone: "Asia/Shanghai",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+
+    const status = published ? "已发布 ✅" : "草稿 📝";
+
+    notifyNewBlogCreated(title, author, status, creationTime).catch((error) => {
+      // Silently handle notification errors
+      void error;
+    });
+
     return { success: true };
   } catch {
     return { success: false, error: "创建博客失败，请重试" };

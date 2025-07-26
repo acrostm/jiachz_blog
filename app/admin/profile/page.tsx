@@ -1,3 +1,5 @@
+import { MapPin, Monitor } from "lucide-react";
+
 import { Badge } from "@/components/ui/badge";
 
 import { AvatarUpload } from "@/components/avatar-upload";
@@ -13,6 +15,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { formatRelativeTime } from "@/lib/utils";
 
+import { LoginHistory } from "./components/login-history";
 import { PasswordChange } from "./components/password-change";
 import { ProfileEmailVerification } from "./components/profile-email-verification";
 
@@ -25,6 +28,8 @@ type UserDbData = {
   createdAt: Date;
   lastLoginAt: Date | null;
   emailVerified: Date | null;
+  lastLoginIp: string | null;
+  lastLoginLocation: string | null;
 };
 
 export default async function ProfilePage() {
@@ -38,6 +43,8 @@ export default async function ProfilePage() {
         createdAt: true,
         lastLoginAt: true,
         emailVerified: true,
+        lastLoginIp: true,
+        lastLoginLocation: true,
       },
     });
   }
@@ -119,6 +126,36 @@ export default async function ProfilePage() {
             </div>
           </div>
         </div>
+
+        {/* 登录信息 */}
+        <div className="rounded-lg border bg-background p-4">
+          <div className="mb-4 text-lg font-medium text-foreground">
+            登录信息
+          </div>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div>
+              <div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
+                <Monitor className="size-4" />
+                <span>上次登录IP</span>
+              </div>
+              <div className="text-foreground">
+                {userDb?.lastLoginIp ?? "暂无记录"}
+              </div>
+            </div>
+            <div>
+              <div className="mb-2 flex items-center gap-2 text-sm font-medium text-foreground">
+                <MapPin className="size-4" />
+                <span>上次登录位置</span>
+              </div>
+              <div className="text-foreground">
+                {userDb?.lastLoginLocation ?? "暂无记录"}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 登录历史 */}
+        <LoginHistory />
 
         {/* 修改密码 */}
         <PasswordChange />

@@ -1,9 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server";
 
 import { auth } from "@/lib/auth";
+import { notifyNewMessage } from "@/lib/notification";
 import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/utils";
-import { notifyNewMessage } from "@/lib/notification";
 
 // 获取客户端 IP
 function getClientIp(req: NextRequest) {
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
     const ip = getClientIp(req);
     const userAgent = req.headers.get("user-agent") ?? "unknown";
     const isLogin = !!session?.user?.id;
-    const userId = isLogin ? session.user!.id : undefined;
+    const userId = isLogin ? session.user.id : undefined;
     if (!prisma?.messageBoard?.create) {
       return NextResponse.json(
         { error: "留言创建失败，数据库未连接" },
@@ -114,20 +114,20 @@ export async function POST(req: NextRequest) {
     }
 
     // Send notification for new message
-    const author = userInfo?.name || (isLogin ? '已登录用户' : '匿名用户');
-    const currentTime = new Date().toLocaleString('zh-CN', {
-      timeZone: 'Asia/Shanghai',
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
+    const author = userInfo?.name || (isLogin ? "已登录用户" : "匿名用户");
+    const currentTime = new Date().toLocaleString("zh-CN", {
+      timeZone: "Asia/Shanghai",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     });
-    
+
     // Send notification asynchronously (don't block the response)
     notifyNewMessage(author, content, currentTime, ip).catch((error) => {
-      console.error('Failed to send notification for new message:', error);
+      console.error("Failed to send notification for new message:", error);
     });
 
     return NextResponse.json({

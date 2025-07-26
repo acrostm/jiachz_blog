@@ -158,3 +158,115 @@ pnpm db:studio
 ### 自定义页面的信息
 
 你可能想修改页面中的信息，请修改 `constants/info.ts` 文件
+
+## 通知系统 (Bark Notification)
+
+本项目集成了基于 Bark 的通知系统，支持构建状态通知、留言板新消息通知等功能。
+
+### 功能特性
+
+- **预定义模板**：内置构建成功/失败、新留言等常用通知模板
+- **灵活配置**：支持 Bark 所有参数配置（标题、内容、声音、分组、图标等）
+- **变量替换**：模板支持动态变量替换
+- **异步发送**：通知发送不会阻塞主要业务流程
+- **错误处理**：内置错误处理和日志记录
+
+### 使用方法
+
+#### 1. 快速发送通知
+
+```typescript
+import { barkNotification } from '@/lib/notification';
+
+// 发送简单通知
+await barkNotification.sendQuickNotification(
+  "测试标题", 
+  "测试内容",
+  { sound: "bell.caf" }
+);
+```
+
+#### 2. 使用预定义模板
+
+```typescript
+import { barkNotification } from '@/lib/notification';
+
+// 发送构建成功通知
+await barkNotification.sendTemplateNotification('BUILD_SUCCESS', {
+  time: '2025-01-26 10:30:00',
+  serverIp: '192.168.1.1'
+});
+
+// 发送新留言通知
+await barkNotification.sendTemplateNotification('NEW_MESSAGE', {
+  author: '张三',
+  content: '这是一条测试留言',
+  time: '2025-01-26 10:30:00',
+  ip: '192.168.1.100'
+});
+```
+
+#### 3. 发送自定义通知
+
+```typescript
+import { barkNotification } from '@/lib/notification';
+
+// 完全自定义通知
+await barkNotification.sendNotification({
+  title: "自定义标题",
+  body: "自定义内容\n支持多行文本",
+  sound: "shake.caf",
+  group: "Blog",
+  category: "自定义分类",
+  icon: "https://example.com/icon.png",
+  level: "timeSensitive",
+  badge: 5,
+  url: "https://example.com"
+});
+```
+
+#### 4. 便捷函数
+
+```typescript
+import { notifyBuildSuccess, notifyBuildFailed, notifyNewMessage } from '@/lib/notification';
+
+// 构建通知
+await notifyBuildSuccess('2025-01-26 10:30:00', '192.168.1.1');
+await notifyBuildFailed('2025-01-26 10:30:00', '192.168.1.1');
+
+// 新留言通知
+await notifyNewMessage('用户名', '留言内容', '2025-01-26 10:30:00', '192.168.1.100');
+```
+
+### 支持的 Bark 参数
+
+| 参数 | 类型 | 说明 |
+|------|------|------|
+| title | string | 通知标题 |
+| body | string | 通知内容 |
+| key | string | 通知标识 |
+| sound | string | 提示音 (如: bell.caf, shake.caf) |
+| group | string | 通知分组 |
+| category | string | 通知类别 |
+| icon | string | 通知图标 URL |
+| url | string | 点击通知跳转的 URL |
+| level | string | 通知级别 (active/timeSensitive/passive) |
+| badge | number | 应用角标数字 |
+| copy | string | 复制到剪贴板的内容 |
+| autoCopy | string | 是否自动复制 ('1'/'0') |
+| isArchive | string | 是否归档 ('1'/'0') |
+
+### 内置模板
+
+- **BUILD_SUCCESS**: 构建成功通知模板
+- **BUILD_FAILED**: 构建失败通知模板  
+- **NEW_MESSAGE**: 新留言通知模板
+
+### 集成位置
+
+- **构建通知**: `build-and-notify.sh` - 自动在构建完成后发送通知
+- **留言通知**: `app/api/message-board/route.ts:129` - 新留言创建时自动发送通知
+
+### 配置说明
+
+通知系统默认使用 `https://bark.jiachz.com/[BARK_API_KEY]/` 作为 Bark 服务端点。如需修改，请在 `lib/notification.ts` 中更新 `BarkNotification` 构造函数的默认参数。

@@ -3,6 +3,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/utils";
+import { notifyNewMessage } from "@/lib/notification";
 
 // 获取客户端 IP
 function getClientIp(req: NextRequest) {
@@ -111,6 +112,24 @@ export async function POST(req: NextRequest) {
           emailVerified: user.emailVerified?.toISOString() ?? undefined,
         };
     }
+
+    // Send notification for new message
+    const author = userInfo?.name || (isLogin ? '已登录用户' : '匿名用户');
+    const currentTime = new Date().toLocaleString('zh-CN', {
+      timeZone: 'Asia/Shanghai',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+    });
+    
+    // Send notification asynchronously (don't block the response)
+    notifyNewMessage(author, content, currentTime, ip).catch((error) => {
+      console.error('Failed to send notification for new message:', error);
+    });
+
     return NextResponse.json({
       message: { ...message, userInfo },
     });

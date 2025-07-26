@@ -176,40 +176,38 @@ pnpm db:studio
 #### 1. 快速发送通知
 
 ```typescript
-import { barkNotification } from '@/lib/notification';
+import { barkNotification } from "@/lib/notification";
 
 // 发送简单通知
-await barkNotification.sendQuickNotification(
-  "测试标题", 
-  "测试内容",
-  { sound: "bell.caf" }
-);
+await barkNotification.sendQuickNotification("测试标题", "测试内容", {
+  sound: "bell.caf",
+});
 ```
 
 #### 2. 使用预定义模板
 
 ```typescript
-import { barkNotification } from '@/lib/notification';
+import { barkNotification } from "@/lib/notification";
 
 // 发送构建成功通知
-await barkNotification.sendTemplateNotification('BUILD_SUCCESS', {
-  time: '2025-01-26 10:30:00',
-  serverIp: '192.168.1.1'
+await barkNotification.sendTemplateNotification("BUILD_SUCCESS", {
+  time: "2025-01-26 10:30:00",
+  serverIp: "192.168.1.1",
 });
 
 // 发送新留言通知
-await barkNotification.sendTemplateNotification('NEW_MESSAGE', {
-  author: '张三',
-  content: '这是一条测试留言',
-  time: '2025-01-26 10:30:00',
-  ip: '192.168.1.100'
+await barkNotification.sendTemplateNotification("NEW_MESSAGE", {
+  author: "张三",
+  content: "这是一条测试留言",
+  time: "2025-01-26 10:30:00",
+  ip: "192.168.1.100",
 });
 ```
 
 #### 3. 发送自定义通知
 
 ```typescript
-import { barkNotification } from '@/lib/notification';
+import { barkNotification } from "@/lib/notification";
 
 // 完全自定义通知
 await barkNotification.sendNotification({
@@ -221,45 +219,54 @@ await barkNotification.sendNotification({
   icon: "https://example.com/icon.png",
   level: "timeSensitive",
   badge: 5,
-  url: "https://example.com"
+  url: "https://example.com",
 });
 ```
 
 #### 4. 便捷函数
 
 ```typescript
-import { notifyBuildSuccess, notifyBuildFailed, notifyNewMessage } from '@/lib/notification';
+import {
+  notifyBuildFailed,
+  notifyBuildSuccess,
+  notifyNewMessage,
+} from "@/lib/notification";
 
 // 构建通知
-await notifyBuildSuccess('2025-01-26 10:30:00', '192.168.1.1');
-await notifyBuildFailed('2025-01-26 10:30:00', '192.168.1.1');
+await notifyBuildSuccess("2025-01-26 10:30:00", "192.168.1.1");
+await notifyBuildFailed("2025-01-26 10:30:00", "192.168.1.1");
 
 // 新留言通知
-await notifyNewMessage('用户名', '留言内容', '2025-01-26 10:30:00', '192.168.1.100');
+await notifyNewMessage(
+  "用户名",
+  "留言内容",
+  "2025-01-26 10:30:00",
+  "192.168.1.100",
+);
 ```
 
 ### 支持的 Bark 参数
 
-| 参数 | 类型 | 说明 |
-|------|------|------|
-| title | string | 通知标题 |
-| body | string | 通知内容 |
-| key | string | 通知标识 |
-| sound | string | 提示音 (如: bell.caf, shake.caf) |
-| group | string | 通知分组 |
-| category | string | 通知类别 |
-| icon | string | 通知图标 URL |
-| url | string | 点击通知跳转的 URL |
-| level | string | 通知级别 (active/timeSensitive/passive) |
-| badge | number | 应用角标数字 |
-| copy | string | 复制到剪贴板的内容 |
-| autoCopy | string | 是否自动复制 ('1'/'0') |
-| isArchive | string | 是否归档 ('1'/'0') |
+| 参数      | 类型   | 说明                                    |
+| --------- | ------ | --------------------------------------- |
+| title     | string | 通知标题                                |
+| body      | string | 通知内容                                |
+| key       | string | 通知标识                                |
+| sound     | string | 提示音 (如: bell.caf, shake.caf)        |
+| group     | string | 通知分组                                |
+| category  | string | 通知类别                                |
+| icon      | string | 通知图标 URL                            |
+| url       | string | 点击通知跳转的 URL                      |
+| level     | string | 通知级别 (active/timeSensitive/passive) |
+| badge     | number | 应用角标数字                            |
+| copy      | string | 复制到剪贴板的内容                      |
+| autoCopy  | string | 是否自动复制 ('1'/'0')                  |
+| isArchive | string | 是否归档 ('1'/'0')                      |
 
 ### 内置模板
 
 - **BUILD_SUCCESS**: 构建成功通知模板
-- **BUILD_FAILED**: 构建失败通知模板  
+- **BUILD_FAILED**: 构建失败通知模板
 - **NEW_MESSAGE**: 新留言通知模板
 
 ### 集成位置

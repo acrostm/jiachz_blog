@@ -1,12 +1,14 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 
 import { useRequest } from "ahooks";
 import { format } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import {
   AlertTriangle,
+  ChevronDownIcon,
+  ChevronUpIcon,
   MapPin,
   Monitor,
   Shield,
@@ -17,7 +19,12 @@ import {
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 interface LoginActivity {
   id: string;
@@ -109,138 +116,138 @@ const formatRelativeTime = (dateString: string) => {
 };
 
 export const LoginHistory = () => {
-  const { data, loading, error } = useRequest(fetchLoginHistory);
-
-  if (loading) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="size-5" />
-            <span>登录历史</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center text-muted-foreground">加载中...</div>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  if (error) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Shield className="size-5" />
-            <span>登录历史</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center text-red-600">加载失败</div>
-        </CardContent>
-      </Card>
-    );
-  }
+  const [isOpen, setIsOpen] = useState(false);
+  const { data, loading, error } = useRequest(fetchLoginHistory, {
+    ready: isOpen, // Only fetch when expanded
+  });
 
   const loginHistory = data?.loginHistory ?? [];
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Shield className="size-5" />
-          <span>登录历史</span>
-          <Badge variant="outline">{loginHistory.length} 条记录</Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {loginHistory.length === 0 ? (
-          <div className="py-4 text-center text-muted-foreground">
-            暂无登录记录
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {loginHistory.map((login) => (
-              <div
-                key={login.id}
-                className={`rounded-lg border p-4 transition-colors ${
-                  login.isSuspicious
-                    ? "border-red-200 bg-red-50/50"
-                    : "border-border bg-background"
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    {getDeviceIcon(login.deviceType)}
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">
-                          {formatRelativeTime(login.loginAt)}
-                        </span>
-                        {getLoginMethodBadge(login.loginMethod)}
-                        {login.isSuspicious && (
-                          <Badge
-                            variant="destructive"
-                            className="flex items-center gap-1"
-                          >
-                            <ShieldAlert className="size-3" />
-                            <span>可疑登录</span>
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="mt-1 text-sm text-muted-foreground">
-                        {login.browserName} {login.browserVersion} ·{" "}
-                        {login.operatingSystem}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="flex items-center gap-1 text-sm">
-                      <Wifi className="size-3" />
-                      <span>{login.ipAddress}</span>
-                    </div>
-                    {login.location && (
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                        <MapPin className="size-3" />
-                        <span>{login.location}</span>
-                      </div>
+  const renderContent = () => {
+    if (loading) {
+      return (
+        <div className="py-4 text-center text-muted-foreground">加载中...</div>
+      );
+    }
+
+    if (error) {
+      return <div className="py-4 text-center text-red-600">加载失败</div>;
+    }
+
+    if (loginHistory.length === 0) {
+      return (
+        <div className="py-4 text-center text-muted-foreground">
+          暂无登录记录
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-3">
+        {loginHistory.map((login) => (
+          <div
+            key={login.id}
+            className={`rounded-lg border p-4 transition-colors ${
+              login.isSuspicious
+                ? "border-red-200 bg-red-50/50"
+                : "border-border bg-background"
+            }`}
+          >
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                {getDeviceIcon(login.deviceType)}
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium">
+                      {formatRelativeTime(login.loginAt)}
+                    </span>
+                    {getLoginMethodBadge(login.loginMethod)}
+                    {login.isSuspicious && (
+                      <Badge
+                        variant="destructive"
+                        className="flex items-center gap-1"
+                      >
+                        <ShieldAlert className="size-3" />
+                        <span>可疑登录</span>
+                      </Badge>
                     )}
+                  </div>
+                  <div className="mt-1 text-sm text-muted-foreground">
+                    {login.browserName} {login.browserVersion} ·{" "}
+                    {login.operatingSystem}
                   </div>
                 </div>
-
-                {login.isSuspicious && (
-                  <div className="mt-3 border-t border-red-200 pt-3">
-                    <div className="flex items-center gap-2 text-sm">
-                      <AlertTriangle className="size-4 text-red-600" />
-                      <span className="font-medium text-red-600">
-                        风险评分: {login.riskScore}/100
-                      </span>
-                    </div>
-                    {login.suspiciousReasons && (
-                      <div className="mt-1 text-sm text-red-600">
-                        {JSON.parse(login.suspiciousReasons).join("、")}
-                      </div>
-                    )}
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      {login.locationChanged && (
-                        <Badge variant="outline" className="text-xs">
-                          地点变更
-                        </Badge>
-                      )}
-                      {login.newDevice && (
-                        <Badge variant="outline" className="text-xs">
-                          新设备
-                        </Badge>
-                      )}
-                    </div>
+              </div>
+              <div className="text-right">
+                <div className="flex items-center gap-1 text-sm">
+                  <Wifi className="size-3" />
+                  <span>{login.ipAddress}</span>
+                </div>
+                {login.location && (
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <MapPin className="size-3" />
+                    <span>{login.location}</span>
                   </div>
                 )}
               </div>
-            ))}
+            </div>
+
+            {login.isSuspicious && (
+              <div className="mt-3 border-t border-red-200 pt-3">
+                <div className="flex items-center gap-2 text-sm">
+                  <AlertTriangle className="size-4 text-red-600" />
+                  <span className="font-medium text-red-600">
+                    风险评分: {login.riskScore}/100
+                  </span>
+                </div>
+                {login.suspiciousReasons && (
+                  <div className="mt-1 text-sm text-red-600">
+                    {JSON.parse(login.suspiciousReasons as string).join("、")}
+                  </div>
+                )}
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {login.locationChanged && (
+                    <Badge variant="outline" className="text-xs">
+                      地点变更
+                    </Badge>
+                  )}
+                  {login.newDevice && (
+                    <Badge variant="outline" className="text-xs">
+                      新设备
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
-        )}
-      </CardContent>
-    </Card>
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <CollapsibleTrigger asChild>
+        <Button variant="outline" className="w-full justify-between">
+          <div className="flex items-center gap-2">
+            <Shield className="size-4" />
+            <span>登录历史</span>
+            {!loading && loginHistory.length > 0 && (
+              <Badge variant="outline">{loginHistory.length} 条记录</Badge>
+            )}
+          </div>
+          {isOpen ? (
+            <ChevronUpIcon className="size-4" />
+          ) : (
+            <ChevronDownIcon className="size-4" />
+          )}
+        </Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="mt-4">
+        <div className="rounded-lg border bg-background p-6 shadow-sm">
+          {renderContent()}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 };

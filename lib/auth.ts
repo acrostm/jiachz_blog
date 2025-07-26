@@ -17,7 +17,10 @@ export const { handlers, auth, signOut, signIn } = NextAuth({
   adapter: PrismaAdapter(prisma),
   // 解决这个错误：Error: PrismaClient is not configured to run in Vercel Edge Functions or Edge Middleware.
   // 参考：https://github.com/prisma/prisma/issues/21310#issuecomment-1840428931
-  session: { strategy: "jwt" },
+  session: {
+    strategy: "jwt",
+    maxAge: 10 * 60 * 60, // 10 hours in seconds
+  },
   trustHost: true,
   providers: [
     // 允许多个account关联同一个user（email相同）
@@ -126,8 +129,7 @@ export const { handlers, auth, signOut, signIn } = NextAuth({
             loginStatus: LoginStatus.SUCCESS,
             sessionId: account?.providerAccountId,
           });
-        } catch (error) {
-          console.error("Failed to track login in signIn callback:", error);
+        } catch {
           // Don't break the login flow
         }
       }

@@ -65,6 +65,21 @@ export const getBlogs = async (params: GetBlogsDTO) => {
     include: {
       tags: true,
     },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      description: true,
+      body: true,
+      published: true,
+      cover: true,
+      author: true,
+      creatorIp: true,
+      creatorLocation: true,
+      createdAt: true,
+      updatedAt: true,
+      tags: true,
+    },
     orderBy: sort,
     where: cond,
     take: result.data.pageSize,
@@ -80,6 +95,21 @@ export const getPublishedBlogs = async () => {
       createdAt: "desc",
     },
     include: {
+      tags: true,
+    },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      description: true,
+      body: true,
+      published: true,
+      cover: true,
+      author: true,
+      creatorIp: true,
+      creatorLocation: true,
+      createdAt: true,
+      updatedAt: true,
       tags: true,
     },
     where: {
@@ -110,6 +140,21 @@ export const getBlogByID = async (id: string) => {
     include: {
       tags: true,
     },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      description: true,
+      body: true,
+      published: true,
+      cover: true,
+      author: true,
+      creatorIp: true,
+      creatorLocation: true,
+      createdAt: true,
+      updatedAt: true,
+      tags: true,
+    },
   });
 
   return { blog };
@@ -119,6 +164,21 @@ export const getPublishedBlogBySlug = async (slug: string) => {
   const blog = await prisma.blog.findUnique({
     where: { slug, published: true },
     include: {
+      tags: true,
+    },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      description: true,
+      body: true,
+      published: true,
+      cover: true,
+      author: true,
+      creatorIp: true,
+      creatorLocation: true,
+      createdAt: true,
+      updatedAt: true,
       tags: true,
     },
   });

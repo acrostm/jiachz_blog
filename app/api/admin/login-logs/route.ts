@@ -67,6 +67,7 @@ export async function GET(req: NextRequest) {
     // Filter by login status
     if (
       query.loginStatus &&
+      query.loginStatus !== "all" &&
       Object.values(LoginStatus).includes(query.loginStatus as LoginStatus)
     ) {
       where.loginStatus = query.loginStatus as LoginStatus;
@@ -75,13 +76,14 @@ export async function GET(req: NextRequest) {
     // Filter by login method
     if (
       query.loginMethod &&
+      query.loginMethod !== "all" &&
       Object.values(LoginMethod).includes(query.loginMethod as LoginMethod)
     ) {
       where.loginMethod = query.loginMethod as LoginMethod;
     }
 
     // Filter by suspicious flag
-    if (query.isSuspicious !== undefined) {
+    if (query.isSuspicious && query.isSuspicious !== "all") {
       where.isSuspicious = query.isSuspicious === "true";
     }
 

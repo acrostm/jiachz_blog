@@ -134,7 +134,7 @@ export const AdminTagListPage = () => {
           [TagTypeEnum.ALL]: "",
           [TagTypeEnum.BLOG]: <Book className="size-4" />,
           [TagTypeEnum.NOTE]: <ScrollIcon className="size-4" />,
-          [TagTypeEnum.SNIPPET]: <CodeXml className="size-4" />,
+          
         };
 
         return (
@@ -189,18 +189,7 @@ export const AdminTagListPage = () => {
         return row.original._count.blogs || PLACEHOLDER_TEXT;
       },
     },
-    {
-      accessorKey: "_count.snippets",
-      header: () => (
-        <div className="flex items-center space-x-1">
-          <CodeXml className="size-4" />
-          <span>片段</span>
-        </div>
-      ),
-      cell({ row }: { row: Row<Tag> }) {
-        return row.original._count.snippets || PLACEHOLDER_TEXT;
-      },
-    },
+    
     {
       accessorKey: "_count.notes",
       header: () => (
@@ -210,7 +199,7 @@ export const AdminTagListPage = () => {
         </div>
       ),
       cell({ row }: { row: Row<Tag> }) {
-        return row.original._count.snippets || PLACEHOLDER_TEXT;
+        return row.original._count.notes || PLACEHOLDER_TEXT;
       },
     },
     {

@@ -2,7 +2,7 @@
 #note-editor .bytemd {
   @apply h-[60vh] min-h-[560px];
 }
-/* 创建、编辑博客、片段的编辑器高度 */
+/* 创建、编辑博客的编辑器高度 */
 #content-editor .bytemd {
   @apply h-screen;
 }

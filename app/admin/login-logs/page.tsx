@@ -1,7 +1,7 @@
 import { type Metadata } from "next";
 
 import { PATHS, PATHS_MAP } from "@/constants";
-import { LoginLogsPage } from "@/features/admin/pages/login-logs";
+import { LoginLogsPage } from "@/features/admin";
 import { getAdminPageTitle } from "@/utils";
 
 export const metadata: Metadata = {

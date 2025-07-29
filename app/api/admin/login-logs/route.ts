@@ -103,14 +103,14 @@ export async function GET(req: NextRequest) {
       where.OR = [
         {
           user: {
-            name: { contains: query.search, mode: "insensitive" }
-          }
+            name: { contains: query.search, mode: "insensitive" },
+          },
         },
         {
           user: {
-            email: { contains: query.search, mode: "insensitive" }
-          }
-        }
+            email: { contains: query.search, mode: "insensitive" },
+          },
+        },
       ];
     }
 

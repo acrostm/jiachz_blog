@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "TagTypeEnum" AS ENUM ('ALL', 'BLOG', 'SNIPPET', 'NOTE');
+CREATE TYPE "TagTypeEnum" AS ENUM ('ALL', 'BLOG', 'NOTE');
 
 -- CreateTable
 CREATE TABLE "Account" (

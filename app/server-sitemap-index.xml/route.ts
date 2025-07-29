@@ -16,13 +16,6 @@ export async function GET() {
       published: true,
     },
   });
-  const snippets = await prisma.snippet.findMany({
-    select: {
-      slug: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
 
   const blogsSitemaps = blogs.map((item): ISitemapField => {
     return {
@@ -31,13 +24,6 @@ export async function GET() {
       changefreq: "hourly",
     };
   });
-  const snippetsSitemaps = snippets.map((item): ISitemapField => {
-    return {
-      loc: `${SITE_URL}${PATHS.SITE_SNIPPET}/${item.slug}`,
-      lastmod: new Date(item.updatedAt ?? item.createdAt).toISOString(),
-      changefreq: "hourly",
-    };
-  });
 
-  return getServerSideSitemap([...blogsSitemaps, ...snippetsSitemaps]);
+  return getServerSideSitemap([...blogsSitemaps]);
 }

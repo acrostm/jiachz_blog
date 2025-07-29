@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-import { createBlogSchema } from "@/features/blog/types";
+import { createBlogSchema } from "@/features/blog";
 import { noPermission } from "@/features/user";
 import { getIPLocation } from "@/lib/geolocation";
 import { notifyNewBlogCreated } from "@/lib/notification";

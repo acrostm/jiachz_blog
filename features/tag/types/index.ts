@@ -15,7 +15,6 @@ export const createTagSchema = z.object({
     TagTypeEnum.ALL,
     TagTypeEnum.BLOG,
     TagTypeEnum.NOTE,
-    TagTypeEnum.SNIPPET,
   ]),
   icon: z.string().optional(),
   iconDark: z.string().optional(),
@@ -33,7 +32,6 @@ export const getTagsSchema = z.object({
       TagTypeEnum.ALL,
       TagTypeEnum.BLOG,
       TagTypeEnum.NOTE,
-      TagTypeEnum.SNIPPET,
     ])
     .optional(),
   pageIndex: z.number(),

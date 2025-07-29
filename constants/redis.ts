@@ -9,5 +9,3 @@ export const REDIS_UNIQUE_VISITOR = "unique_visitor";
 export const REDIS_UNIQUE_VISITOR_TODAY = "unique_visitor_today";
 
 export const REDIS_BLOG_UNIQUE_VISITOR = "blog_unique_visitor";
-
-export const REDIS_SNIPPET_UNIQUE_VISITOR = "snippet_unique_visitor";

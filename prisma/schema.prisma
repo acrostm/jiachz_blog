@@ -147,8 +147,6 @@ enum TagTypeEnum {
   ALL
   // 仅用于blog
   BLOG
-  // 仅用于片段
-  SNIPPET
   // 仅用于笔记
   NOTE
 }
@@ -157,7 +155,6 @@ model Tag {
   name     String      @unique
   slug     String      @unique
   blogs    Blog[]
-  snippets Snippet[]
   notes    Note[]
   type     TagTypeEnum @default(ALL)
   icon     String?     @db.Text
@@ -179,19 +176,6 @@ model Blog {
   tags        Tag[]
   creatorIp   String?
   creatorLocation String?
-
-  id        String   @id @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Snippet {
-  title       String  @unique
-  slug        String  @unique
-  description String
-  body        String  @db.Text
-  published   Boolean @default(false)
-  tags        Tag[]
 
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())

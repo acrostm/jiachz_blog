@@ -2,9 +2,7 @@ import { useRequest } from "ahooks";
 
 import {
   getBlogUV,
-  getSnippetUV,
   recordBlogUV,
-  recordSnippetUV,
   recordUV,
 } from "../actions";
 
@@ -21,15 +19,4 @@ export const useRecordBlogUV = () => {
 
 export const useGetBlogUV = () => {
   return useRequest((blogID: string) => getBlogUV(blogID));
-};
-
-export const useRecordSnippetUV = () => {
-  return useRequest(
-    (snippetID?: string, cid?: string) => recordSnippetUV(snippetID, cid),
-    { manual: true },
-  );
-};
-
-export const useGetSnippetUV = () => {
-  return useRequest((snippetID: string) => getSnippetUV(snippetID));
 };

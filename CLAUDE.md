@@ -64,7 +64,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **Feature-based Architecture**: Each feature (blog, snippet, note, tag, auth) has its own directory with actions, API, components, and pages
 - **Admin Panel**: Full CRUD operations for content management at `/admin`
-- **Search Integration**: Meilisearch powers full-text search across blogs and snippets
+- **Search Integration**: Meilisearch powers full-text search across blogs
 - **Image Optimization**: Sharp converts uploads to WebP format
 - **SEO**: Automatic sitemap generation and meta tag handling
 - **Theming**: Dark/light theme support with next-themes
@@ -105,7 +105,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Meilisearch Server**: Dedicated search server for full-text search
 - **Search Indexes**:
   - `blogs` - Blog post search index
-  - `snippets` - Code snippet search index
+  
 - **Environment Variables**: `NEXT_PUBLIC_MEILISEARCH_HOST` and `NEXT_PUBLIC_MEILISEARCH_KEY`
 
 ### File Storage

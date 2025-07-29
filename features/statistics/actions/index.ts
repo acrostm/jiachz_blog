@@ -6,7 +6,7 @@ import {
   REDIS_BLOG_UNIQUE_VISITOR,
   REDIS_PAGE_VIEW,
   REDIS_PAGE_VIEW_TODAY,
-  REDIS_SNIPPET_UNIQUE_VISITOR,
+  
   REDIS_UNIQUE_VISITOR,
   REDIS_UNIQUE_VISITOR_TODAY,
 } from "@/constants";
@@ -84,38 +84,4 @@ export const batchGetBlogUV = async (blogIDs?: string[]) => {
   return m;
 };
 
-export const recordSnippetUV = async (snippetID?: string, cid?: string) => {
-  if (!snippetID || !cid) {
-    return;
-  }
-  await redis.sadd(`${REDIS_SNIPPET_UNIQUE_VISITOR}:${snippetID}`, cid);
-};
 
-export const getSnippetUV = async (snippetID?: string) => {
-  if (!snippetID) {
-    return;
-  }
-  const uv = await redis.scard(`${REDIS_SNIPPET_UNIQUE_VISITOR}:${snippetID}`);
-  return uv;
-};
-
-export const batchGetSnippetUV = async (snippetIDs?: string[]) => {
-  if (!snippetIDs?.length) {
-    return;
-  }
-
-  const m = new Map<string, number>();
-
-  const uvs = await Promise.all(
-    snippetIDs.map((el) =>
-      redis.scard(`${REDIS_SNIPPET_UNIQUE_VISITOR}:${el}`),
-    ),
-  );
-  let idx = 0;
-  for (const uv of uvs) {
-    m.set(snippetIDs[idx]!, uv);
-    idx++;
-  }
-
-  return m;
-};

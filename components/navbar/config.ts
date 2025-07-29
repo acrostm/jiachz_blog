@@ -16,8 +16,8 @@ export const navItems: Array<{
     external: false,
   },
   {
-    label: PATHS_MAP[PATHS.SITE_SNIPPET],
-    link: PATHS.SITE_SNIPPET,
+    label: PATHS_MAP[PATHS.SITE_MESSAGES],
+    link: PATHS.SITE_MESSAGES,
     external: false,
   },
   {

@@ -94,6 +94,7 @@ const TurnstileGuard: React.FC<TurnstileGuardProps> = ({ children }) => {
         sessionStorage.removeItem("turnstileVerified");
       }
     } catch (err) {
+      console.error("An error occurred during verification.", err);
       // Handle error silently
       setError("An error occurred during verification.");
       sessionStorage.removeItem("turnstileVerified");

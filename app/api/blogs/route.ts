@@ -1,5 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 
+import { type z } from "zod";
+
 import { createBlogSchema } from "@/features/blog";
 import { noPermission } from "@/features/user";
 import { getIPLocation } from "@/lib/geolocation";
@@ -24,7 +26,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const body = await req.json();
+    const body = (await req.json()) as z.infer<typeof createBlogSchema>;
     const result = await createBlogSchema.safeParseAsync(body);
 
     if (!result.success) {

@@ -48,7 +48,8 @@ const fetchLoginHistory = async (): Promise<LoginHistoryResponse> => {
   if (!response.ok) {
     throw new Error("Failed to fetch login history");
   }
-  return response.json();
+  const data = (await response.json()) as LoginHistoryResponse;
+  return data;
 };
 
 const getDeviceIcon = (deviceType: string) => {
@@ -219,7 +220,9 @@ export const LoginHistory = () => {
                     </div>
                     {login.suspiciousReasons && (
                       <div className="mt-1 text-sm text-red-600">
-                        {JSON.parse(login.suspiciousReasons).join("、")}
+                        {(JSON.parse(login.suspiciousReasons) as string[]).join(
+                          "、",
+                        )}
                       </div>
                     )}
                     <div className="mt-2 flex flex-wrap gap-2">

@@ -338,9 +338,10 @@ export const LoginLogsPage = () => {
     });
   };
 
-  const hasActiveFilters = filters.search !== "" || 
-    filters.loginStatus !== "all" || 
-    filters.loginMethod !== "all" || 
+  const hasActiveFilters =
+    filters.search !== "" ||
+    filters.loginStatus !== "all" ||
+    filters.loginMethod !== "all" ||
     filters.isSuspicious !== "all";
 
   return (

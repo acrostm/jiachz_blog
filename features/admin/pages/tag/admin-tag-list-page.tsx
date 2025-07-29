@@ -134,7 +134,6 @@ export const AdminTagListPage = () => {
           [TagTypeEnum.ALL]: "",
           [TagTypeEnum.BLOG]: <Book className="size-4" />,
           [TagTypeEnum.NOTE]: <ScrollIcon className="size-4" />,
-          
         };
 
         return (
@@ -189,7 +188,7 @@ export const AdminTagListPage = () => {
         return row.original._count.blogs || PLACEHOLDER_TEXT;
       },
     },
-    
+
     {
       accessorKey: "_count.notes",
       header: () => (

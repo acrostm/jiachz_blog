@@ -105,7 +105,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Meilisearch Server**: Dedicated search server for full-text search
 - **Search Indexes**:
   - `blogs` - Blog post search index
-  
 - **Environment Variables**: `NEXT_PUBLIC_MEILISEARCH_HOST` and `NEXT_PUBLIC_MEILISEARCH_KEY`
 
 ### File Storage

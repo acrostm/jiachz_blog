@@ -4,13 +4,19 @@ import { LoginMethod, LoginStatus } from "@prisma/client";
 
 import { loginTracker } from "@/lib/login-tracking";
 
+interface TrackLoginBody {
+  userId: string;
+  loginMethod: string;
+  sessionId?: string;
+}
+
 /**
  * API endpoint for comprehensive login tracking
  * This is called by client-side code after successful authentication
  */
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    const body = (await req.json()) as TrackLoginBody;
     const { userId, loginMethod, sessionId } = body;
 
     if (!userId || !loginMethod) {
@@ -46,7 +52,6 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Login tracking failed:", error);
     return NextResponse.json(
       { error: "Login tracking failed" },
       { status: 500 },

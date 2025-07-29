@@ -114,7 +114,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Send notification for new message
-    const author = userInfo?.name || (isLogin ? "已登录用户" : "匿名用户");
+    const author = userInfo?.name ?? (isLogin ? "已登录用户" : "匿名用户");
     const currentTime = new Date().toLocaleString("zh-CN", {
       timeZone: "Asia/Shanghai",
       year: "numeric",
@@ -126,9 +126,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Send notification asynchronously (don't block the response)
-    notifyNewMessage(author, content, currentTime, ip).catch((error) => {
-      console.error("Failed to send notification for new message:", error);
-    });
+    notifyNewMessage(author, content, currentTime, ip).catch(() => {});
 
     return NextResponse.json({
       message: { ...message, userInfo },

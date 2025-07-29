@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     }
 
     const { searchParams } = new URL(req.url);
-    const limit = parseInt(searchParams.get("limit") || "50");
+    const limit = parseInt(searchParams.get("limit") ?? "50");
 
     // Get user's login history
     const loginHistory = await loginTracker.getUserLoginHistory(
@@ -50,7 +50,6 @@ export async function GET(req: NextRequest) {
       total: sanitizedHistory.length,
     });
   } catch (error) {
-    console.error("Failed to get login history:", error);
     return NextResponse.json(
       { error: "Failed to get login history" },
       { status: 500 },

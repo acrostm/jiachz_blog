@@ -62,7 +62,8 @@ const fetchSuspiciousLogins = async (): Promise<SuspiciousLoginsResponse> => {
   if (!response.ok) {
     throw new Error("Failed to fetch suspicious logins");
   }
-  return response.json();
+  const data = (await response.json()) as SuspiciousLoginsResponse;
+  return data;
 };
 
 const getDeviceIcon = (deviceType: string) => {
@@ -94,8 +95,8 @@ const getLoginMethodBadge = (method: string) => {
   } as const;
 
   return (
-    <Badge variant={variants[method as keyof typeof variants] || "default"}>
-      {labels[method as keyof typeof labels] || method}
+    <Badge variant={variants[method as keyof typeof variants] ?? "default"}>
+      {labels[method as keyof typeof labels] ?? method}
     </Badge>
   );
 };
@@ -125,7 +126,7 @@ const formatRelativeTime = (dateString: string) => {
 export default function SecurityMonitorPage() {
   const { data, loading, error } = useRequest(fetchSuspiciousLogins);
 
-  const suspiciousLogins = data?.suspiciousLogins || [];
+  const suspiciousLogins = data?.suspiciousLogins ?? [];
   const highRiskLogins = suspiciousLogins.filter(
     (login) => login.riskScore >= 70,
   );
@@ -227,7 +228,7 @@ export default function SecurityMonitorPage() {
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="font-medium">
-                              {login.userName || login.userEmail}
+                              {login.userName ?? login.userEmail}
                             </span>
                             <Badge variant="outline" className="text-xs">
                               {login.userEmail}
@@ -265,7 +266,11 @@ export default function SecurityMonitorPage() {
                     <div className="mt-3 border-t border-red-200 pt-3">
                       <div className="mb-2 text-sm text-red-600">
                         可疑原因:{" "}
-                        {JSON.parse(login.suspiciousReasons || "[]").join("、")}
+                        {(
+                          JSON.parse(
+                            login.suspiciousReasons ?? "[]",
+                          ) as string[]
+                        ).join("、")}
                       </div>
                       <div className="flex flex-wrap gap-2">
                         {login.locationChanged && (

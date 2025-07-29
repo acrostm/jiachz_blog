@@ -56,7 +56,6 @@ export async function GET(req: NextRequest) {
       total: detailedLogins.length,
     });
   } catch (error) {
-    console.error("Failed to get suspicious logins:", error);
     return NextResponse.json(
       { error: "Failed to get suspicious logins" },
       { status: 500 },

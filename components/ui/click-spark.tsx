@@ -92,9 +92,7 @@ export const ClickSpark: React.FC<ClickSparkProps> = ({
     let animationId: number;
 
     const draw = (timestamp: number) => {
-      if (!startTimeRef.current) {
-        startTimeRef.current = timestamp;
-      }
+      startTimeRef.current ??= timestamp;
       ctx?.clearRect(0, 0, canvas.width, canvas.height);
 
       sparksRef.current = sparksRef.current.filter((spark: Spark) => {

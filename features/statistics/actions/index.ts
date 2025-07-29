@@ -6,7 +6,6 @@ import {
   REDIS_BLOG_UNIQUE_VISITOR,
   REDIS_PAGE_VIEW,
   REDIS_PAGE_VIEW_TODAY,
-  
   REDIS_UNIQUE_VISITOR,
   REDIS_UNIQUE_VISITOR_TODAY,
 } from "@/constants";
@@ -83,5 +82,3 @@ export const batchGetBlogUV = async (blogIDs?: string[]) => {
 
   return m;
 };
-
-

@@ -4,6 +4,7 @@ import {
   type LoginActivity,
   type LoginMethod,
   type LoginStatus,
+  type Prisma,
 } from "@prisma/client";
 
 import { noPermission } from "@/features/user";
@@ -52,12 +53,15 @@ export async function GET(req: NextRequest) {
       search: searchParams.get("search") ?? undefined,
     };
 
-    const page = Math.max(1, parseInt(query.page!));
-    const pageSize = Math.min(100, Math.max(1, parseInt(query.pageSize!))); // Cap at 100
+    const page = Math.max(1, parseInt(query.page ?? "1"));
+    const pageSize = Math.min(
+      100,
+      Math.max(1, parseInt(query.pageSize ?? "20")),
+    ); // Cap at 100
     const skip = (page - 1) * pageSize;
 
     // Build where clause
-    const where: any = {};
+    const where: Prisma.LoginActivityWhereInput = {};
 
     // Filter by user ID
     if (query.userId) {
@@ -91,10 +95,12 @@ export async function GET(req: NextRequest) {
     if (query.startDate || query.endDate) {
       where.loginAt = {};
       if (query.startDate) {
-        where.loginAt.gte = new Date(query.startDate);
+        (where.loginAt as Prisma.DateTimeFilter).gte = new Date(
+          query.startDate,
+        );
       }
       if (query.endDate) {
-        where.loginAt.lte = new Date(query.endDate);
+        (where.loginAt as Prisma.DateTimeFilter).lte = new Date(query.endDate);
       }
     }
 
@@ -178,7 +184,6 @@ export async function GET(req: NextRequest) {
       totalPages: Math.ceil(total / pageSize),
     });
   } catch (error) {
-    console.error("Failed to get login logs:", error);
     return NextResponse.json(
       { error: "Failed to get login logs" },
       { status: 500 },

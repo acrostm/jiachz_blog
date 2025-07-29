@@ -58,7 +58,7 @@ class LoginTrackingService {
 
       if (forwardedFor) {
         // x-forwarded-for can contain multiple IPs, take the first one
-        ip = forwardedFor.split(",")[0].trim();
+        ip = forwardedFor.split(",")[0]?.trim() ?? "unknown";
       } else if (realIP) {
         ip = realIP;
       } else if (cfConnectingIP) {
@@ -90,7 +90,7 @@ class LoginTrackingService {
 
     // Create a simple device fingerprint
     const fingerprint = Buffer.from(
-      `${result.browser.name}-${result.browser.version}-${result.os.name}-${result.os.version}`,
+      `${result.browser.name ?? ""}-${result.browser.version ?? ""}-${result.os.name ?? ""}-${result.os.version ?? ""}`,
     ).toString("base64");
 
     return {
@@ -222,7 +222,7 @@ class LoginTrackingService {
       let userAgent = "Unknown";
       try {
         const headersList = headers();
-        userAgent = headersList.get("user-agent") || "Unknown";
+        userAgent = headersList.get("user-agent") ?? "Unknown";
       } catch {
         // headers() not available in this context
       }
@@ -240,7 +240,7 @@ class LoginTrackingService {
       const previousLogin = await this.getPreviousLogin(data.userId);
 
       // Analyze suspicious activity
-      const suspiciousAnalysis = await this.analyzeSuspiciousActivity(
+      const suspiciousAnalysis = this.analyzeSuspiciousActivity(
         data.userId,
         ip,
         locationResult.location,

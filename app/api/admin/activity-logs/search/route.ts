@@ -4,7 +4,7 @@
  *
  * 此API预留用于未来实现，目前暂未启用
  */
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 import { noPermission } from "@/features/user";
 

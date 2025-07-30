@@ -62,8 +62,7 @@ const fetchSuspiciousLogins = async (): Promise<SuspiciousLoginsResponse> => {
   if (!response.ok) {
     throw new Error("Failed to fetch suspicious activities");
   }
-  const data = (await response.json()) as SuspiciousLoginsResponse;
-  return data;
+  return (await response.json()) as SuspiciousLoginsResponse;
 };
 
 const getDeviceIcon = (deviceType: string) => {

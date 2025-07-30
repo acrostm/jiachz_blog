@@ -5,8 +5,11 @@ import { type Prisma, TagTypeEnum } from "@prisma/client";
 import { ERROR_NO_PERMISSION } from "@/constants";
 import { noPermission } from "@/features/user";
 import { prisma } from "@/lib/prisma";
+import {
+  getCurrentUserId,
+  logTagActivity,
+} from "@/lib/utils/activity-logger-helper";
 import { getSkip } from "@/utils";
-import { getCurrentUserId, logTagActivity } from "@/lib/utils/activity-logger-helper";
 
 import {
   type CreateTagDTO,
@@ -96,7 +99,7 @@ export const createTag = async (params: CreateTagDTO) => {
   }
 
   const userId = await getCurrentUserId();
-  
+
   try {
     const { name, slug, type, icon, iconDark } =
       await createTagSchema.parseAsync(params);
@@ -116,7 +119,7 @@ export const createTag = async (params: CreateTagDTO) => {
         existingTag.id,
         name,
         undefined,
-        "标签名称或别名已存在"
+        "标签名称或别名已存在",
       );
       throw new Error("Tag or slug name already exist!");
     }
@@ -126,17 +129,10 @@ export const createTag = async (params: CreateTagDTO) => {
     });
 
     // 记录创建成功日志
-    await logTagActivity(
-      userId,
-      "TAG_CREATE",
-      "SUCCESS",
-      newTag.id,
-      name,
-      {
-        action: "create",
-        newValue: { name, slug, type, icon, iconDark },
-      }
-    );
+    await logTagActivity(userId, "TAG_CREATE", "SUCCESS", newTag.id, name, {
+      action: "create",
+      newValue: { name, slug, type, icon, iconDark },
+    });
   } catch (error) {
     // 记录其他创建失败情况
     await logTagActivity(
@@ -146,7 +142,7 @@ export const createTag = async (params: CreateTagDTO) => {
       "unknown",
       params.name,
       undefined,
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? error.message : String(error),
     );
     throw error;
   }
@@ -169,7 +165,7 @@ export const deleteTagByID = async (id: string) => {
         id,
         undefined,
         undefined,
-        "标签不存在"
+        "标签不存在",
       );
       throw new Error("Tag not exist!");
     }
@@ -181,17 +177,10 @@ export const deleteTagByID = async (id: string) => {
     });
 
     // 记录删除成功日志
-    await logTagActivity(
-      userId,
-      "TAG_DELETE",
-      "SUCCESS",
-      id,
-      tag.name,
-      {
-        action: "delete",
-        previousValue: { name: tag.name, slug: tag.slug, type: tag.type },
-      }
-    );
+    await logTagActivity(userId, "TAG_DELETE", "SUCCESS", id, tag.name, {
+      action: "delete",
+      previousValue: { name: tag.name, slug: tag.slug, type: tag.type },
+    });
   } catch (error) {
     // 记录删除失败日志
     await logTagActivity(
@@ -201,7 +190,7 @@ export const deleteTagByID = async (id: string) => {
       id,
       undefined,
       undefined,
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? error.message : String(error),
     );
     throw error;
   }
@@ -227,7 +216,7 @@ export const updateTag = async (params: UpdateTagDTO) => {
         id,
         undefined,
         undefined,
-        "标签不存在"
+        "标签不存在",
       );
       throw new Error("Tag not exist!");
     }
@@ -245,28 +234,22 @@ export const updateTag = async (params: UpdateTagDTO) => {
     if (data.slug && data.slug !== existingTag.slug) changes.push("别名");
     if (data.type && data.type !== existingTag.type) changes.push("类型");
     if (data.icon && data.icon !== existingTag.icon) changes.push("图标");
-    if (data.iconDark && data.iconDark !== existingTag.iconDark) changes.push("深色图标");
+    if (data.iconDark && data.iconDark !== existingTag.iconDark)
+      changes.push("深色图标");
 
     // 记录更新成功日志
-    await logTagActivity(
-      userId,
-      "TAG_UPDATE",
-      "SUCCESS",
-      id,
-      updatedTag.name,
-      {
-        action: "update",
-        previousValue: {
-          name: existingTag.name,
-          slug: existingTag.slug,
-          type: existingTag.type,
-          icon: existingTag.icon,
-          iconDark: existingTag.iconDark,
-        },
-        newValue: data,
-        changes,
-      }
-    );
+    await logTagActivity(userId, "TAG_UPDATE", "SUCCESS", id, updatedTag.name, {
+      action: "update",
+      previousValue: {
+        name: existingTag.name,
+        slug: existingTag.slug,
+        type: existingTag.type,
+        icon: existingTag.icon,
+        iconDark: existingTag.iconDark,
+      },
+      newValue: data,
+      changes,
+    });
   } catch (error) {
     // 记录更新失败日志
     await logTagActivity(
@@ -276,7 +259,7 @@ export const updateTag = async (params: UpdateTagDTO) => {
       params.id,
       undefined,
       undefined,
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? error.message : String(error),
     );
     throw error;
   }

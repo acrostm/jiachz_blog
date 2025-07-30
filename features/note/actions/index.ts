@@ -5,8 +5,11 @@ import { type Prisma } from "@prisma/client";
 import { ERROR_NO_PERMISSION, PUBLISHED_MAP } from "@/constants";
 import { noPermission } from "@/features/user";
 import { prisma } from "@/lib/prisma";
+import {
+  getCurrentUserId,
+  logNoteActivity,
+} from "@/lib/utils/activity-logger-helper";
 import { getSkip } from "@/utils";
-import { getCurrentUserId, logNoteActivity } from "@/lib/utils/activity-logger-helper";
 
 import {
   type CreateNoteDTO,
@@ -107,7 +110,7 @@ export const deleteNoteByID = async (id: string) => {
         "FAILED",
         id,
         undefined,
-        "笔记不存在"
+        "笔记不存在",
       );
       throw new Error("Note不存在");
     }
@@ -119,20 +122,14 @@ export const deleteNoteByID = async (id: string) => {
     });
 
     // 记录删除成功日志
-    await logNoteActivity(
-      userId,
-      "NOTE_DELETE",
-      "SUCCESS",
-      id,
-      {
-        action: "delete",
-        previousValue: {
-          bodyLength: note.body.length,
-          published: note.published,
-          tagCount: note.tags.length,
-        },
-      }
-    );
+    await logNoteActivity(userId, "NOTE_DELETE", "SUCCESS", id, {
+      action: "delete",
+      previousValue: {
+        bodyLength: note.body.length,
+        published: note.published,
+        tagCount: note.tags.length,
+      },
+    });
   } catch (error) {
     // 记录删除失败日志
     await logNoteActivity(
@@ -141,7 +138,7 @@ export const deleteNoteByID = async (id: string) => {
       "FAILED",
       id,
       undefined,
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? error.message : String(error),
     );
     throw error;
   }
@@ -165,26 +162,20 @@ export const createNote = async (params: CreateNoteDTO) => {
         body,
         published,
         tags: {
-          connect: tags?.map((tagID) => ({ id: tagID })) || [],
+          connect: tags?.map((tagID) => ({ id: tagID })) ?? [],
         },
       },
     });
 
     // 记录创建成功日志
-    await logNoteActivity(
-      userId,
-      "NOTE_CREATE",
-      "SUCCESS",
-      newNote.id,
-      {
-        action: "create",
-        newValue: {
-          bodyLength: body.length,
-          published,
-          tagCount: tags?.length || 0,
-        },
-      }
-    );
+    await logNoteActivity(userId, "NOTE_CREATE", "SUCCESS", newNote.id, {
+      action: "create",
+      newValue: {
+        bodyLength: body.length,
+        published,
+        tagCount: tags?.length ?? 0,
+      },
+    });
 
     return { success: true };
   } catch (error) {
@@ -195,7 +186,7 @@ export const createNote = async (params: CreateNoteDTO) => {
       "FAILED",
       "unknown",
       undefined,
-      error instanceof Error ? error.message : "创建笔记失败，请重试"
+      error instanceof Error ? error.message : "创建笔记失败，请重试",
     );
     return { success: false, error: "创建笔记失败，请重试" };
   }
@@ -219,11 +210,11 @@ export const toggleNotePublished = async (id: string) => {
       const activityType = note?.published ? "NOTE_UNPUBLISH" : "NOTE_PUBLISH";
       await logNoteActivity(
         userId,
-        activityType as "NOTE_PUBLISH" | "NOTE_UNPUBLISH",
+        activityType,
         "FAILED",
         id,
         undefined,
-        "笔记不存在"
+        "笔记不存在",
       );
       throw new Error("笔记不存在");
     }
@@ -241,17 +232,11 @@ export const toggleNotePublished = async (id: string) => {
 
     // 记录发布状态切换成功日志
     const activityType = newPublishedState ? "NOTE_PUBLISH" : "NOTE_UNPUBLISH";
-    await logNoteActivity(
-      userId,
-      activityType,
-      "SUCCESS",
-      id,
-      {
-        action: activityType.toLowerCase().replace("note_", ""),
-        previousValue: { published: note.published },
-        newValue: { published: newPublishedState },
-      }
-    );
+    await logNoteActivity(userId, activityType, "SUCCESS", id, {
+      action: activityType.toLowerCase().replace("note_", ""),
+      previousValue: { published: note.published },
+      newValue: { published: newPublishedState },
+    });
   } catch (error) {
     // 记录切换失败日志
     const activityType = "NOTE_PUBLISH"; // 默认值，因为无法确定原始状态
@@ -261,7 +246,7 @@ export const toggleNotePublished = async (id: string) => {
       "FAILED",
       id,
       undefined,
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? error.message : String(error),
     );
     throw error;
   }
@@ -297,7 +282,7 @@ export const updateNote = async (params: UpdateNoteDTO) => {
       "FAILED",
       id,
       undefined,
-      "笔记不存在"
+      "笔记不存在",
     );
     return { success: false, error: "Note不存在" };
   }
@@ -332,26 +317,20 @@ export const updateNote = async (params: UpdateNoteDTO) => {
     if (connectTags?.length || disconnectTags?.length) changes.push("标签");
 
     // 记录更新成功日志
-    await logNoteActivity(
-      userId,
-      "NOTE_UPDATE",
-      "SUCCESS",
-      id,
-      {
-        action: "update",
-        previousValue: {
-          bodyLength: note.body.length,
-          published: note.published,
-          tagCount: note.tags.length,
-        },
-        newValue: {
-          bodyLength: body.length,
-          published,
-          tagCount: tags?.length || 0,
-        },
-        changes,
-      }
-    );
+    await logNoteActivity(userId, "NOTE_UPDATE", "SUCCESS", id, {
+      action: "update",
+      previousValue: {
+        bodyLength: note.body.length,
+        published: note.published,
+        tagCount: note.tags.length,
+      },
+      newValue: {
+        bodyLength: body.length,
+        published,
+        tagCount: tags?.length || 0,
+      },
+      changes,
+    });
 
     return { success: true };
   } catch (error) {
@@ -362,7 +341,7 @@ export const updateNote = async (params: UpdateNoteDTO) => {
       "FAILED",
       id,
       undefined,
-      error instanceof Error ? error.message : "更新笔记失败，请重试"
+      error instanceof Error ? error.message : "更新笔记失败，请重试",
     );
     return { success: false, error: "更新笔记失败，请重试" };
   }

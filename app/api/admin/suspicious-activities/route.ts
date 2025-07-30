@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 import { noPermission } from "@/features/user";
 import { activityLogger } from "@/lib/activity-logger";
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     }
 
     const { searchParams } = new URL(request.url);
-    const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
+    const limit = Math.min(parseInt(searchParams.get("limit") ?? "50"), 100);
 
     // 获取可疑活动
     const suspiciousActivities =
@@ -22,24 +22,24 @@ export async function GET(request: NextRequest) {
     const formattedData = suspiciousActivities.map((activity) => ({
       id: activity.id,
       userId: activity.userId,
-      userEmail: activity.user?.email || "",
-      userName: activity.user?.name || "",
+      userEmail: activity.user?.email ?? "",
+      userName: activity.user?.name ?? "",
       loginAt: activity.timestamp, // 使用timestamp代替loginAt
       loginStatus: activity.activityStatus,
       loginMethod: activity.metadata
-        ? JSON.parse(activity.metadata)?.loginMethod || "UNKNOWN"
+        ? JSON.parse(activity.metadata)?.loginMethod ?? "UNKNOWN"
         : "UNKNOWN",
       ipAddress: activity.ipAddress,
-      location: activity.location || "",
-      country: activity.country || "",
-      region: activity.region || "",
-      city: activity.city || "",
-      browserName: activity.browserName || "",
-      browserVersion: activity.browserVersion || "",
-      operatingSystem: activity.operatingSystem || "",
+      location: activity.location ?? "",
+      country: activity.country ?? "",
+      region: activity.region ?? "",
+      city: activity.city ?? "",
+      browserName: activity.browserName ?? "",
+      browserVersion: activity.browserVersion ?? "",
+      operatingSystem: activity.operatingSystem ?? "",
       deviceType: activity.deviceType,
       isSuspicious: activity.isSuspicious,
-      suspiciousReasons: activity.suspiciousReasons || "[]",
+      suspiciousReasons: activity.suspiciousReasons ?? "[]",
       riskScore: activity.riskScore,
       locationChanged: false, // 需要从UserActivityLog的逻辑中推算
       newDevice: false, // 需要从UserActivityLog的逻辑中推算

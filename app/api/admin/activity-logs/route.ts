@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
 import {
-  ActivityType,
-  ActivityStatus,
-  ResourceType,
+  type ActivityStatus,
+  type ActivityType,
+  type ResourceType,
 } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
@@ -19,9 +19,9 @@ export async function GET(request: NextRequest) {
 
     // 解析查询参数
     const params: ActivityLogQueryParams = {
-      page: parseInt(searchParams.get("page") || "1"),
-      pageSize: Math.min(parseInt(searchParams.get("pageSize") || "20"), 100),
-      userId: searchParams.get("userId") || undefined,
+      page: parseInt(searchParams.get("page") ?? "1"),
+      pageSize: Math.min(parseInt(searchParams.get("pageSize") ?? "20"), 100),
+      userId: searchParams.get("userId") ?? undefined,
       activityType:
         (searchParams.get("activityType") as ActivityType) || undefined,
       activityStatus:
@@ -34,9 +34,9 @@ export async function GET(request: NextRequest) {
           : searchParams.get("isSuspicious") === "false"
             ? false
             : undefined,
-      startDate: searchParams.get("startDate") || undefined,
-      endDate: searchParams.get("endDate") || undefined,
-      search: searchParams.get("search") || undefined,
+      startDate: searchParams.get("startDate") ?? undefined,
+      endDate: searchParams.get("endDate") ?? undefined,
+      search: searchParams.get("search") ?? undefined,
       riskScoreMin: searchParams.get("riskScoreMin")
         ? parseInt(searchParams.get("riskScoreMin")!)
         : undefined,
@@ -94,7 +94,7 @@ export async function GET(request: NextRequest) {
     }
 
     // 搜索过滤（用户名、邮箱、资源标题、IP地址）
-    if (params.search && params.search.trim()) {
+    if (params.search?.trim()) {
       const searchTerm = params.search.trim();
       where.OR = [
         {

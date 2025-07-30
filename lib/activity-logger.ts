@@ -5,8 +5,8 @@
 import { headers } from "next/headers";
 
 import {
-  ActivityType,
-  ActivityStatus,
+  type ActivityStatus,
+  type ActivityType,
   DeviceType,
   type UserActivityLog,
 } from "@prisma/client";

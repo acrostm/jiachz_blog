@@ -160,6 +160,7 @@ export const ACTIVITY_TYPE_LABELS: Record<ActivityType, string> = {
   REGISTER: "用户注册",
   LOGIN: "用户登录",
   LOGOUT: "用户登出",
+  SEND_OTP: "发送验证码",
   PASSWORD_CHANGE: "密码修改",
 
   // 博客相关

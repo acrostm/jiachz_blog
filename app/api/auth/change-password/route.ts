@@ -1,10 +1,10 @@
 import { type NextRequest, NextResponse } from "next/server";
 
+import { ActivityStatus, ResourceType } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { ActivityStatus, ResourceType } from "@/lib/types/activity-log";
 import { safeLogActivity } from "@/lib/utils/activity-logger-helper";
 
 export async function POST(req: NextRequest) {

@@ -13,10 +13,15 @@ import {
   Smartphone,
   Tablet,
   Wifi,
+  ChevronDownIcon,
+  ChevronUpIcon,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 import type { UserActivityLog } from "@/lib/types/activity-log";
 
@@ -105,88 +110,102 @@ const formatRelativeTime = (dateString: string) => {
 
 export function LoginHistory() {
   const { data, loading, error } = useRequest(fetchLoginHistory);
-
   const loginHistory = data?.data || [];
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Calendar className="size-5" />
-          <span>登录历史</span>
-          <Badge variant="outline">{loginHistory.length} 条记录</Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {loading ? (
-          <div className="py-8 text-center text-muted-foreground">
-            加载中...
-          </div>
-        ) : error ? (
-          <div className="py-8 text-center text-red-600">加载失败</div>
-        ) : loginHistory.postcard === 0 ? (
-          <div className="py-8 text-center text-muted-foreground">
-            暂无登录记录
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {loginHistory.map((log) => (
-              <div
-                key={log.id}
-                className="flex items-center justify-between rounded-lg border p-3"
-              >
-                <div className="flex items-center gap-3">
-                  {getDeviceIcon(log.deviceType)}
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-medium">
-                        {formatRelativeTime(log.timestamp)}
-                      </span>
-                      {getStatusBadge(log.activityStatus)}
-                      <Badge variant="outline" className="text-xs">
-                        {getLoginMethodLabel(log.metadata)}
-                      </Badge>
-                      {log.isSuspicious && (
-                        <Badge
-                          variant="destructive"
-                          className="flex items-center gap-1"
-                        >
-                          <ShieldAlert className="size-3" />
-                          <span>风险: {log.riskScore}</span>
-                        </Badge>
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <CollapsibleTrigger asChild>
+        <Button variant="outline" className="w-full justify-between">
+          登录历史
+          {isOpen ? (
+            <ChevronUpIcon className="size-4" />
+          ) : (
+            <ChevronDownIcon className="size-4" />
+          )}
+        </Button>
+      </CollapsibleTrigger>
+      <CollapsibleContent className="mt-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="size-5" />
+              <span>登录历史</span>
+              <Badge variant="outline">{loginHistory.length} 条记录</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            {loading ? (
+              <div className="py-8 text-center text-muted-foreground">
+                加载中...
+              </div>
+            ) : error ? (
+              <div className="py-8 text-center text-red-600">加载失败</div>
+            ) : loginHistory.length === 0 ? (
+              <div className="py-8 text-center text-muted-foreground">
+                暂无登录记录
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {loginHistory.map((log) => (
+                  <div
+                    key={log.id}
+                    className="flex items-center justify-between rounded-lg border p-3"
+                  >
+                    <div className="flex items-center gap-3">
+                      {getDeviceIcon(log.deviceType)}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">
+                            {formatRelativeTime(log.timestamp)}
+                          </span>
+                          {getStatusBadge(log.activityStatus)}
+                          <Badge variant="outline" className="text-xs">
+                            {getLoginMethodLabel(log.metadata)}
+                          </Badge>
+                          {log.isSuspicious && (
+                            <Badge
+                              variant="destructive"
+                              className="flex items-center gap-1"
+                            >
+                              <ShieldAlert className="size-3" />
+                              <span>风险: {log.riskScore}</span>
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="mt-1 text-xs text-muted-foreground">
+                          {log.browserName} {log.browserVersion} ·{" "}
+                          {log.operatingSystem}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="flex items-center gap-1 text-sm">
+                        <Wifi className="size-3" />
+                        <span className="font-mono">{log.ipAddress}</span>
+                      </div>
+                      {log.location && (
+                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <MapPin className="size-3" />
+                          <span>{log.location}</span>
+                        </div>
                       )}
                     </div>
-                    <div className="mt-1 text-xs text-muted-foreground">
-                      {log.browserName} {log.browserVersion} ·{" "}
-                      {log.operatingSystem}
-                    </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <div className="flex items-center gap-1 text-sm">
-                    <Wifi className="size-3" />
-                    <span className="font-mono">{log.ipAddress}</span>
-                  </div>
-                  {log.location && (
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <MapPin className="size-3" />
-                      <span>{log.location}</span>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
+                ))}
 
-            {loginHistory.length >= 10 && (
-              <div className="pt-2 text-center">
-                <Badge variant="outline" className="text-xs">
-                  显示最近 10 次登录记录
-                </Badge>
+                {loginHistory.length >= 10 && (
+                  <div className="pt-2 text-center">
+                    <Badge variant="outline" className="text-xs">
+                      显示最近 10 次登录记录
+                    </Badge>
+                  </div>
+                )}
               </div>
             )}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }

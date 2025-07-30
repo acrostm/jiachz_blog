@@ -4,6 +4,8 @@ import bcrypt from "bcryptjs";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ActivityStatus, ResourceType } from "@/lib/types/activity-log";
+import { safeLogActivity } from "@/lib/utils/activity-logger-helper";
 
 export async function POST(req: NextRequest) {
   try {
@@ -95,8 +97,33 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // 记录成功日志
+    await safeLogActivity(user.id, "PASSWORD_CHANGE", ActivityStatus.SUCCESS, {
+      resourceType: ResourceType.USER,
+      resourceId: user.id,
+      actionDetails: {
+        action: "change-password",
+        description: "用户修改了密码",
+      },
+    });
+
     return NextResponse.json({ message: "密码修改成功" });
-  } catch {
+  } catch (error: any) {
+    // 记录失败日志
+    let userId = null;
+    try {
+      const session = await auth();
+      userId = session?.user?.id ?? null;
+    } catch {}
+    await safeLogActivity(userId, "PASSWORD_CHANGE", ActivityStatus.FAILED, {
+      resourceType: ResourceType.USER,
+      resourceId: userId,
+      actionDetails: {
+        action: "change-password",
+        description: "用户修改密码失败",
+      },
+      errorMessage: error?.message ?? String(error),
+    });
     return NextResponse.json(
       { message: "密码修改失败，请重试" },
       { status: 500 },

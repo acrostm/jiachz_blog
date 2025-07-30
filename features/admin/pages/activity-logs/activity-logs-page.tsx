@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import { type ColumnDef } from "@tanstack/react-table";
+import { type CellContext, type ColumnDef } from "@tanstack/react-table";
 import { useRequest, useSetState } from "ahooks";
 import { format } from "date-fns";
 import { zhCN } from "date-fns/locale";
@@ -493,60 +493,43 @@ export const ActivityLogsPage = () => {
     {
       id: "security",
       header: "安全",
-      cell: ({ row }) => {
-        const log = row.original;
-
-        // 高风险操作类型，需要显示安全信息
-        const highRiskOperations = [
-          "LOGIN",
-          "REGISTER",
-          "PASSWORD_CHANGE",
-          "ADMIN_ACCESS",
-          "USER_MANAGE",
-          "SYSTEM_CONFIG",
-        ];
-
-        const isHighRiskOperation = highRiskOperations.includes(
-          log.activityType,
-        );
+      cell: ({ row }: CellContext<UserActivityLog, unknown>) => {
+        const log: UserActivityLog = row.original;
 
         return (
           <div className="flex items-center gap-2">
-            {/* 只对高风险操作显示安全状态 */}
-            {isHighRiskOperation && (
-              <>
-                {log.isSuspicious ? (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <Badge
-                          variant="destructive"
-                          className="flex items-center gap-1"
-                        >
-                          <ShieldAlert className="size-3" />
-                          <span>风险: {log.riskScore}</span>
-                        </Badge>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <div className="max-w-xs">
-                          <p className="font-medium">可疑原因:</p>
-                          <p className="text-sm">
-                            {log.suspiciousReasons
-                              ? JSON.parse(log.suspiciousReasons).join("、")
-                              : "未知原因"}
-                          </p>
-                        </div>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                ) : (
-                  <Badge variant="outline" className="flex items-center gap-1">
-                    <Shield className="size-3" />
-                    <span>正常</span>
-                  </Badge>
-                )}
-              </>
-            )}
+            <>
+              {log.isSuspicious ? (
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Badge
+                        variant="destructive"
+                        className="flex items-center gap-1"
+                      >
+                        <ShieldAlert className="size-3" />
+                        <span>风险: {log.riskScore}</span>
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <div className="max-w-xs">
+                        <p className="font-medium">可疑原因:</p>
+                        <p className="text-sm">
+                          {log.suspiciousReasons
+                            ? JSON.parse(log.suspiciousReasons).join("、")
+                            : "未知原因"}
+                        </p>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              ) : (
+                <Badge variant="outline" className="flex items-center gap-1">
+                  <Shield className="size-3" />
+                  <span>正常</span>
+                </Badge>
+              )}
+            </>
 
             {/* 错误信息对所有操作都显示 */}
             {log.errorMessage && (
@@ -574,11 +557,6 @@ export const ActivityLogsPage = () => {
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-            )}
-
-            {/* 对于非高风险操作且无错误的情况，显示简洁信息 */}
-            {!isHighRiskOperation && !log.errorMessage && (
-              <span className="text-xs text-muted-foreground">-</span>
             )}
           </div>
         );

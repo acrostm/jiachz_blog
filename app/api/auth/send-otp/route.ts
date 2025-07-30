@@ -4,6 +4,8 @@ import { Resend } from "resend";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { ActivityStatus, ResourceType } from "@/lib/types/activity-log";
+import { safeLogActivity } from "@/lib/utils/activity-logger-helper";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -91,8 +93,32 @@ export async function POST(req: NextRequest) {
       `,
     });
 
+    // 发送邮件成功后记录日志
+    await safeLogActivity(session.user.id, "SEND_OTP", ActivityStatus.SUCCESS, {
+      resourceType: ResourceType.USER,
+      resourceId: session.user.id,
+      actionDetails: {
+        action: "send-otp",
+        description: `发送${type}验证码`,
+      },
+    });
     return NextResponse.json({ message: "验证码已发送" });
-  } catch {
+  } catch (error: any) {
+    // 记录失败日志
+    let userId = null;
+    try {
+      const session = await auth();
+      userId = session?.user?.id ?? null;
+    } catch {}
+    await safeLogActivity(userId, "SEND_OTP", ActivityStatus.FAILED, {
+      resourceType: ResourceType.USER,
+      resourceId: userId,
+      actionDetails: {
+        action: "send-otp",
+        description: "发送验证码失败",
+      },
+      errorMessage: error?.message ?? String(error),
+    });
     return NextResponse.json({ message: "发送验证码失败" }, { status: 500 });
   }
 }

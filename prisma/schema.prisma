@@ -76,6 +76,7 @@ enum ActivityType {
   LOGIN
   LOGOUT
   PASSWORD_CHANGE
+  SEND_OTP
   
   // 博客相关
   BLOG_CREATE

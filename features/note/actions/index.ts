@@ -6,6 +6,7 @@ import { ERROR_NO_PERMISSION, PUBLISHED_MAP } from "@/constants";
 import { noPermission } from "@/features/user";
 import { prisma } from "@/lib/prisma";
 import { getSkip } from "@/utils";
+import { getCurrentUserId, logNoteActivity } from "@/lib/utils/activity-logger-helper";
 
 import {
   type CreateNoteDTO,
@@ -90,17 +91,60 @@ export const deleteNoteByID = async (id: string) => {
   if (await noPermission()) {
     throw ERROR_NO_PERMISSION;
   }
-  const isExist = await isNoteExistByID(id);
 
-  if (!isExist) {
-    throw new Error("Note不存在");
-  }
+  const userId = await getCurrentUserId();
 
-  await prisma.note.delete({
-    where: {
+  try {
+    const note = await prisma.note.findUnique({
+      where: { id },
+      include: { tags: true },
+    });
+
+    if (!note) {
+      await logNoteActivity(
+        userId,
+        "NOTE_DELETE",
+        "FAILED",
+        id,
+        undefined,
+        "笔记不存在"
+      );
+      throw new Error("Note不存在");
+    }
+
+    await prisma.note.delete({
+      where: {
+        id,
+      },
+    });
+
+    // 记录删除成功日志
+    await logNoteActivity(
+      userId,
+      "NOTE_DELETE",
+      "SUCCESS",
       id,
-    },
-  });
+      {
+        action: "delete",
+        previousValue: {
+          bodyLength: note.body.length,
+          published: note.published,
+          tagCount: note.tags.length,
+        },
+      }
+    );
+  } catch (error) {
+    // 记录删除失败日志
+    await logNoteActivity(
+      userId,
+      "NOTE_DELETE",
+      "FAILED",
+      id,
+      undefined,
+      error instanceof Error ? error.message : String(error)
+    );
+    throw error;
+  }
 };
 
 export const createNote = async (params: CreateNoteDTO) => {
@@ -111,10 +155,12 @@ export const createNote = async (params: CreateNoteDTO) => {
     };
   }
 
+  const userId = await getCurrentUserId();
+
   try {
     const { body, published, tags } = await createNoteSchema.parseAsync(params);
 
-    await prisma.note.create({
+    const newNote = await prisma.note.create({
       data: {
         body,
         published,
@@ -123,8 +169,34 @@ export const createNote = async (params: CreateNoteDTO) => {
         },
       },
     });
+
+    // 记录创建成功日志
+    await logNoteActivity(
+      userId,
+      "NOTE_CREATE",
+      "SUCCESS",
+      newNote.id,
+      {
+        action: "create",
+        newValue: {
+          bodyLength: body.length,
+          published,
+          tagCount: tags?.length || 0,
+        },
+      }
+    );
+
     return { success: true };
-  } catch {
+  } catch (error) {
+    // 记录创建失败日志
+    await logNoteActivity(
+      userId,
+      "NOTE_CREATE",
+      "FAILED",
+      "unknown",
+      undefined,
+      error instanceof Error ? error.message : "创建笔记失败，请重试"
+    );
     return { success: false, error: "创建笔记失败，请重试" };
   }
 };
@@ -133,24 +205,66 @@ export const toggleNotePublished = async (id: string) => {
   if (await noPermission()) {
     throw ERROR_NO_PERMISSION;
   }
-  const note = await prisma.note.findUnique({
-    where: {
-      id,
-    },
-  });
 
-  if (!note) {
-    throw new Error("笔记不存在");
+  const userId = await getCurrentUserId();
+
+  try {
+    const note = await prisma.note.findUnique({
+      where: {
+        id,
+      },
+    });
+
+    if (!note) {
+      const activityType = note?.published ? "NOTE_UNPUBLISH" : "NOTE_PUBLISH";
+      await logNoteActivity(
+        userId,
+        activityType as "NOTE_PUBLISH" | "NOTE_UNPUBLISH",
+        "FAILED",
+        id,
+        undefined,
+        "笔记不存在"
+      );
+      throw new Error("笔记不存在");
+    }
+
+    const newPublishedState = !note.published;
+
+    await prisma.note.update({
+      data: {
+        published: newPublishedState,
+      },
+      where: {
+        id,
+      },
+    });
+
+    // 记录发布状态切换成功日志
+    const activityType = newPublishedState ? "NOTE_PUBLISH" : "NOTE_UNPUBLISH";
+    await logNoteActivity(
+      userId,
+      activityType,
+      "SUCCESS",
+      id,
+      {
+        action: activityType.toLowerCase().replace("note_", ""),
+        previousValue: { published: note.published },
+        newValue: { published: newPublishedState },
+      }
+    );
+  } catch (error) {
+    // 记录切换失败日志
+    const activityType = "NOTE_PUBLISH"; // 默认值，因为无法确定原始状态
+    await logNoteActivity(
+      userId,
+      activityType,
+      "FAILED",
+      id,
+      undefined,
+      error instanceof Error ? error.message : String(error)
+    );
+    throw error;
   }
-
-  await prisma.note.update({
-    data: {
-      published: !note.published,
-    },
-    where: {
-      id,
-    },
-  });
 };
 
 export const updateNote = async (params: UpdateNoteDTO) => {
@@ -161,6 +275,7 @@ export const updateNote = async (params: UpdateNoteDTO) => {
     };
   }
 
+  const userId = await getCurrentUserId();
   const result = await updateNoteSchema.safeParseAsync(params);
 
   if (!result.success) {
@@ -176,6 +291,14 @@ export const updateNote = async (params: UpdateNoteDTO) => {
   });
 
   if (!note) {
+    await logNoteActivity(
+      userId,
+      "NOTE_UPDATE",
+      "FAILED",
+      id,
+      undefined,
+      "笔记不存在"
+    );
     return { success: false, error: "Note不存在" };
   }
 
@@ -199,8 +322,48 @@ export const updateNote = async (params: UpdateNoteDTO) => {
         },
       },
     });
+
+    // 分析变更内容
+    const changes: string[] = [];
+    if (body !== note.body) changes.push("内容");
+    if (published !== note.published) {
+      changes.push(published ? "发布状态" : "取消发布");
+    }
+    if (connectTags?.length || disconnectTags?.length) changes.push("标签");
+
+    // 记录更新成功日志
+    await logNoteActivity(
+      userId,
+      "NOTE_UPDATE",
+      "SUCCESS",
+      id,
+      {
+        action: "update",
+        previousValue: {
+          bodyLength: note.body.length,
+          published: note.published,
+          tagCount: note.tags.length,
+        },
+        newValue: {
+          bodyLength: body.length,
+          published,
+          tagCount: tags?.length || 0,
+        },
+        changes,
+      }
+    );
+
     return { success: true };
   } catch (error) {
+    // 记录更新失败日志
+    await logNoteActivity(
+      userId,
+      "NOTE_UPDATE",
+      "FAILED",
+      id,
+      undefined,
+      error instanceof Error ? error.message : "更新笔记失败，请重试"
+    );
     return { success: false, error: "更新笔记失败，请重试" };
   }
 };

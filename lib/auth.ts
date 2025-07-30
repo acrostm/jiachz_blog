@@ -4,13 +4,12 @@ import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { LoginMethod, LoginStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
 
 import { NODE_ENV } from "@/config";
 
 import { PATHS } from "@/constants";
-import { loginTracker } from "@/lib/login-tracking";
+import { activityLogger } from "@/lib/activity-logger";
 import { prisma } from "@/lib/prisma";
 
 export const { handlers, auth, signOut, signIn } = NextAuth({
@@ -113,20 +112,25 @@ export const { handlers, auth, signOut, signIn } = NextAuth({
         });
 
         // Determine login method
-        let loginMethod: LoginMethod = LoginMethod.CREDENTIALS;
+        let loginMethod:
+          | "CREDENTIALS"
+          | "OAUTH_GITHUB"
+          | "OAUTH_GOOGLE"
+          | "OTP" = "CREDENTIALS";
         if (account?.provider === "github") {
-          loginMethod = LoginMethod.OAUTH_GITHUB;
+          loginMethod = "OAUTH_GITHUB";
         } else if (account?.provider === "google") {
-          loginMethod = LoginMethod.OAUTH_GOOGLE;
+          loginMethod = "OAUTH_GOOGLE";
         }
 
-        // Track the login (note: this will use "unknown" for IP since we don't have access to headers here)
+        // Track the login using new activity logger
+        // Note: this will use "unknown" for IP since we don't have access to headers here
         // The comprehensive tracking will be done at the API route level
         try {
-          await loginTracker.trackLogin({
+          await activityLogger.trackLogin({
             userId: user.id,
             loginMethod,
-            loginStatus: LoginStatus.SUCCESS,
+            loginStatus: "SUCCESS",
             sessionId: account?.providerAccountId,
           });
         } catch {

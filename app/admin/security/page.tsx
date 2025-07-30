@@ -58,9 +58,9 @@ interface SuspiciousLoginsResponse {
 }
 
 const fetchSuspiciousLogins = async (): Promise<SuspiciousLoginsResponse> => {
-  const response = await fetch("/api/admin/suspicious-logins?limit=50");
+  const response = await fetch("/api/admin/suspicious-activities?limit=50");
   if (!response.ok) {
-    throw new Error("Failed to fetch suspicious logins");
+    throw new Error("Failed to fetch suspicious activities");
   }
   const data = (await response.json()) as SuspiciousLoginsResponse;
   return data;

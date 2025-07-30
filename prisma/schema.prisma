@@ -53,26 +53,14 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
-  loginActivities LoginActivity[]
+  activityLogs  UserActivityLog[]
   createdAt     DateTime       @default(now())
   lastLoginAt   DateTime?
   lastLoginIp   String?
   lastLoginLocation String?
 }
 
-enum LoginStatus {
-  SUCCESS
-  FAILED
-  BLOCKED
-  SUSPICIOUS
-}
-
-enum LoginMethod {
-  CREDENTIALS
-  OAUTH_GITHUB
-  OAUTH_GOOGLE
-  OTP
-}
+// 旧的登录枚举已整合到ActivityType和ActivityStatus中
 
 enum DeviceType {
   DESKTOP
@@ -81,55 +69,129 @@ enum DeviceType {
   UNKNOWN
 }
 
-model LoginActivity {
+// 用户活动类型枚举
+enum ActivityType {
+  // 认证相关
+  REGISTER
+  LOGIN
+  LOGOUT
+  PASSWORD_CHANGE
+  
+  // 博客相关
+  BLOG_CREATE
+  BLOG_UPDATE
+  BLOG_DELETE
+  BLOG_PUBLISH
+  BLOG_UNPUBLISH
+  
+  // 笔记相关
+  NOTE_CREATE
+  NOTE_UPDATE
+  NOTE_DELETE
+  NOTE_PUBLISH
+  NOTE_UNPUBLISH
+  
+  // 留言板相关
+  MESSAGE_SEND
+  MESSAGE_DELETE
+  
+  // 标签相关
+  TAG_CREATE
+  TAG_UPDATE
+  TAG_DELETE
+  
+  // 管理相关
+  ADMIN_ACCESS
+  USER_MANAGE
+  SYSTEM_CONFIG
+  
+  // 文件相关
+  FILE_UPLOAD
+  FILE_DELETE
+}
+
+// 活动状态枚举
+enum ActivityStatus {
+  SUCCESS
+  FAILED
+  BLOCKED
+  PENDING
+}
+
+// 资源类型枚举
+enum ResourceType {
+  USER
+  BLOG
+  NOTE
+  MESSAGE
+  TAG
+  FILE
+  SYSTEM
+}
+
+// 旧的LoginActivity模型已整合到UserActivityLog中
+
+// 用户活动日志模型 - 扩展的通用操作日志
+model UserActivityLog {
   id            String      @id @default(cuid())
   userId        String
   user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   
-  // Basic login info
-  loginAt       DateTime    @default(now())
-  loginStatus   LoginStatus
-  loginMethod   LoginMethod
-  sessionId     String?
+  // 活动基础信息
+  activityType    ActivityType
+  activityStatus  ActivityStatus
+  timestamp       DateTime    @default(now())
   
-  // Network & Location info
-  ipAddress     String
-  location      String?     // Formatted location (e.g., "广东", "美国")
-  country       String?     // Country name
-  region        String?     // State/Province
-  city          String?     // City name
-  countryCode   String?     // ISO country code (CN, US, etc.)
+  // 资源信息
+  resourceType    ResourceType?
+  resourceId      String?
+  resourceTitle   String?     // 资源标题，如博客标题、笔记标题等
   
-  // Device & Browser info
-  userAgent     String      @db.Text
-  browserName   String?
-  browserVersion String?
+  // 操作详情 (JSON格式存储特定操作的详细信息)
+  actionDetails   String?     @db.Text // JSON: {action: "create", previousValue: {...}, newValue: {...}}
+  
+  // 网络和设备信息
+  ipAddress       String
+  userAgent       String      @db.Text
+  location        String?     // 格式化位置信息
+  country         String?
+  region          String?
+  city            String?
+  countryCode     String?
+  
+  // 设备信息
+  browserName     String?
+  browserVersion  String?
   operatingSystem String?
-  deviceType    DeviceType  @default(UNKNOWN)
-  deviceFingerprint String? // Browser fingerprint for device tracking
+  deviceType      DeviceType  @default(UNKNOWN)
+  deviceFingerprint String?
   
-  // Security analysis
-  isSuspicious  Boolean     @default(false)
-  suspiciousReasons String? @db.Text // JSON array of reasons
-  riskScore     Int         @default(0) // 0-100 risk score
+  // 安全分析
+  isSuspicious    Boolean     @default(false)
+  suspiciousReasons String?   @db.Text // JSON array
+  riskScore       Int         @default(0) // 0-100
   
-  // Previous login comparison
-  previousLoginIp String?
-  previousLoginLocation String?
-  timeSinceLastLogin Int? // Minutes since last login
-  locationChanged Boolean @default(false)
-  newDevice     Boolean     @default(false)
+  // 会话信息
+  sessionId       String?
   
-  // Additional metadata
-  failureReason String?     // If login failed, why?
-  blockedReason String?     // If login was blocked, why?
+  // 额外元数据 (JSON格式存储特定操作的扩展信息)
+  metadata        String?     @db.Text // JSON: 灵活存储各种操作特定的数据
   
-  createdAt     DateTime    @default(now())
+  // 错误信息
+  errorMessage    String?     @db.Text
+  errorCode       String?
   
+  createdAt       DateTime    @default(now())
+  
+  // 索引优化
   @@index([userId])
-  @@index([loginAt])
+  @@index([activityType])
+  @@index([timestamp])
+  @@index([resourceType])
+  @@index([resourceId])
   @@index([ipAddress])
   @@index([isSuspicious])
+  @@index([activityStatus])
 }
 
 model VerificationToken {

@@ -29,9 +29,9 @@ export const SettingsModal = ({ open, setOpen }: Props) => {
               用户管理
             </Button>
           </a>
-          <a href={PATHS.ADMIN_LOGIN_LOGS}>
+          <a href={PATHS.ADMIN_ACTIVITY_LOGS}>
             <Button variant="outline" className="w-full">
-              登录日志
+              操作日志
             </Button>
           </a>
           <a href={PATHS.SITE_PROFILE}>

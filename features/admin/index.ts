@@ -1,4 +1,4 @@
 export * from "./components";
 
 export * from "./pages";
-export * from "./pages/login-logs";
+export * from "./pages/activity-logs";

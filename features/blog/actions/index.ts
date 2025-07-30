@@ -8,6 +8,10 @@ import { batchGetBlogUV } from "@/features/statistics";
 import { noPermission } from "@/features/user";
 import { notifyNewBlogCreated } from "@/lib/notification";
 import { prisma } from "@/lib/prisma";
+import {
+  getCurrentUserId,
+  logBlogActivity,
+} from "@/lib/utils/activity-logger-helper";
 import { getSkip } from "@/utils";
 
 import {
@@ -175,34 +179,91 @@ export const getPublishedBlogBySlug = async (slug: string) => {
 };
 
 export const deleteBlogByID = async (id: string) => {
+  const userId = await getCurrentUserId();
+
   if (await noPermission()) {
+    await logBlogActivity(
+      userId,
+      "BLOG_DELETE",
+      "BLOCKED",
+      id,
+      undefined,
+      undefined,
+      "权限不足",
+    );
     throw ERROR_NO_PERMISSION;
   }
 
-  const isExist = await isBlogExistByID(id);
+  const blog = await prisma.blog.findUnique({
+    where: { id },
+    select: { id: true, title: true },
+  });
 
-  if (!isExist) {
+  if (!blog) {
+    await logBlogActivity(
+      userId,
+      "BLOG_DELETE",
+      "FAILED",
+      id,
+      undefined,
+      undefined,
+      "Blog不存在",
+    );
     throw new Error("Blog不存在");
   }
 
-  await prisma.blog.delete({
-    where: {
+  try {
+    await prisma.blog.delete({
+      where: { id },
+    });
+
+    await logBlogActivity(userId, "BLOG_DELETE", "SUCCESS", id, blog.title);
+  } catch (error) {
+    await logBlogActivity(
+      userId,
+      "BLOG_DELETE",
+      "FAILED",
       id,
-    },
-  });
+      blog.title,
+      undefined,
+      "删除失败",
+    );
+    throw error;
+  }
 };
 
 export const createBlog = async (params: CreateBlogDTO) => {
+  const userId = await getCurrentUserId();
+
   if (await noPermission()) {
+    await logBlogActivity(
+      userId,
+      "BLOG_CREATE",
+      "BLOCKED",
+      "",
+      params.title,
+      undefined,
+      "权限不足",
+    );
     return {
       success: false,
       error: "权限不足，仅管理员和已验证用户可以创建博客",
     };
   }
+
   const result = await createBlogSchema.safeParseAsync(params);
 
   if (!result.success) {
     const error = result.error.format()._errors?.join(";");
+    await logBlogActivity(
+      userId,
+      "BLOG_CREATE",
+      "FAILED",
+      "",
+      params.title,
+      undefined,
+      `验证失败: ${error}`,
+    );
     return { success: false, error };
   }
 
@@ -216,11 +277,20 @@ export const createBlog = async (params: CreateBlogDTO) => {
   });
 
   if (blogs.length) {
+    await logBlogActivity(
+      userId,
+      "BLOG_CREATE",
+      "FAILED",
+      "",
+      title,
+      undefined,
+      "标题或slug重复",
+    );
     return { success: false, error: "标题或者slug重复" };
   }
 
   try {
-    await prisma.blog.create({
+    const blog = await prisma.blog.create({
       data: {
         title,
         slug,
@@ -238,6 +308,23 @@ export const createBlog = async (params: CreateBlogDTO) => {
           : undefined,
       },
     });
+
+    // 记录活动日志
+    await logBlogActivity(userId, "BLOG_CREATE", "SUCCESS", blog.id, title, {
+      action: "create",
+      newValue: {
+        title,
+        slug,
+        published,
+        author,
+        tags: tags?.length || 0,
+      },
+    });
+
+    // 如果是发布状态，也记录发布活动
+    if (published) {
+      await logBlogActivity(userId, "BLOG_PUBLISH", "SUCCESS", blog.id, title);
+    }
 
     // Send notification for new blog creation
     const creationTime = new Date().toLocaleString("zh-CN", {
@@ -258,46 +345,118 @@ export const createBlog = async (params: CreateBlogDTO) => {
     });
 
     return { success: true };
-  } catch {
+  } catch (error) {
+    await logBlogActivity(
+      userId,
+      "BLOG_CREATE",
+      "FAILED",
+      "",
+      title,
+      undefined,
+      "创建博客失败",
+    );
     return { success: false, error: "创建博客失败，请重试" };
   }
 };
 
 export const toggleBlogPublished = async (id: string) => {
+  const userId = await getCurrentUserId();
+
   if (await noPermission()) {
+    await logBlogActivity(
+      userId,
+      "BLOG_PUBLISH",
+      "BLOCKED",
+      id,
+      undefined,
+      undefined,
+      "权限不足",
+    );
     throw ERROR_NO_PERMISSION;
   }
+
   const blog = await prisma.blog.findUnique({
-    where: {
-      id,
-    },
+    where: { id },
+    select: { id: true, title: true, published: true },
   });
 
   if (!blog) {
+    await logBlogActivity(
+      userId,
+      "BLOG_PUBLISH",
+      "FAILED",
+      id,
+      undefined,
+      undefined,
+      "Blog不存在",
+    );
     throw new Error("Blog不存在");
   }
 
-  await prisma.blog.update({
-    data: {
-      published: !blog.published,
-    },
-    where: {
+  const newPublishedStatus = !blog.published;
+  const activityType = newPublishedStatus ? "BLOG_PUBLISH" : "BLOG_UNPUBLISH";
+
+  try {
+    await prisma.blog.update({
+      data: {
+        published: newPublishedStatus,
+      },
+      where: {
+        id,
+      },
+    });
+
+    await logBlogActivity(userId, activityType, "SUCCESS", id, blog.title, {
+      action: newPublishedStatus ? "publish" : "unpublish",
+      previousValue: { published: blog.published },
+      newValue: { published: newPublishedStatus },
+    });
+  } catch (error) {
+    await logBlogActivity(
+      userId,
+      activityType,
+      "FAILED",
       id,
-    },
-  });
+      blog.title,
+      undefined,
+      "更新发布状态失败",
+    );
+    throw error;
+  }
 };
 
 export const updateBlog = async (params: UpdateBlogDTO) => {
+  const userId = await getCurrentUserId();
+
   if (await noPermission()) {
+    await logBlogActivity(
+      userId,
+      "BLOG_UPDATE",
+      "BLOCKED",
+      params.id,
+      undefined,
+      undefined,
+      "权限不足",
+    );
     return {
       success: false,
       error: "权限不足，仅管理员和已验证用户可以编辑博客",
     };
   }
+
   const result = await updateBlogSchema.safeParseAsync(params);
 
   if (!result.success) {
     const error = result.error.format()._errors?.join(";");
+    await logBlogActivity(
+      userId,
+      "BLOG_UPDATE",
+      "FAILED",
+      params.id,
+      undefined,
+      undefined,
+      `验证失败: ${error}`,
+    );
     return { success: false, error };
   }
 
@@ -310,6 +469,15 @@ export const updateBlog = async (params: UpdateBlogDTO) => {
   });
 
   if (!blog) {
+    await logBlogActivity(
+      userId,
+      "BLOG_UPDATE",
+      "FAILED",
+      id,
+      undefined,
+      undefined,
+      "Blog不存在",
+    );
     return { success: false, error: "Blog不存在" };
   }
 
@@ -321,6 +489,36 @@ export const updateBlog = async (params: UpdateBlogDTO) => {
     const tagsToDisconnect = Array.from(blogTags)
       .filter((tagID) => !tags?.includes(tagID))
       .map((tagID) => ({ id: tagID }));
+
+    // 记录变更内容
+    const changes: string[] = [];
+    const previousValue: Record<string, any> = {};
+    const newValue: Record<string, any> = {};
+
+    if (title && title !== blog.title) {
+      changes.push("标题");
+      previousValue.title = blog.title;
+      newValue.title = title;
+    }
+    if (description && description !== blog.description) {
+      changes.push("描述");
+      previousValue.description = blog.description;
+      newValue.description = description;
+    }
+    if (slug && slug !== blog.slug) {
+      changes.push("链接");
+      previousValue.slug = blog.slug;
+      newValue.slug = slug;
+    }
+    if (published !== undefined && published !== blog.published) {
+      changes.push("发布状态");
+      previousValue.published = blog.published;
+      newValue.published = published;
+    }
+    if (tagsToConnect?.length || tagsToDisconnect?.length) {
+      changes.push("标签");
+      previousValue.tags = blog.tags.map((t) => t.name);
+    }
 
     await prisma.blog.update({
       where: { id },
@@ -338,8 +536,38 @@ export const updateBlog = async (params: UpdateBlogDTO) => {
         },
       },
     });
+
+    // 记录更新活动
+    await logBlogActivity(userId, "BLOG_UPDATE", "SUCCESS", id, blog.title, {
+      action: "update",
+      changes,
+      previousValue,
+      newValue,
+    });
+
+    // 如果发布状态发生变化，记录额外的发布/取消发布活动
+    if (published !== undefined && published !== blog.published) {
+      const publishActivityType = published ? "BLOG_PUBLISH" : "BLOG_UNPUBLISH";
+      await logBlogActivity(
+        userId,
+        publishActivityType,
+        "SUCCESS",
+        id,
+        blog.title,
+      );
+    }
+
     return { success: true };
-  } catch {
+  } catch (error) {
+    await logBlogActivity(
+      userId,
+      "BLOG_UPDATE",
+      "FAILED",
+      id,
+      blog.title,
+      undefined,
+      "更新博客失败",
+    );
     return { success: false, error: "更新博客失败，请重试" };
   }
 };

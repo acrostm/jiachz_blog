@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { notifyNewMessage } from "@/lib/notification";
 import { prisma } from "@/lib/prisma";
 import { isAdmin } from "@/lib/utils";
+import { logMessageActivity } from "@/lib/utils/activity-logger-helper";
 
 // 获取客户端 IP
 function getClientIp(req: NextRequest) {
@@ -128,6 +129,16 @@ export async function POST(req: NextRequest) {
     // Send notification asynchronously (don't block the response)
     notifyNewMessage(author, content, currentTime, ip).catch(() => {});
 
+    // 记录留言发送活动日志
+    if (userId) {
+      await logMessageActivity(userId, "MESSAGE_SEND", "SUCCESS", message.id, {
+        messageLength: content.length,
+        isLogin,
+        ip,
+        userAgent,
+      }).catch(console.error);
+    }
+
     return NextResponse.json({
       message: { ...message, userInfo },
     });
@@ -154,9 +165,59 @@ export async function DELETE(req: NextRequest) {
         { status: 500 },
       );
     }
+
+    // 获取留言信息用于日志记录
+    const messageToDelete = await prisma.messageBoard.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        content: true,
+        userId: true,
+        ip: true,
+        createdAt: true,
+      },
+    });
+
     await prisma.messageBoard.delete({ where: { id } });
+
+    // 记录留言删除活动日志
+    if (session.user.id) {
+      await logMessageActivity(
+        session.user.id,
+        "MESSAGE_DELETE",
+        "SUCCESS",
+        id,
+        {
+          deletedMessageInfo: messageToDelete
+            ? {
+                originalAuthorId: messageToDelete.userId,
+                messageLength: messageToDelete.content?.length || 0,
+                originalIp: messageToDelete.ip,
+                originalCreatedAt: messageToDelete.createdAt?.toISOString(),
+              }
+            : undefined,
+          adminAction: true,
+        },
+      ).catch(console.error);
+    }
+
     return NextResponse.json({ success: true });
   } catch (e) {
+    // 记录删除失败的日志
+    if (req.headers.get("user-agent")) {
+      const session = await auth().catch(() => null);
+      if (session?.user?.id) {
+        await logMessageActivity(
+          session.user.id,
+          "MESSAGE_DELETE",
+          "FAILED",
+          req.headers.get("x-message-id") || "unknown",
+          {},
+          String(e),
+        ).catch(console.error);
+      }
+    }
+
     return NextResponse.json(
       { error: "留言删除异常", detail: String(e) },
       { status: 500 },

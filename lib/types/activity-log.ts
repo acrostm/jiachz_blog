@@ -2,11 +2,11 @@
  * 用户活动日志相关类型定义
  */
 import {
-  ActivityType,
   ActivityStatus,
+  ActivityType,
   DeviceType,
-  ResourceType,
   type UserActivityLog as PrismaUserActivityLog,
+  ResourceType,
 } from "@prisma/client";
 
 // 基础活动日志数据

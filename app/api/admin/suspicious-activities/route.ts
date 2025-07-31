@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
       loginAt: activity.timestamp, // 使用timestamp代替loginAt
       loginStatus: activity.activityStatus,
       loginMethod: activity.metadata
-        ? JSON.parse(activity.metadata)?.loginMethod ?? "UNKNOWN"
+        ? (JSON.parse(activity.metadata)?.loginMethod ?? "UNKNOWN")
         : "UNKNOWN",
       ipAddress: activity.ipAddress,
       location: activity.location ?? "",

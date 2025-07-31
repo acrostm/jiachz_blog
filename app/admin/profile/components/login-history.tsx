@@ -1,27 +1,31 @@
 "use client";
 
 import React from "react";
+import { useState } from "react";
 
 import { useRequest } from "ahooks";
 import { format } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import {
   Calendar,
+  ChevronDownIcon,
+  ChevronUpIcon,
   MapPin,
   Monitor,
   ShieldAlert,
   Smartphone,
   Tablet,
   Wifi,
-  ChevronDownIcon,
-  ChevronUpIcon,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 import type { UserActivityLog } from "@/lib/types/activity-log";
 

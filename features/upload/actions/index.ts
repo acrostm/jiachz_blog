@@ -11,6 +11,10 @@ import { ERROR_NO_PERMISSION } from "@/constants";
 import { noPermission } from "@/features/user";
 import { createCuid } from "@/lib/cuid";
 import { s3 } from "@/lib/r2-storage";
+import {
+  getCurrentUserId,
+  logFileActivity,
+} from "@/lib/utils/activity-logger-helper";
 
 const getImageInfo = async (file: File) => {
   const buffer = await file.arrayBuffer();
@@ -93,18 +97,48 @@ const getContentType = (fileName: string): string => {
 export const uploadFile = async (
   formData: FormData,
 ): Promise<{ error?: string; url?: string }> => {
+  const userId = await getCurrentUserId();
+
   if (await noPermission()) {
+    await logFileActivity(
+      userId,
+      "FILE_UPLOAD",
+      "BLOCKED",
+      "unknown",
+      { reason: "权限不足" },
+      ERROR_NO_PERMISSION.message,
+    );
     return { error: ERROR_NO_PERMISSION.message };
   }
 
   // Get file from formData
   const file = formData.get("file") as File;
   if (!file) {
+    await logFileActivity(
+      userId,
+      "FILE_UPLOAD",
+      "FAILED",
+      "unknown",
+      { reason: "没有找到文件" },
+      "No file found",
+    );
     return { error: "No file found" };
   }
 
   const { isImage, isWebp } = await getImageInfo(file);
   if (!isImage) {
+    await logFileActivity(
+      userId,
+      "FILE_UPLOAD",
+      "FAILED",
+      file.name,
+      {
+        fileName: file.name,
+        fileSize: file.size,
+        reason: "不是图片文件",
+      },
+      "Uploaded file is not an image",
+    );
     return { error: "Uploaded file is not an image" };
   }
 
@@ -112,6 +146,19 @@ export const uploadFile = async (
   const sizeLimit = 1024 * 1024 * 30; // 30MB
 
   if (fileSize > sizeLimit) {
+    await logFileActivity(
+      userId,
+      "FILE_UPLOAD",
+      "FAILED",
+      file.name,
+      {
+        fileName: file.name,
+        fileSize,
+        sizeLimit,
+        reason: "文件大小超出限制",
+      },
+      "File size too large",
+    );
     return { error: "File size too large" };
   }
 
@@ -124,8 +171,30 @@ export const uploadFile = async (
         true,
         R2_UPLOAD_DIR ?? "uploads/",
       ); // 使用 WebP 格式
+
+      await logFileActivity(userId, "FILE_UPLOAD", "SUCCESS", file.name, {
+        fileName: file.name,
+        originalSize: fileSize,
+        compressedSize: compressedFile.length,
+        uploadUrl: uploadedUrl,
+        compressed: true,
+        format: "webp",
+      });
+
       return { url: uploadedUrl };
     } catch (error) {
+      await logFileActivity(
+        userId,
+        "FILE_UPLOAD",
+        "FAILED",
+        file.name,
+        {
+          fileName: file.name,
+          fileSize,
+          reason: "压缩或上传失败",
+        },
+        "Upload failed",
+      );
       return { error: "Upload failed" };
     }
   } else {
@@ -136,8 +205,29 @@ export const uploadFile = async (
         false,
         R2_UPLOAD_DIR ?? "uploads/",
       );
+
+      await logFileActivity(userId, "FILE_UPLOAD", "SUCCESS", file.name, {
+        fileName: file.name,
+        fileSize,
+        uploadUrl: uploadedUrl,
+        compressed: false,
+        format: isWebp ? "webp" : "original",
+      });
+
       return { url: uploadedUrl };
     } catch (error) {
+      await logFileActivity(
+        userId,
+        "FILE_UPLOAD",
+        "FAILED",
+        file.name,
+        {
+          fileName: file.name,
+          fileSize,
+          reason: "上传失败",
+        },
+        "Upload failed",
+      );
       return { error: "Upload failed" };
     }
   }
@@ -146,14 +236,37 @@ export const uploadFile = async (
 export const uploadAvatar = async (
   formData: FormData,
 ): Promise<{ error?: string; url?: string }> => {
-  // 不做权限校验，注册时可用
+  // 不做权限校验，注册时可用，但记录日志
+  const userId = await getCurrentUserId();
+
   const file = formData.get("file") as File;
   if (!file) {
+    await logFileActivity(
+      userId,
+      "FILE_UPLOAD",
+      "FAILED",
+      "unknown",
+      { type: "avatar", reason: "没有找到文件" },
+      "No file found",
+    );
     return { error: "No file found" };
   }
 
   const { isImage, isWebp } = await getImageInfo(file);
   if (!isImage) {
+    await logFileActivity(
+      userId,
+      "FILE_UPLOAD",
+      "FAILED",
+      file.name,
+      {
+        type: "avatar",
+        fileName: file.name,
+        fileSize: file.size,
+        reason: "不是图片文件",
+      },
+      "Uploaded file is not an image",
+    );
     return { error: "Uploaded file is not an image" };
   }
 
@@ -161,6 +274,20 @@ export const uploadAvatar = async (
   const sizeLimit = 1024 * 1024 * 1; // 1MB
 
   if (fileSize > sizeLimit) {
+    await logFileActivity(
+      userId,
+      "FILE_UPLOAD",
+      "FAILED",
+      file.name,
+      {
+        type: "avatar",
+        fileName: file.name,
+        fileSize,
+        sizeLimit,
+        reason: "头像文件大小超出限制",
+      },
+      "File size too large (max 1MB)",
+    );
     return { error: "File size too large (max 1MB)" };
   }
 
@@ -173,8 +300,32 @@ export const uploadAvatar = async (
         true,
         "avatars/",
       ); // 使用 WebP 格式
+
+      await logFileActivity(userId, "FILE_UPLOAD", "SUCCESS", file.name, {
+        type: "avatar",
+        fileName: file.name,
+        originalSize: fileSize,
+        compressedSize: compressedFile.length,
+        uploadUrl: uploadedUrl,
+        compressed: true,
+        format: "webp",
+      });
+
       return { url: uploadedUrl };
     } catch (error) {
+      await logFileActivity(
+        userId,
+        "FILE_UPLOAD",
+        "FAILED",
+        file.name,
+        {
+          type: "avatar",
+          fileName: file.name,
+          fileSize,
+          reason: "头像压缩或上传失败",
+        },
+        "Upload failed",
+      );
       return { error: "Upload failed" };
     }
   } else {
@@ -185,8 +336,31 @@ export const uploadAvatar = async (
         false,
         "avatars/",
       );
+
+      await logFileActivity(userId, "FILE_UPLOAD", "SUCCESS", file.name, {
+        type: "avatar",
+        fileName: file.name,
+        fileSize,
+        uploadUrl: uploadedUrl,
+        compressed: false,
+        format: isWebp ? "webp" : "original",
+      });
+
       return { url: uploadedUrl };
     } catch (error) {
+      await logFileActivity(
+        userId,
+        "FILE_UPLOAD",
+        "FAILED",
+        file.name,
+        {
+          type: "avatar",
+          fileName: file.name,
+          fileSize,
+          reason: "头像上传失败",
+        },
+        "Upload failed",
+      );
       return { error: "Upload failed" };
     }
   }

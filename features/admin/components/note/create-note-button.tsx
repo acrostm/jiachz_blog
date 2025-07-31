@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TagTypeEnum } from "@prisma/client";
 import { LoaderCircle, Plus } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
@@ -43,6 +44,7 @@ type CreateNoteButtonProps = {
 
 export const CreateNoteButton = ({ refreshAsync }: CreateNoteButtonProps) => {
   const [open, setOpen] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const form = useForm<CreateNoteDTO>({
     resolver: zodResolver(createNoteSchema),
     defaultValues: {
@@ -155,13 +157,15 @@ export const CreateNoteButton = ({ refreshAsync }: CreateNoteButtonProps) => {
               <div className="flex justify-end">
                 <Button
                   type="button"
-                  disabled={createNoteQuery.loading}
+                  disabled={isSubmitting || createNoteQuery.loading}
                   onClick={() => form.handleSubmit(handleSubmit)()}
                 >
-                  {createNoteQuery.loading && (
+                  {(isSubmitting || createNoteQuery.loading) && (
                     <LoaderCircle className="mr-2 size-4 animate-spin" />
                   )}
-                  创建
+                  {isSubmitting || createNoteQuery.loading
+                    ? "创建中..."
+                    : "创建"}
                 </Button>
               </div>
             </div>
@@ -172,8 +176,20 @@ export const CreateNoteButton = ({ refreshAsync }: CreateNoteButtonProps) => {
   );
 
   async function handleSubmit(values: CreateNoteDTO) {
-    await createNoteQuery.runAsync(values);
-    setOpen(false);
-    await refreshAsync();
+    if (isSubmitting || createNoteQuery.loading) {
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await createNoteQuery.runAsync(values);
+      setOpen(false);
+      await refreshAsync();
+    } catch (error) {
+      console.error("Failed to create note:", error);
+      toast.error("创建失败，请重试");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 };

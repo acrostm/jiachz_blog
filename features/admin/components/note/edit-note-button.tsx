@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { TagTypeEnum } from "@prisma/client";
 import { LoaderCircle, Pen, Save } from "lucide-react";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Combobox } from "@/components/ui/combobox";
@@ -45,6 +46,7 @@ type EditNoteButtonProps = {
 
 export const EditNoteButton = ({ id, refreshAsync }: EditNoteButtonProps) => {
   const [open, setOpen] = React.useState(false);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const form = useForm<UpdateNoteDTO>({
     resolver: zodResolver(updateNoteSchema),
   });
@@ -157,12 +159,14 @@ export const EditNoteButton = ({ id, refreshAsync }: EditNoteButtonProps) => {
                 <Button
                   type="button"
                   onClick={() => form.handleSubmit(handleSubmit)()}
-                  disabled={updateNoteQuery.loading}
+                  disabled={isSubmitting || updateNoteQuery.loading}
                 >
-                  {updateNoteQuery.loading && (
+                  {(isSubmitting || updateNoteQuery.loading) && (
                     <LoaderCircle className="mr-2 size-4 animate-spin" />
                   )}
-                  保存
+                  {isSubmitting || updateNoteQuery.loading
+                    ? "保存中..."
+                    : "保存"}
                   <Save className="ml-1 size-4" />
                 </Button>
               </div>
@@ -174,8 +178,20 @@ export const EditNoteButton = ({ id, refreshAsync }: EditNoteButtonProps) => {
   );
 
   async function handleSubmit(values: UpdateNoteDTO) {
-    await updateNoteQuery.runAsync(values);
-    setOpen(false);
-    await refreshAsync();
+    if (isSubmitting || updateNoteQuery.loading) {
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await updateNoteQuery.runAsync(values);
+      setOpen(false);
+      await refreshAsync();
+    } catch (error) {
+      console.error("Failed to update note:", error);
+      toast.error("更新失败，请重试");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 };

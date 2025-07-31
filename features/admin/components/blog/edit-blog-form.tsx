@@ -57,6 +57,7 @@ export const EditBlogForm = () => {
 
   const router = useRouter();
   const [cover, setCover] = React.useState(blog?.cover);
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const form = useForm<UpdateBlogDTO>({
     resolver: zodResolver(updateBlogSchema),
     defaultValues: {
@@ -91,8 +92,9 @@ export const EditBlogForm = () => {
             onClick={() => form.handleSubmit(handleSubmit)()}
             variant={"outline"}
             className="!w-full"
+            disabled={isSubmitting || updateBlogQuery.loading}
           >
-            保存
+            {isSubmitting || updateBlogQuery.loading ? "保存中..." : "保存"}
             <Save className="ml-1 size-4" />
           </Button>
         </div>
@@ -298,11 +300,23 @@ export const EditBlogForm = () => {
   );
 
   async function handleSubmit(values: UpdateBlogDTO) {
-    await updateBlogQuery.runAsync({
-      ...values,
-      author: session?.user?.name ?? "",
-    });
-    router.push(PATHS.ADMIN_BLOG);
+    if (isSubmitting || updateBlogQuery.loading) {
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await updateBlogQuery.runAsync({
+        ...values,
+        author: session?.user?.name ?? "",
+      });
+      router.push(PATHS.ADMIN_BLOG);
+    } catch (error) {
+      console.error("Failed to update blog:", error);
+      toast.error("更新失败，请重试");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   function handleFormatSlug() {

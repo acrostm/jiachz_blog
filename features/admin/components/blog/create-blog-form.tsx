@@ -49,6 +49,7 @@ export const CreateBlogForm = () => {
   const createBlogQuery = useCreateBlog();
 
   const [cover, setCover] = React.useState("");
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
   const form = useForm<CreateBlogDTO>({
     resolver: zodResolver(createBlogSchema),
     defaultValues: {
@@ -71,8 +72,9 @@ export const CreateBlogForm = () => {
             onClick={() => form.handleSubmit(handleSubmit)()}
             variant={"outline"}
             className="!w-full"
+            disabled={isSubmitting || createBlogQuery.loading}
           >
-            创建
+            {isSubmitting || createBlogQuery.loading ? "创建中..." : "创建"}
           </Button>
         </div>
 
@@ -286,12 +288,24 @@ export const CreateBlogForm = () => {
   );
 
   async function handleSubmit(values: CreateBlogDTO) {
-    const result = await createBlogQuery.runAsync({
-      ...values,
-      author: session?.user?.name ?? "",
-    });
-    if (result.success) {
-      router.push(PATHS.ADMIN_BLOG);
+    if (isSubmitting || createBlogQuery.loading) {
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const result = await createBlogQuery.runAsync({
+        ...values,
+        author: session?.user?.name ?? "",
+      });
+      if (result.success) {
+        router.push(PATHS.ADMIN_BLOG);
+      }
+    } catch (error) {
+      console.error("Failed to create blog:", error);
+      toast.error("创建失败，请重试");
+    } finally {
+      setIsSubmitting(false);
     }
   }
 

@@ -23,6 +23,21 @@ import type {
 
 export class ActivityLogger {
   /**
+   * 安全的JSON字符串化，清理无效字符
+   */
+  private safeStringify(obj: any): string {
+    try {
+      // 先转换为JSON字符串
+      const jsonStr = JSON.stringify(obj);
+      // 清理无效的UTF-8字符和控制字符
+      return jsonStr.replace(/[\u0000-\u001F\u007F-\u009F\uFFFE\uFFFF]/g, "");
+    } catch (error) {
+      console.warn("Failed to stringify object, using fallback:", error);
+      return JSON.stringify({ error: "Failed to serialize data" });
+    }
+  }
+
+  /**
    * 获取客户端IP地址
    */
   private getClientIP(): string {
@@ -257,7 +272,7 @@ export class ActivityLogger {
 
           // 操作详情
           actionDetails: data.actionDetails
-            ? JSON.stringify(data.actionDetails)
+            ? this.safeStringify(data.actionDetails)
             : null,
 
           // 网络和设备信息
@@ -278,7 +293,9 @@ export class ActivityLogger {
 
           // 安全分析
           isSuspicious: securityAnalysis.isSuspicious,
-          suspiciousReasons: JSON.stringify(securityAnalysis.suspiciousReasons),
+          suspiciousReasons: this.safeStringify(
+            securityAnalysis.suspiciousReasons,
+          ),
           riskScore: securityAnalysis.riskScore,
 
           // 会话和错误信息
@@ -287,7 +304,7 @@ export class ActivityLogger {
           errorCode: data.errorCode,
 
           // 元数据
-          metadata: data.metadata ? JSON.stringify(data.metadata) : null,
+          metadata: data.metadata ? this.safeStringify(data.metadata) : null,
         },
       });
 

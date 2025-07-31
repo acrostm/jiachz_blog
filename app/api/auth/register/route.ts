@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from "next/server";
 
 import bcrypt from "bcryptjs";
 
+import { activityLogger } from "@/lib/activity-logger";
 import { notifyNewUserRegistered } from "@/lib/notification";
 import { prisma } from "@/lib/prisma";
 
@@ -20,6 +21,13 @@ export async function POST(req: NextRequest) {
     // 检查邮箱是否已注册
     const exist = await prisma.user.findUnique({ where: { email } });
     if (exist) {
+      // 记录注册失败日志（邮箱已存在）
+      await activityLogger.logAuthActivity(exist.id, "REGISTER", "FAILED", {
+        email,
+        name,
+        reason: "邮箱已注册",
+        existingUser: true,
+      });
       return NextResponse.json({ message: "邮箱已注册" }, { status: 400 });
     }
 
@@ -71,8 +79,32 @@ export async function POST(req: NextRequest) {
       },
     );
 
+    // 记录注册成功日志
+    await activityLogger.logAuthActivity(user.id, "REGISTER", "SUCCESS", {
+      email,
+      name,
+      hasAvatar: Boolean(image),
+      provider: "credentials",
+    });
+
     return NextResponse.json({ message: "注册成功" });
-  } catch {
+  } catch (error) {
+    // 记录注册异常日志
+    if (email && name) {
+      await activityLogger.logActivity({
+        userId: "unknown",
+        activityType: "REGISTER",
+        activityStatus: "FAILED",
+        resourceType: "USER",
+        errorMessage:
+          error instanceof Error ? error.message : "注册过程中发生未知错误",
+        metadata: {
+          email,
+          name,
+          reason: "系统异常",
+        },
+      });
+    }
     return NextResponse.json({ message: "注册失败" }, { status: 500 });
   }
 }

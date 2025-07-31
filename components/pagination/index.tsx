@@ -44,18 +44,20 @@ export const Pagination = ({
   // Memoize pagination range to avoid unnecessary re-renders
   const paginationRange = React.useMemo(() => {
     const range = [];
+    const currentPage = Number(params.pageIndex) + 1; // Convert from 0-based to 1-based
+
     for (
-      let i = Math.max(2, Number(params.pageIndex) - delta);
-      i <= Math.min(pageCount - 1, Number(params.pageIndex) + delta);
+      let i = Math.max(2, currentPage - delta);
+      i <= Math.min(pageCount - 1, currentPage + delta);
       i++
     ) {
       range.push(i);
     }
 
-    if (Number(params.pageIndex) - delta > 2) {
+    if (currentPage - delta > 2) {
       range.unshift("...");
     }
-    if (Number(params.pageIndex) + delta < pageCount - 1) {
+    if (currentPage + delta < pageCount - 1) {
       range.push("...");
     }
 
@@ -80,11 +82,13 @@ export const Pagination = ({
               <Button
                 key={i}
                 variant={
-                  pageNumber === Number(params.pageIndex) ? "outline" : "ghost"
+                  pageNumber === Number(params.pageIndex) + 1
+                    ? "outline"
+                    : "ghost"
                 }
                 onClick={() => {
                   updateParams({
-                    pageIndex: Number(pageNumber),
+                    pageIndex: Number(pageNumber) - 1,
                   });
                 }}
               >
@@ -106,7 +110,7 @@ export const Pagination = ({
               onKeyUp={(e) => {
                 if (e.key === "Enter") {
                   updateParams({
-                    pageIndex: Math.min(Number(quickJumpPage), pageCount),
+                    pageIndex: Math.min(Number(quickJumpPage), pageCount) - 1,
                   });
                   setQuickJumpPage("");
                 }
@@ -122,7 +126,7 @@ export const Pagination = ({
               value={`${params.pageSize}`}
               onValueChange={(value) => {
                 updateParams({
-                  pageIndex: 1,
+                  pageIndex: 0,
                   pageSize: Number(value),
                 });
               }}
@@ -148,16 +152,16 @@ export const Pagination = ({
 type PaginationInfoProps = Pick<PaginationProps, "params" | "total">;
 
 export const PaginationInfo = ({ params, total = 0 }: PaginationInfoProps) => {
+  const currentPage = params.pageIndex + 1; // Convert from 0-based to 1-based
+  const startItem = params.pageIndex * params.pageSize + 1;
+  const endItem = Math.min(total, currentPage * params.pageSize);
+
   return (
     <p>
       显示第
-      <span className="mx-1 font-semibold">
-        {params.pageIndex === 1 ? 1 : (params.pageIndex - 1) * params.pageSize}
-      </span>
+      <span className="mx-1 font-semibold">{startItem}</span>
       条-第
-      <span className="mx-1 font-semibold">
-        {Math.min(total, params.pageIndex * params.pageSize)}
-      </span>
+      <span className="mx-1 font-semibold">{endItem}</span>
       条，共
       <span className="mx-1 font-semibold">{total}</span>条
     </p>

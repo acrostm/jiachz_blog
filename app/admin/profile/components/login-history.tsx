@@ -1,7 +1,6 @@
 "use client";
 
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 
 import { useRequest } from "ahooks";
 import { format } from "date-fns";

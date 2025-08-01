@@ -19,8 +19,11 @@ export async function GET(request: NextRequest) {
 
     // 解析查询参数
     const params: ActivityLogQueryParams = {
-      page: parseInt(searchParams.get("page") ?? "1"),
-      pageSize: Math.min(parseInt(searchParams.get("pageSize") ?? "20"), 100),
+      page: Math.max(1, parseInt(searchParams.get("page") ?? "1") || 1),
+      pageSize: Math.min(
+        Math.max(1, parseInt(searchParams.get("pageSize") ?? "20") || 20),
+        100,
+      ),
       userId: searchParams.get("userId") ?? undefined,
       activityType:
         (searchParams.get("activityType") as ActivityType) || undefined,

@@ -822,11 +822,14 @@ export const ActivityLogsPage = () => {
           data={activityLogs}
           loading={loading}
           total={total}
-          params={{ pageIndex: params.page! - 1, pageSize: params.pageSize! }}
+          params={{
+            pageIndex: (params.page || 1) - 1,
+            pageSize: params.pageSize || 20,
+          }}
           updateParams={(newParams) =>
             setParams({
-              page: newParams.pageIndex + 1,
-              pageSize: newParams.pageSize,
+              page: Math.max(1, newParams.pageIndex + 1),
+              pageSize: Math.max(1, newParams.pageSize),
             })
           }
           noResult={

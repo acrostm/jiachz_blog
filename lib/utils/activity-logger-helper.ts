@@ -1,7 +1,11 @@
 /**
  * 活动日志记录辅助函数
  */
-import { ActivityStatus, ActivityType, ResourceType } from "@prisma/client";
+import {
+  type ActivityStatus,
+  type ActivityType,
+  type ResourceType,
+} from "@prisma/client";
 
 import { activityLogger } from "@/lib/activity-logger";
 import { auth } from "@/lib/auth";

@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { type NextRequest, NextResponse } from "next/server";
 
-import { ActivityType } from "@prisma/client";
+import { type ActivityType } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import type { ActivityStats } from "@/lib/types/activity-log";

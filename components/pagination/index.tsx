@@ -1,7 +1,7 @@
 import React from "react";
 
 import { type SetState } from "ahooks/lib/useSetState";
-import { Ellipsis } from "lucide-react";
+import { ChevronLeft, ChevronRight, Ellipsis } from "lucide-react";
 
 import { PAGE_SIZE_OPTIONS } from "@/constants";
 
@@ -43,6 +43,8 @@ export const Pagination = ({
 
   // Memoize pagination range to avoid unnecessary re-renders
   const paginationRange = React.useMemo(() => {
+    if (pageCount <= 1) return [1];
+
     const range = [];
     const currentPage = Number(params.pageIndex) + 1; // Convert from 0-based to 1-based
 
@@ -62,17 +64,31 @@ export const Pagination = ({
     }
 
     range.unshift(1);
-    if (pageCount !== 1) {
+    if (pageCount > 1) {
       range.push(pageCount);
     }
 
     return range;
-  }, [pageCount, params]);
+  }, [pageCount, params.pageIndex]);
 
   return (
     <div className="flex items-center space-x-6 py-4 lg:space-x-8">
       <div className="flex items-center space-x-2">
-        {pageCount > 1 &&
+        {/* Previous page button */}
+        <Button
+          variant="ghost"
+          onClick={() => {
+            updateParams({
+              pageIndex: Math.max(0, params.pageIndex - 1),
+            });
+          }}
+          disabled={params.pageIndex === 0 || pageCount <= 1}
+        >
+          <ChevronLeft className="size-4" />
+          上一页
+        </Button>
+
+        {pageCount > 0 &&
           paginationRange.map((pageNumber, i) =>
             pageNumber === "..." ? (
               <Button key={i} variant="ghost" className="!cursor-not-allowed">
@@ -96,6 +112,23 @@ export const Pagination = ({
               </Button>
             ),
           )}
+
+        {/* Next page button */}
+        <Button
+          variant="ghost"
+          onClick={() => {
+            updateParams({
+              pageIndex: Math.min(
+                Math.max(0, pageCount - 1),
+                params.pageIndex + 1,
+              ),
+            });
+          }}
+          disabled={params.pageIndex >= pageCount - 1 || pageCount <= 1}
+        >
+          下一页
+          <ChevronRight className="size-4" />
+        </Button>
         {showQuickJumper && pageCount > 1 && (
           <div className="flex items-center space-x-2">
             跳转至
@@ -103,15 +136,19 @@ export const Pagination = ({
               className="mx-2 w-12"
               value={quickJumpPage}
               onChange={(e) => {
-                if (Number(e.target.value?.trim())) {
-                  setQuickJumpPage(`${Number(e.target.value?.trim())}`);
+                const value = e.target.value?.trim();
+                if (value === "" || /^\d+$/.test(value)) {
+                  setQuickJumpPage(value);
                 }
               }}
               onKeyUp={(e) => {
-                if (e.key === "Enter") {
-                  updateParams({
-                    pageIndex: Math.min(Number(quickJumpPage), pageCount) - 1,
-                  });
+                if (e.key === "Enter" && quickJumpPage) {
+                  const targetPage = Number(quickJumpPage);
+                  if (targetPage >= 1 && targetPage <= pageCount) {
+                    updateParams({
+                      pageIndex: targetPage - 1,
+                    });
+                  }
                   setQuickJumpPage("");
                 }
               }}

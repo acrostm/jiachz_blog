@@ -104,6 +104,7 @@ export async function POST(req: NextRequest) {
       );
     } catch (error) {
       // bark通知失败不影响主流程，只记录错误
+      // eslint-disable-next-line no-console
       console.error("发送bark通知失败:", error);
     }
 
@@ -117,13 +118,15 @@ export async function POST(req: NextRequest) {
       },
     });
     return NextResponse.json({ message: "验证码已发送" });
-  } catch (error: any) {
+  } catch (error: unknown) {
     // 记录失败日志
     let userId = null;
     try {
       const session = await auth();
       userId = session?.user?.id ?? null;
-    } catch {}
+    } catch {
+      // Ignore error getting session
+    }
     await safeLogActivity(userId, "SEND_OTP", ActivityStatus.FAILED, {
       resourceType: ResourceType.USER,
       resourceId: userId,
@@ -131,7 +134,7 @@ export async function POST(req: NextRequest) {
         action: "send-otp",
         description: "发送验证码失败",
       },
-      errorMessage: error?.message ?? String(error),
+      errorMessage: error instanceof Error ? error.message : String(error),
     });
     return NextResponse.json({ message: "发送验证码失败" }, { status: 500 });
   }

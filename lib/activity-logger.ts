@@ -25,13 +25,14 @@ export class ActivityLogger {
   /**
    * 安全的JSON字符串化，清理无效字符
    */
-  private safeStringify(obj: any): string {
+  private safeStringify(obj: unknown): string {
     try {
       // 先转换为JSON字符串
       const jsonStr = JSON.stringify(obj);
       // 清理无效的UTF-8字符和控制字符
       return jsonStr.replace(/[\u0000-\u001F\u007F-\u009F\uFFFE\uFFFF]/g, "");
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.warn("Failed to stringify object, using fallback:", error);
       return JSON.stringify({ error: "Failed to serialize data" });
     }
@@ -59,7 +60,7 @@ export class ActivityLogger {
       }
 
       return ip;
-    } catch (error) {
+    } catch {
       return "unknown";
     }
   }
@@ -315,6 +316,7 @@ export class ActivityLogger {
         );
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error("Failed to log activity:", error);
       // 不抛出错误，避免影响主要业务流程
     }

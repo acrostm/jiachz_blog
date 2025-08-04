@@ -49,7 +49,30 @@ export async function GET(request: NextRequest) {
     };
 
     // 构建查询条件
-    const where: any = {};
+    const where: {
+      userId?: string;
+      activityType?: string;
+      activityStatus?: string;
+      resourceType?: string;
+      isSuspicious?: boolean;
+      timestamp?: {
+        gte?: Date;
+        lte?: Date;
+      };
+      riskScore?: {
+        gte?: number;
+        lte?: number;
+      };
+      OR?: Array<{
+        user?: {
+          name?: { contains: string; mode: "insensitive" };
+          email?: { contains: string; mode: "insensitive" };
+        };
+        resourceTitle?: { contains: string; mode: "insensitive" };
+        ipAddress?: { contains: string; mode: "insensitive" };
+        location?: { contains: string; mode: "insensitive" };
+      }>;
+    } = {};
 
     if (params.userId) {
       where.userId = params.userId;
@@ -102,15 +125,17 @@ export async function GET(request: NextRequest) {
       where.OR = [
         {
           user: {
-            OR: [
-              { name: { contains: searchTerm, mode: "insensitive" } },
-              { email: { contains: searchTerm, mode: "insensitive" } },
-            ],
+            name: { contains: searchTerm, mode: "insensitive" },
+          },
+        },
+        {
+          user: {
+            email: { contains: searchTerm, mode: "insensitive" },
           },
         },
         { resourceTitle: { contains: searchTerm, mode: "insensitive" } },
-        { ipAddress: { contains: searchTerm } },
-        { location: { contains: searchTerm } },
+        { ipAddress: { contains: searchTerm, mode: "insensitive" } },
+        { location: { contains: searchTerm, mode: "insensitive" } },
       ];
     }
 
@@ -148,6 +173,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Failed to fetch activity logs:", error);
     return NextResponse.json(
       { error: "Failed to fetch activity logs" },

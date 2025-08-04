@@ -17,8 +17,8 @@ export interface ActivityLogData {
   resourceType?: ResourceType;
   resourceId?: string;
   resourceTitle?: string;
-  actionDetails?: Record<string, any>;
-  metadata?: Record<string, any>;
+  actionDetails?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
   errorMessage?: string;
   errorCode?: string;
   sessionId?: string;
@@ -58,8 +58,8 @@ export interface SecurityAnalysis {
 // 操作详情的标准结构
 export interface ActionDetails {
   action: string;
-  previousValue?: Record<string, any>;
-  newValue?: Record<string, any>;
+  previousValue?: Record<string, unknown>;
+  newValue?: Record<string, unknown>;
   changes?: string[];
   description?: string;
 }
@@ -92,7 +92,7 @@ export interface AdminMetadata {
   adminAction?: string;
   targetUserId?: string;
   configKey?: string;
-  previousConfig?: Record<string, any>;
+  previousConfig?: Record<string, unknown>;
 }
 
 // 活动日志查询参数

@@ -42,7 +42,7 @@ const fetchLoginHistory = async (): Promise<LoginHistoryResponse> => {
   if (!response.ok) {
     throw new Error("Failed to fetch login history");
   }
-  return response.json();
+  return response.json() as Promise<{ data: UserActivityLog[] }>;
 };
 
 const getDeviceIcon = (deviceType: string) => {
@@ -82,7 +82,7 @@ const getStatusBadge = (status: string) => {
     },
   };
 
-  const config = variants[status as keyof typeof variants] || variants.SUCCESS;
+  const config = variants[status as keyof typeof variants] ?? variants.SUCCESS;
   return <Badge variant={config.variant}>{config.label}</Badge>;
 };
 
@@ -90,7 +90,7 @@ const getLoginMethodLabel = (metadata: string | null) => {
   if (!metadata) return "未知";
 
   try {
-    const data = JSON.parse(metadata);
+    const data = JSON.parse(metadata) as { loginMethod?: string };
     const method = data.loginMethod;
 
     const labels: Record<string, string> = {
@@ -100,7 +100,7 @@ const getLoginMethodLabel = (metadata: string | null) => {
       OTP: "验证码",
     };
 
-    return labels[method] || method || "未知";
+    return labels[method ?? ""] ?? method ?? "未知";
   } catch {
     return "未知";
   }
@@ -113,7 +113,7 @@ const formatRelativeTime = (dateString: string) => {
 
 export function LoginHistory() {
   const { data, loading, error } = useRequest(fetchLoginHistory);
-  const loginHistory = data?.data || [];
+  const loginHistory = data?.data ?? [];
   const [isOpen, setIsOpen] = useState(false);
 
   return (

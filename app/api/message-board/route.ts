@@ -127,7 +127,9 @@ export async function POST(req: NextRequest) {
     });
 
     // Send notification asynchronously (don't block the response)
-    notifyNewMessage(author, content, currentTime, ip).catch(() => {});
+    notifyNewMessage(author, content, currentTime, ip).catch(() => {
+      // Ignore notification errors
+    });
 
     // 记录留言发送活动日志
     if (userId) {
@@ -136,7 +138,10 @@ export async function POST(req: NextRequest) {
         isLogin,
         ip,
         userAgent,
-      }).catch(console.error);
+      }).catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error("Failed to log message activity:", error);
+      });
     }
 
     return NextResponse.json({
@@ -198,7 +203,10 @@ export async function DELETE(req: NextRequest) {
             : undefined,
           adminAction: true,
         },
-      ).catch(console.error);
+      ).catch((error) => {
+        // eslint-disable-next-line no-console
+        console.error("Failed to log message activity:", error);
+      });
     }
 
     return NextResponse.json({ success: true });
@@ -211,10 +219,13 @@ export async function DELETE(req: NextRequest) {
           session.user.id,
           "MESSAGE_DELETE",
           "FAILED",
-          req.headers.get("x-message-id") || "unknown",
+          req.headers.get("x-message-id") ?? "unknown",
           {},
           String(e),
-        ).catch(console.error);
+        ).catch((error) => {
+          // eslint-disable-next-line no-console
+          console.error("Failed to log message activity:", error);
+        });
       }
     }
 

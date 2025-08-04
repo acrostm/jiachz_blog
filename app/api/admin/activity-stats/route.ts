@@ -10,7 +10,7 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
-    const days = parseInt(searchParams.get("days") || "7"); // 默认查询最近7天
+    const days = parseInt(searchParams.get("days") ?? "7"); // 默认查询最近7天
 
     const now = new Date();
     const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
@@ -144,6 +144,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(stats);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Failed to fetch activity stats:", error);
     return NextResponse.json(
       { error: "Failed to fetch activity stats" },

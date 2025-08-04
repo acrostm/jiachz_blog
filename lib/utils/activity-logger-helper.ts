@@ -35,12 +35,13 @@ export async function safeLogActivity(
     resourceId?: string;
     resourceTitle?: string;
     actionDetails?: ActionDetails;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
     errorMessage?: string;
     errorCode?: string;
   },
 ): Promise<void> {
   if (!userId) {
+    // eslint-disable-next-line no-console
     console.warn(`Cannot log activity ${activityType}: no user ID provided`);
     return;
   }
@@ -59,6 +60,7 @@ export async function safeLogActivity(
       errorCode: options?.errorCode,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(`Failed to log activity ${activityType}:`, error);
   }
 }
@@ -121,7 +123,7 @@ export async function logMessageActivity(
   activityType: "MESSAGE_SEND" | "MESSAGE_DELETE",
   status: ActivityStatus,
   messageId: string,
-  metadata?: Record<string, any>,
+  metadata?: Record<string, unknown>,
   errorMessage?: string,
 ): Promise<void> {
   await safeLogActivity(userId, activityType, status, {
@@ -161,7 +163,7 @@ export async function logFileActivity(
   activityType: "FILE_UPLOAD" | "FILE_DELETE",
   status: ActivityStatus,
   fileName: string,
-  metadata?: Record<string, any>,
+  metadata?: Record<string, unknown>,
   errorMessage?: string,
 ): Promise<void> {
   await safeLogActivity(userId, activityType, status, {
@@ -181,7 +183,7 @@ export async function logAdminActivity(
   activityType: "ADMIN_ACCESS" | "USER_MANAGE" | "SYSTEM_CONFIG",
   status: ActivityStatus,
   actionDetails?: ActionDetails,
-  metadata?: Record<string, any>,
+  metadata?: Record<string, unknown>,
   errorMessage?: string,
 ): Promise<void> {
   await safeLogActivity(userId, activityType, status, {

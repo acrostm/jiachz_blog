@@ -27,7 +27,8 @@ export async function GET(request: NextRequest) {
       loginAt: activity.timestamp, // 使用timestamp代替loginAt
       loginStatus: activity.activityStatus,
       loginMethod: activity.metadata
-        ? (JSON.parse(activity.metadata)?.loginMethod ?? "UNKNOWN")
+        ? ((JSON.parse(activity.metadata) as { loginMethod?: string })
+            ?.loginMethod ?? "UNKNOWN")
         : "UNKNOWN",
       ipAddress: activity.ipAddress,
       location: activity.location ?? "",
@@ -54,6 +55,7 @@ export async function GET(request: NextRequest) {
       total: formattedData.length,
     });
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Failed to fetch suspicious activities:", error);
     return NextResponse.json(
       { error: "Failed to fetch suspicious activities" },

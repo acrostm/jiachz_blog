@@ -108,13 +108,15 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json({ message: "密码修改成功" });
-  } catch (error: any) {
+  } catch (error: unknown) {
     // 记录失败日志
     let userId = null;
     try {
       const session = await auth();
       userId = session?.user?.id ?? null;
-    } catch {}
+    } catch {
+      // Ignore error getting session
+    }
     await safeLogActivity(userId, "PASSWORD_CHANGE", ActivityStatus.FAILED, {
       resourceType: ResourceType.USER,
       resourceId: userId,
@@ -122,7 +124,7 @@ export async function POST(req: NextRequest) {
         action: "change-password",
         description: "用户修改密码失败",
       },
-      errorMessage: error?.message ?? String(error),
+      errorMessage: error instanceof Error ? error.message : String(error),
     });
     return NextResponse.json(
       { message: "密码修改失败，请重试" },

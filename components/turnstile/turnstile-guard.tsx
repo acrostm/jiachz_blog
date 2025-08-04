@@ -94,6 +94,7 @@ const TurnstileGuard: React.FC<TurnstileGuardProps> = ({ children }) => {
         sessionStorage.removeItem("turnstileVerified");
       }
     } catch (err) {
+      // eslint-disable-next-line no-console
       console.error("An error occurred during verification.", err);
       // Handle error silently
       setError("An error occurred during verification.");

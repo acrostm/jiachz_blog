@@ -53,3 +53,13 @@ yarn-error.log*
 /sql/*.sql
 
 /meili_data
+
+# 忽略临时文件和备份文件
+*~ 
+*.tmp
+*.bak
+*[0-9].tsx
+*[0-9].ts
+*[0-9].yaml
+*[0-9].md
+ACTIVITY_LOG_MIGRATION.md

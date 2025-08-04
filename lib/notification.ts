@@ -263,7 +263,7 @@ export async function notifyOtpCode(
   return barkNotification.sendTemplateNotification("OTP_CODE", {
     email,
     code,
-    type: typeMap[type] || type,
+    type: typeMap[type] ?? type,
     time,
   });
 }

@@ -16,7 +16,7 @@ import { noPermission } from "@/features/user";
 //   type ActivityLogSearchResult
 // } from "@/lib/meilisearch/activity-logs";
 
-export async function GET(request: NextRequest) {
+export async function GET(_request: NextRequest) {
   try {
     // 检查管理员权限
     if (await noPermission()) {
@@ -105,6 +105,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(result);
     */
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Failed to search activity logs:", error);
     return NextResponse.json(
       { error: "Failed to search activity logs" },
@@ -114,7 +115,7 @@ export async function GET(request: NextRequest) {
 }
 
 // 同步活动日志到 Meilisearch 的端点（管理员专用）
-export async function POST(request: NextRequest) {
+export async function POST(_request: NextRequest) {
   try {
     // 检查管理员权限
     if (await noPermission()) {
@@ -179,6 +180,7 @@ export async function POST(request: NextRequest) {
     });
     */
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error("Failed to sync activity logs:", error);
     return NextResponse.json(
       { error: "Failed to sync activity logs" },

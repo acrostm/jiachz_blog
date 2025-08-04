@@ -69,6 +69,14 @@ const NOTIFICATION_TEMPLATES = {
     category: "内容管理",
     icon: "https://r2.jiachz.com/jiachz-light.svg",
   },
+  OTP_CODE: {
+    title: "🔐 [验证码] 🔑",
+    body: "🔑 **验证码通知**\n\n📧 **邮箱:** {email}\n\n🔢 **验证码:** {code}\n\n🎯 **用途:** {type}\n\n🕒 **发送时间:** {time}\n\n⏰ **有效期:** 60秒\n\n🔐 请及时使用验证码完成验证！",
+    sound: "alert.caf",
+    group: "Blog",
+    category: "安全验证",
+    icon: "https://r2.jiachz.com/jiachz-light.svg",
+  },
 } as const;
 
 export type NotificationTemplateType = keyof typeof NOTIFICATION_TEMPLATES;
@@ -237,6 +245,25 @@ export async function notifyNewBlogCreated(
     title: truncatedTitle,
     author,
     status,
+    time,
+  });
+}
+
+export async function notifyOtpCode(
+  email: string,
+  code: string,
+  type: string,
+  time: string,
+): Promise<boolean> {
+  const typeMap: Record<string, string> = {
+    "email-verification": "邮箱验证",
+    "password-change": "修改密码",
+  };
+
+  return barkNotification.sendTemplateNotification("OTP_CODE", {
+    email,
+    code,
+    type: typeMap[type] || type,
     time,
   });
 }

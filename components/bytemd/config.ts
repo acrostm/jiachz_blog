@@ -11,9 +11,15 @@ import { common } from "lowlight";
 // highlight需要额外扩充的高亮语言
 import asciidoc from "highlight.js/lib/languages/asciidoc";
 import dart from "highlight.js/lib/languages/dart";
+import java from "highlight.js/lib/languages/java";
 import nginx from "highlight.js/lib/languages/nginx";
 
-import { headingPlugin, prettyLinkPlugin } from "./plugins";
+import {
+  codeBlockPlugin,
+  headingPlugin,
+  inlineCodePlugin,
+  prettyLinkPlugin,
+} from "./plugins";
 
 export const plugins = [
   breaks(),
@@ -30,10 +36,13 @@ export const plugins = [
 
       // 默认common配置中没有以下几个语言高亮配置，这里我们自己加上
       dart: dart, // flutter代码会用到dart
+      java: java, // Java语言高亮
       nginx: nginx, // nginx配置文件高亮
       asciidoc: asciidoc, // asciidoc高亮, 控制台输出信息高亮
     },
   }),
+  codeBlockPlugin(), // 添加代码块插件来设置data-language属性
+  inlineCodePlugin(),
   prettyLinkPlugin(),
   headingPlugin(),
 ];

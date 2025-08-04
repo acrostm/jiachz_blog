@@ -18,7 +18,6 @@ import { Favicon } from "@/components/favicon";
 import { Fingerprint } from "@/components/fingerprint";
 
 import { ImageAssets, NICKNAME, SLOGAN, WEBSITE } from "@/constants";
-import "@/styles/custom-code-block.css";
 import "@/styles/global.css";
 
 const inter = Inter({

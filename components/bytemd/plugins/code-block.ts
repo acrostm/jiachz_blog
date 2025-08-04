@@ -26,21 +26,31 @@ export const codeBlockPlugin = (): BytemdPlugin => {
       process.use(() => (tree) => {
         visit(tree, "element", (node) => {
           if (node.tagName === "pre") {
+            // 添加复制按钮
             node.children.push(copyBtnNode);
-          }
 
-          visit(tree, "element", (code, idx, parent) => {
-            if (code.tagName === "code") {
-              const language = code.properties?.className
-                ?.filter((cs) => cs.startsWith("language"))[0]
+            // 查找pre元素中的code子元素来提取语言信息
+            const codeElement = node.children.find(
+              (child) => child.type === "element" && child.tagName === "code",
+            );
+
+            if (codeElement) {
+              const language = codeElement.properties?.className
+                ?.find((cls) => cls.startsWith("language-"))
                 ?.split("-")[1]
                 ?.split(":")[0];
 
-              if (language && !parent.properties["data-language"]) {
-                parent.properties["data-language"] = language;
+              if (language) {
+                // 确保properties对象存在
+                if (!node.properties) {
+                  node.properties = {};
+                }
+                if (!node.properties["data-language"]) {
+                  node.properties["data-language"] = language;
+                }
               }
             }
-          });
+          }
         });
       }),
 

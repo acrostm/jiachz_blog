@@ -30,8 +30,108 @@
 .medium-zoom-overlay {
   @apply z-20 !bg-background;
 }
+/* VSCode window styling - Light theme */
 .markdown-body pre {
-  @apply relative !my-0 whitespace-break-spaces !rounded-xl border !bg-background/50 text-primary;
+  @apply relative !my-8 whitespace-break-spaces;
+  background: #ffffff;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Dark theme VSCode styling */
+.dark .markdown-body pre {
+  background: #1e1e1e;
+  border: 1px solid #3c3c3c;
+  box-shadow:
+    0 8px 16px rgba(0, 0, 0, 0.25),
+    0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* VSCode title bar - Light theme */
+.markdown-body pre::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background: linear-gradient(to bottom, #f6f8fa, #e1e4e8);
+  border-bottom: 1px solid #d1d5da;
+  z-index: 2;
+}
+
+/* Dark theme title bar */
+.dark .markdown-body pre::before {
+  background: linear-gradient(to bottom, #3c3c3c, #2d2d2d);
+  border-bottom: 1px solid #1e1e1e;
+}
+
+/* Mac window control buttons - default */
+.markdown-body pre::after {
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  width: 12px;
+  height: 12px;
+  background: #ff5f57;
+  border-radius: 50%;
+  box-shadow:
+    20px 0 0 #ffbd2e,
+    40px 0 0 #28ca42;
+  z-index: 3;
+}
+
+/* Mac window control buttons for code blocks with data-language (override to ensure buttons show) */
+.markdown-body pre[data-language]::after {
+  /* First render the Mac buttons exactly like the default */
+  content: "";
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  width: 12px;
+  height: 12px;
+  background: #ff5f57;
+  border-radius: 50%;
+  box-shadow:
+    20px 0 0 #ffbd2e,
+    40px 0 0 #28ca42;
+  z-index: 3;
+}
+
+/* Language label using ::before pseudo-element for pre elements with data-language */
+.markdown-body pre[data-language]::before {
+  /* Keep the existing title bar styling */
+  content: attr(data-language);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 32px;
+  background: linear-gradient(to bottom, #f6f8fa, #e1e4e8);
+  border-bottom: 1px solid #d1d5da;
+  z-index: 2;
+  /* Add language text styling */
+  color: #586069;
+  font-size: 12px;
+  font-weight: 500;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  text-transform: capitalize;
+  line-height: 32px; /* Center vertically in title bar */
+  padding-left: 70px; /* Position after Mac buttons */
+  white-space: nowrap;
+}
+
+/* Dark theme for language label in title bar */
+.dark .markdown-body pre[data-language]::before {
+  background: linear-gradient(to bottom, #3c3c3c, #2d2d2d);
+  border-bottom: 1px solid #1e1e1e;
+  color: #cccccc;
 }
 .markdown-body code::-webkit-scrollbar {
   @apply h-1.5 w-1.5;
@@ -42,23 +142,326 @@
   background-clip: padding-box;
   border-radius: 10px;
 }
-.markdown-body p code {
-  @apply mx-2;
-}
-.markdown-body pre {
-  @apply relative !my-0 !rounded-lg !p-0 text-primary;
+/* Minimal inline code styling - no background, no borders */
+.markdown-body p code,
+.markdown-body li code,
+.markdown-body td code,
+.markdown-body th code,
+.markdown-body h1 code,
+.markdown-body h2 code,
+.markdown-body h3 code,
+.markdown-body h4 code,
+.markdown-body h5 code,
+.markdown-body h6 code,
+.inline-code-enhanced {
+  @apply font-mono;
+  background: transparent;
+  border: none;
+  color: #d73a49;
+  font-weight: 600;
+  font-size: 0.9em;
+  padding: 0;
+  margin: 0;
+  box-shadow: none;
+  border-radius: 0;
+  display: inline;
+  transition: color 0.2s ease;
 }
 
+/* Hide the backticks by overriding content */
+.markdown-body p code::before,
+.markdown-body li code::before,
+.markdown-body td code::before,
+.markdown-body th code::before,
+.markdown-body h1 code::before,
+.markdown-body h2 code::before,
+.markdown-body h3 code::before,
+.markdown-body h4 code::before,
+.markdown-body h5 code::before,
+.markdown-body h6 code::before {
+  content: "";
+}
+
+.markdown-body p code::after,
+.markdown-body li code::after,
+.markdown-body td code::after,
+.markdown-body th code::after,
+.markdown-body h1 code::after,
+.markdown-body h2 code::after,
+.markdown-body h3 code::after,
+.markdown-body h4 code::after,
+.markdown-body h5 code::after,
+.markdown-body h6 code::after {
+  content: "";
+}
+
+/* Dark theme inline code */
+.dark .markdown-body p code,
+.dark .markdown-body li code,
+.dark .markdown-body td code,
+.dark .markdown-body th code,
+.dark .markdown-body h1 code,
+.dark .markdown-body h2 code,
+.dark .markdown-body h3 code,
+.dark .markdown-body h4 code,
+.dark .markdown-body h5 code,
+.dark .markdown-body h6 code,
+.dark .inline-code-enhanced {
+  background: transparent;
+  border: none;
+  color: #f97316;
+  box-shadow: none;
+}
+
+/* Subtle hover effect for inline code */
+.markdown-body p code:hover,
+.markdown-body li code:hover,
+.markdown-body td code:hover,
+.markdown-body th code:hover,
+.markdown-body h1 code:hover,
+.markdown-body h2 code:hover,
+.markdown-body h3 code:hover,
+.markdown-body h4 code:hover,
+.markdown-body h5 code:hover,
+.markdown-body h6 code:hover,
+.inline-code-enhanced:hover {
+  color: #c8384a;
+}
+
+.dark .markdown-body p code:hover,
+.dark .markdown-body li code:hover,
+.dark .markdown-body td code:hover,
+.dark .markdown-body th code:hover,
+.dark .markdown-body h1 code:hover,
+.dark .markdown-body h2 code:hover,
+.dark .markdown-body h3 code:hover,
+.dark .markdown-body h4 code:hover,
+.dark .markdown-body h5 code:hover,
+.dark .markdown-body h6 code:hover,
+.dark .inline-code-enhanced:hover {
+  color: #fb923c;
+}
+
+/* VSCode code content styling - Light theme */
 .markdown-body pre > code {
-  @apply mx-2 mt-14 !whitespace-pre-wrap !break-words text-base;
+  @apply mx-4 my-4 !whitespace-pre-wrap !break-words text-sm leading-relaxed;
+  font-family:
+    "SF Mono", "Monaco", "Menlo", "Consolas", "Courier New", monospace;
+  color: #24292e;
+  background: transparent !important;
+  display: block;
+  margin-top: 44px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
-.markdown-body pre > .copy-code-button {
-  @apply absolute right-4 top-0 z-[1] flex h-[40px] cursor-pointer items-center text-lg transition-opacity ease-in-out;
+/* Dark theme code content */
+.dark .markdown-body pre > code {
+  color: #d4d4d4;
+  background: transparent !important;
 }
-.markdown-body pre::after {
-  content: attr(data-language);
-  @apply absolute  inset-x-0 top-0 border-b border-b-muted-foreground/20 px-4 py-2 text-primary;
+
+/* Copy button positioned properly in title bar */
+.markdown-body pre > .copy-code-button {
+  @apply absolute right-4 z-[4] flex h-6 w-6 cursor-pointer items-center justify-center text-sm transition-all duration-200 ease-in-out;
+  top: 13px; /* Centered in 32px title bar */
+  background: linear-gradient(
+    135deg,
+    rgb(255 255 255 / 0.9),
+    rgb(248 250 252 / 0.9)
+  );
+  border: 1px solid rgb(226 232 240 / 0.8);
+  border-radius: 0.375rem;
+  box-shadow:
+    0 1px 3px rgb(0 0 0 / 0.1),
+    inset 0 1px 0 rgb(255 255 255 / 0.6);
+  color: rgb(71 85 105);
+  opacity: 0.8;
+}
+
+.dark .markdown-body pre > .copy-code-button {
+  background: linear-gradient(135deg, rgb(39 39 42 / 0.9), rgb(24 24 27 / 0.9));
+  border: 1px solid rgb(63 63 70 / 0.8);
+  box-shadow:
+    0 1px 3px rgb(0 0 0 / 0.2),
+    inset 0 1px 0 rgb(255 255 255 / 0.05);
+  color: rgb(148 163 184);
+}
+
+/* Copy button hover effect */
+.markdown-body pre > .copy-code-button:hover {
+  opacity: 1;
+  transform: translateY(-1px);
+  box-shadow:
+    0 4px 6px rgb(0 0 0 / 0.15),
+    inset 0 1px 0 rgb(255 255 255 / 0.8);
+  background: linear-gradient(135deg, rgb(255 255 255), rgb(248 250 252));
+}
+
+.dark .markdown-body pre > .copy-code-button:hover {
+  box-shadow:
+    0 4px 6px rgb(0 0 0 / 0.3),
+    inset 0 1px 0 rgb(255 255 255 / 0.08);
+  background: linear-gradient(135deg, rgb(55 65 81 / 0.9), rgb(39 39 42 / 0.9));
+}
+
+/* Copy button active state */
+.markdown-body pre > .copy-code-button:active {
+  transform: translateY(0);
+  box-shadow:
+    0 1px 2px rgb(0 0 0 / 0.1),
+    inset 0 1px 3px rgb(0 0 0 / 0.1);
+}
+
+/* Legacy language label styling for compatibility */
+.vscode-language-label {
+  color: #586069 !important;
+}
+
+.dark .vscode-language-label {
+  color: #cccccc !important;
+}
+
+/* Remove any language-specific styling to keep VSCode look clean */
+
+/* Enhanced syntax highlighting improvements */
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-section,
+.hljs-link {
+  font-weight: 600;
+}
+
+.hljs-string,
+.hljs-attr {
+  font-style: normal;
+}
+
+.hljs-comment {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+/* Code block scroll improvements */
+.markdown-body pre > code {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(203 213 225 / 0.5) transparent;
+}
+
+.dark .markdown-body pre > code {
+  scrollbar-color: rgb(75 85 99 / 0.5) transparent;
+}
+
+.markdown-body pre > code::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.markdown-body pre > code::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.markdown-body pre > code::-webkit-scrollbar-thumb {
+  background: rgb(203 213 225 / 0.5);
+  border-radius: 3px;
+}
+
+.dark .markdown-body pre > code::-webkit-scrollbar-thumb {
+  background: rgb(75 85 99 / 0.5);
+}
+
+.markdown-body pre > code::-webkit-scrollbar-thumb:hover {
+  background: rgb(156 163 175 / 0.7);
+}
+
+.dark .markdown-body pre > code::-webkit-scrollbar-thumb:hover {
+  background: rgb(107 114 128 / 0.7);
+}
+
+/* Remove unnecessary animations for cleaner look */
+
+/* Enhanced focus states for accessibility */
+.markdown-body pre:focus-within {
+  outline: 2px solid rgb(59 130 246 / 0.5);
+  outline-offset: 2px;
+}
+
+.dark .markdown-body pre:focus-within {
+  outline: 2px solid rgb(96 165 250 / 0.5);
+}
+
+/* Improved text selection in code blocks */
+.markdown-body pre code::selection {
+  background: rgba(59, 130, 246, 0.2);
+  color: inherit;
+}
+
+.dark .markdown-body pre code::selection {
+  background: rgba(96, 165, 250, 0.3);
+  color: inherit;
+}
+
+/* Better line height for readability */
+.markdown-body pre code {
+  line-height: 1.6;
+}
+
+/* VSCode window mobile responsive improvements */
+@media (max-width: 768px) {
+  .markdown-body pre {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+    border-radius: 8px;
+  }
+
+  .markdown-body pre > code {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    font-size: 12px;
+  }
+
+  .vscode-language-label {
+    left: 55px !important;
+    font-size: 11px !important;
+  }
+
+  .markdown-body pre > .copy-code-button {
+    right: 6px;
+    top: 11px;
+    height: 5px;
+    width: 5px;
+  }
+
+  /* Adjust Mac window buttons for mobile */
+  .markdown-body pre::after {
+    width: 10px;
+    height: 10px;
+    top: 9px;
+    left: 10px;
+    box-shadow:
+      16px 0 0 #ffbd2e,
+      32px 0 0 #28ca42;
+  }
+
+  /* Adjust Mac window buttons for mobile */
+  .markdown-body pre[data-language]::after {
+    width: 10px;
+    height: 10px;
+    top: 9px;
+    left: 10px;
+    box-shadow:
+      16px 0 0 #ffbd2e,
+      32px 0 0 #28ca42;
+  }
+
+  /* Adjust language label for mobile */
+  .markdown-body pre[data-language]::before {
+    padding-left: 55px;
+    font-size: 11px;
+  }
 }
 .markdown-body iframe {
   @apply aspect-video w-full;

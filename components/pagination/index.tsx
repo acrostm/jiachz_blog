@@ -46,7 +46,7 @@ export const Pagination = ({
     if (pageCount <= 1) return [1];
 
     const range = [];
-    const currentPage = Number(params.pageIndex) + 1; // Convert from 0-based to 1-based
+    const currentPage = Number(params.pageIndex); // Use 1-based indexing directly
 
     for (
       let i = Math.max(2, currentPage - delta);
@@ -79,10 +79,10 @@ export const Pagination = ({
           variant="ghost"
           onClick={() => {
             updateParams({
-              pageIndex: Math.max(0, params.pageIndex - 1),
+              pageIndex: Math.max(1, params.pageIndex - 1),
             });
           }}
-          disabled={params.pageIndex === 0 || pageCount <= 1}
+          disabled={params.pageIndex === 1 || pageCount <= 1}
         >
           <ChevronLeft className="size-4" />
           上一页
@@ -98,13 +98,11 @@ export const Pagination = ({
               <Button
                 key={i}
                 variant={
-                  pageNumber === Number(params.pageIndex) + 1
-                    ? "outline"
-                    : "ghost"
+                  pageNumber === Number(params.pageIndex) ? "outline" : "ghost"
                 }
                 onClick={() => {
                   updateParams({
-                    pageIndex: Number(pageNumber) - 1,
+                    pageIndex: Number(pageNumber),
                   });
                 }}
               >
@@ -118,13 +116,10 @@ export const Pagination = ({
           variant="ghost"
           onClick={() => {
             updateParams({
-              pageIndex: Math.min(
-                Math.max(0, pageCount - 1),
-                params.pageIndex + 1,
-              ),
+              pageIndex: Math.min(pageCount, params.pageIndex + 1),
             });
           }}
-          disabled={params.pageIndex >= pageCount - 1 || pageCount <= 1}
+          disabled={params.pageIndex >= pageCount || pageCount <= 1}
         >
           下一页
           <ChevronRight className="size-4" />
@@ -146,7 +141,7 @@ export const Pagination = ({
                   const targetPage = Number(quickJumpPage);
                   if (targetPage >= 1 && targetPage <= pageCount) {
                     updateParams({
-                      pageIndex: targetPage - 1,
+                      pageIndex: targetPage,
                     });
                   }
                   setQuickJumpPage("");
@@ -163,7 +158,7 @@ export const Pagination = ({
               value={`${params.pageSize}`}
               onValueChange={(value) => {
                 updateParams({
-                  pageIndex: 0,
+                  pageIndex: 1,
                   pageSize: Number(value),
                 });
               }}
@@ -189,8 +184,8 @@ export const Pagination = ({
 type PaginationInfoProps = Pick<PaginationProps, "params" | "total">;
 
 export const PaginationInfo = ({ params, total = 0 }: PaginationInfoProps) => {
-  const currentPage = params.pageIndex + 1; // Convert from 0-based to 1-based
-  const startItem = params.pageIndex * params.pageSize + 1;
+  const currentPage = params.pageIndex; // Use 1-based indexing directly
+  const startItem = (params.pageIndex - 1) * params.pageSize + 1;
   const endItem = Math.min(total, currentPage * params.pageSize);
 
   return (

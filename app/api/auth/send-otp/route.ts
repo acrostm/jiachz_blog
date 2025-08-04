@@ -4,6 +4,7 @@ import { ActivityStatus, ResourceType } from "@prisma/client";
 import { Resend } from "resend";
 
 import { auth } from "@/lib/auth";
+import { notifyOtpCode } from "@/lib/notification";
 import { prisma } from "@/lib/prisma";
 import { safeLogActivity } from "@/lib/utils/activity-logger-helper";
 
@@ -92,6 +93,19 @@ export async function POST(req: NextRequest) {
         </div>
       `,
     });
+
+    // 发送bark通知
+    try {
+      await notifyOtpCode(
+        userEmail,
+        otp,
+        type,
+        new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" }),
+      );
+    } catch (error) {
+      // bark通知失败不影响主流程，只记录错误
+      console.error("发送bark通知失败:", error);
+    }
 
     // 发送邮件成功后记录日志
     await safeLogActivity(session.user.id, "SEND_OTP", ActivityStatus.SUCCESS, {

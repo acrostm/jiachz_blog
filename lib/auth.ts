@@ -32,19 +32,59 @@ export const { handlers, auth, signOut, signIn } = NextAuth({
         password: { label: "密码", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
+        const email = credentials?.email as string;
+        const password = credentials?.password as string;
+
+        if (!email || !password) {
+          // 记录参数错误
+          try {
+            await activityLogger.trackLogin({
+              userId: "unknown",
+              loginMethod: "CREDENTIALS",
+              loginStatus: "FAILED",
+              failureReason: "请输入邮箱和密码",
+            });
+          } catch {
+            // 静默处理日志记录失败
+          }
           throw new Error("请输入邮箱和密码");
         }
+
         const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
+          where: { email },
         });
+
         if (!user?.password) {
+          // 记录用户不存在错误
+          try {
+            await activityLogger.trackLogin({
+              userId: "unknown",
+              loginMethod: "CREDENTIALS",
+              loginStatus: "FAILED",
+              failureReason: "用户不存在或未设置密码",
+            });
+          } catch {
+            // 静默处理日志记录失败
+          }
           throw new Error("用户不存在或未设置密码");
         }
-        const plainPassword = credentials.password as string;
+
+        const plainPassword = password;
         const hashedPassword = String(user.password);
         const isValid = await bcrypt.compare(plainPassword, hashedPassword);
+
         if (!isValid) {
+          // 记录密码错误
+          try {
+            await activityLogger.trackLogin({
+              userId: user.id,
+              loginMethod: "CREDENTIALS",
+              loginStatus: "FAILED",
+              failureReason: "密码错误",
+            });
+          } catch {
+            // 静默处理日志记录失败
+          }
           throw new Error("密码错误");
         }
         // 检查 account 表

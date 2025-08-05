@@ -112,12 +112,56 @@ export function LoginForm({
       // next-auth/react的signIn返回undefined，跳转由next-auth处理
       // 但如果有报错，可以捕获
       if (res?.error) {
-        setError(res.error);
-        toast.error(res.error);
+        let errorMessage = "GitHub 登录失败，请重试";
+        if (
+          res.error.includes("OAuthSignin") ||
+          res.error.includes("OAuthCallback")
+        ) {
+          errorMessage = "GitHub 授权失败，请检查网络连接或稍后重试";
+        } else if (res.error.includes("OAuthAccountNotLinked")) {
+          errorMessage =
+            "该 GitHub 账户未关联到现有用户，请使用其他方式登录或联系管理员";
+        } else if (res.error.includes("AccessDenied")) {
+          errorMessage = "GitHub 授权被拒绝，请重新尝试授权";
+        }
+
+        setError(errorMessage);
+        toast.error(errorMessage);
+
+        // 记录 OAuth 登录失败日志
+        try {
+          await fetch("/api/auth/log-failed-login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: "",
+              errorType: res.error,
+              loginMethod: "OAUTH_GITHUB",
+            }),
+          });
+        } catch {
+          // 静默处理日志记录失败
+        }
       }
     } catch {
-      setError("Github 登录失败，请重试");
-      toast.error("Github 登录失败，请重试");
+      const errorMessage = "GitHub 登录连接失败，请检查网络连接后重试";
+      setError(errorMessage);
+      toast.error(errorMessage);
+
+      // 记录网络错误
+      try {
+        await fetch("/api/auth/log-failed-login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: "",
+            errorType: "网络连接失败",
+            loginMethod: "OAUTH_GITHUB",
+          }),
+        });
+      } catch {
+        // 静默处理日志记录失败
+      }
     } finally {
       setLoading(false);
     }
@@ -129,12 +173,56 @@ export function LoginForm({
     try {
       const res = await signIn("google", { callbackUrl: "/" });
       if (res?.error) {
-        setError(res.error);
-        toast.error(res.error);
+        let errorMessage = "Google 登录失败，请重试";
+        if (
+          res.error.includes("OAuthSignin") ||
+          res.error.includes("OAuthCallback")
+        ) {
+          errorMessage = "Google 授权失败，请检查网络连接或稍后重试";
+        } else if (res.error.includes("OAuthAccountNotLinked")) {
+          errorMessage =
+            "该 Google 账户未关联到现有用户，请使用其他方式登录或联系管理员";
+        } else if (res.error.includes("AccessDenied")) {
+          errorMessage = "Google 授权被拒绝，请重新尝试授权";
+        }
+
+        setError(errorMessage);
+        toast.error(errorMessage);
+
+        // 记录 OAuth 登录失败日志
+        try {
+          await fetch("/api/auth/log-failed-login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email: "",
+              errorType: res.error,
+              loginMethod: "OAUTH_GOOGLE",
+            }),
+          });
+        } catch {
+          // 静默处理日志记录失败
+        }
       }
     } catch {
-      setError("Google 登录失败，请重试");
-      toast.error("Google 登录失败，请重试");
+      const errorMessage = "Google 登录连接失败，请检查网络连接后重试";
+      setError(errorMessage);
+      toast.error(errorMessage);
+
+      // 记录网络错误
+      try {
+        await fetch("/api/auth/log-failed-login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: "",
+            errorType: "网络连接失败",
+            loginMethod: "OAUTH_GOOGLE",
+          }),
+        });
+      } catch {
+        // 静默处理日志记录失败
+      }
     } finally {
       setLoading(false);
     }
@@ -159,14 +247,75 @@ export function LoginForm({
         callbackUrl: PATHS.ADMIN_HOME,
       });
       if (res?.error) {
-        setError(res.error);
-        toast.error(res.error);
+        // 将英文错误转换为中文具体提示
+        let errorMessage = "登录失败，请重试";
+        if (
+          res.error === "请输入邮箱和密码" ||
+          res.error.includes("邮箱和密码")
+        ) {
+          errorMessage = "请输入邮箱和密码";
+        } else if (
+          res.error === "用户不存在或未设置密码" ||
+          res.error.includes("用户不存在")
+        ) {
+          errorMessage = "用户不存在，请检查邮箱地址或先注册账户";
+        } else if (
+          res.error === "密码错误" ||
+          res.error.includes("密码错误") ||
+          res.error.includes("Invalid credentials")
+        ) {
+          errorMessage = "密码错误，请检查密码是否正确";
+        } else if (res.error.includes("CredentialsSignin")) {
+          errorMessage = "邮箱或密码错误，请检查后重试";
+        } else if (
+          res.error.includes("配置") ||
+          res.error.includes("Configuration")
+        ) {
+          errorMessage = "登录配置异常，请联系管理员";
+        } else {
+          // 保留自定义的中文错误信息
+          errorMessage = res.error;
+        }
+
+        setError(errorMessage);
+        toast.error(errorMessage);
+
+        // 记录登录失败日志
+        try {
+          await fetch("/api/auth/log-failed-login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              email,
+              errorType: res.error,
+              loginMethod: "CREDENTIALS",
+            }),
+          });
+        } catch {
+          // 静默处理日志记录失败
+        }
       } else if (res?.ok) {
         router.push(PATHS.ADMIN_HOME);
       }
     } catch {
-      setError("用户名密码登录失败，请重试");
-      toast.error("用户名密码登录失败，请重试");
+      const errorMessage = "登录连接失败，请检查网络连接后重试";
+      setError(errorMessage);
+      toast.error(errorMessage);
+
+      // 记录网络错误
+      try {
+        await fetch("/api/auth/log-failed-login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            errorType: "网络连接失败",
+            loginMethod: "CREDENTIALS",
+          }),
+        });
+      } catch {
+        // 静默处理日志记录失败
+      }
     } finally {
       setLoading(false);
     }

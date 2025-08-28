@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { MapPin, MoveLeft, User } from "lucide-react";
 
-import { BytemdViewer } from "@/components/bytemd";
+import { SmartBytemdViewer } from "@/components/bytemd";
 import { DetailSidebar } from "@/components/detail-sidebar";
 import { MarkdownTOC } from "@/components/markdown-toc";
 import { Wrapper } from "@/components/wrapper";
@@ -61,7 +61,7 @@ export const BlogDetailPage = ({ blog, uv = 0 }: BlogDetailProps) => {
             "wrapper:border-r wrapper:border-r-border wrapper:pr-14",
           )}
         >
-          <BytemdViewer body={blog.body || ""} />
+          <SmartBytemdViewer body={blog.body || ""} />
         </div>
         <DetailSidebar>
           <MarkdownTOC />

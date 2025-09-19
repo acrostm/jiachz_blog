@@ -38,16 +38,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Search**: Meilisearch for full-text search
 - **Caching**: Redis with ioredis
 - **Markdown**: Bytemd for editing and rendering
-- **File Storage**: AWS S3 (R2) for image uploads
+- **File Storage**: Cloudflare R2 (AWS S3 compatible) for image uploads
 - **Image Processing**: Sharp for WebP compression
 
 ### Core Models
 
 - **User**: Authentication and user management
 - **Blog**: Blog posts with markdown content
-- **Snippet**: Code snippets with syntax highlighting
 - **Note**: Simple notes (admin only)
-- **Tag**: Categorization system with type enum (ALL, BLOG, SNIPPET, NOTE)
+- **Tag**: Categorization system with type enum (ALL, BLOG, NOTE)
 - **MessageBoard**: Public message board functionality
 
 ### Directory Structure
@@ -62,7 +61,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ### Key Features
 
-- **Feature-based Architecture**: Each feature (blog, snippet, note, tag, auth) has its own directory with actions, API, components, and pages
+- **Feature-based Architecture**: Each feature (blog, note, tag, auth, admin, home, statistics, upload, user) has its own directory with actions, API, components, and pages
 - **Admin Panel**: Full CRUD operations for content management at `/admin`
 - **Search Integration**: Meilisearch powers full-text search across blogs
 - **Image Optimization**: Sharp converts uploads to WebP format
@@ -81,7 +80,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Custom Build Script**: Uses `build-and-notify.sh` that runs `next build` and sends build status notifications via Bark
 - **Post-Build**: Automatically generates sitemap using `next-sitemap`
 - **Bundle Analysis**: Use `pnpm build:analyzer` to analyze bundle size with webpack analyzer
-- **Build Notifications**: Sends success/failure notifications to Bark service at `https://bark.jiachz.com/`
+- **Build Notifications**: Sends success/failure notifications to Bark service at `https://bark.jiachz.com/` with status, timestamp, and server IP
 
 ### Environment Setup
 
@@ -118,6 +117,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### Custom Components
 
 - **Bytemd Integration**: Custom markdown editor with plugins for enhanced editing
-- **Icon System**: Uses @iconify with custom icon components organized by category
+- **Icon System**: Uses @iconify with custom icon components organized by category (fa6-brands, logos, skills)
 - **Illustrations**: Custom SVG illustrations with dark/light theme variants
 - **UI Components**: Built on Radix UI primitives with Tailwind styling
+
+### User Activity Logging
+
+- **Comprehensive Logging**: Tracks all user activities with UserActivityLog model
+- **Activity Types**: Login, registration, CRUD operations, file uploads, admin access
+- **Security Analysis**: Suspicious activity detection, risk scoring, device fingerprinting
+- **Location Tracking**: IP-based location detection with country, region, city
+- **Device Detection**: Browser, OS, and device type identification
+
+### Important Notes
+
+- **Personal Information**: Site configuration in `constants/info.ts` contains personal details
+- **Build Notifications**: Custom build script sends notifications to Bark service
+- **Admin Control**: Admin access controlled by `NEXT_PUBLIC_ADMIN_EMAILS` environment variable
+- **Next.js 15 Compatibility**: Includes workarounds for Next.js 15 sync dynamic API checks
+
+# important-instruction-reminders
+
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.

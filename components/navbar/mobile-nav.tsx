@@ -165,12 +165,11 @@ export const MobileNav = () => {
                         Project 2
                       </Link>
                       <Link
-                        href={`/coming-soon`}
+                        href={PATHS.CURRENCY_CONVERTER}
                         className={cn(
                           buttonVariants({
                             variant:
-                              pathname ===
-                              `${el.link.toLowerCase().replace(" ", "-")}`
+                              pathname === PATHS.CURRENCY_CONVERTER
                                 ? "default"
                                 : "ghost",
                           }),
@@ -180,7 +179,8 @@ export const MobileNav = () => {
                           setOpen(false);
                         }}
                       >
-                        Project 3
+                        <span className="text-lg">💱</span>
+                        汇率转换器
                       </Link>
                     </div>
                   </div>

@@ -122,8 +122,11 @@ export const Navbar = () => {
                           <LabItem href="/messages" title="留言板">
                             来留言！
                           </LabItem>
-                          <LabItem href={el.link} title="Project 3">
-                            Description of Project 3 in the lab.
+                          <LabItem
+                            href={PATHS.CURRENCY_CONVERTER}
+                            title="汇率转换器"
+                          >
+                            实时汇率转换，支持多种货币互换
                           </LabItem>
                         </ul>
                       </NavigationMenuContent>

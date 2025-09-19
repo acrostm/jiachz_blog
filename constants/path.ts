@@ -10,6 +10,7 @@ export const PATHS = {
   SITE_PROFILE: "/admin/profile",
   SITE_USERS: "/admin/user",
   SITEMAP: "/sitemap.xml",
+  CURRENCY_CONVERTER: "/lab/currency-converter",
 
   /** ************* ADMIN ****************** */
   ADMIN_HOME: "/admin",
@@ -40,6 +41,7 @@ export const PATHS_MAP: Record<string, string> = {
   [PATHS.SITE_USERS]: "用户管理",
   [PATHS.SITE_ABOUT]: "关于",
   [PATHS.SITEMAP]: "站点地图",
+  [PATHS.CURRENCY_CONVERTER]: "汇率转换器",
 
   /** ************* ADMIN ****************** */
   [PATHS.ADMIN_HOME]: "首页",
@@ -65,6 +67,7 @@ export const PATH_DESCRIPTION_MAP: Record<string, string> = {
   [PATHS.AUTH_SIGN_UP]: "注册一个账号，加入我们",
   [PATHS.SITE_ABOUT]: `你有一份关于${NICKNAME}的简介`,
   [PATHS.SITE_MESSAGES]: "请留言，分享你的想法",
+  [PATHS.CURRENCY_CONVERTER]: "实时汇率转换，支持多种货币互换",
 
   /** ************* ADMIN ****************** */
   [PATHS.ADMIN_HOME]: "欢迎回来",

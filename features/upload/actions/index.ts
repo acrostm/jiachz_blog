@@ -99,7 +99,9 @@ export const uploadFile = async (
 ): Promise<{ error?: string; url?: string }> => {
   const userId = await getCurrentUserId();
 
-  if (await noPermission()) {
+  // 调试信息：检查权限验证结果
+  const hasNoPermission = await noPermission();
+  if (hasNoPermission) {
     await logFileActivity(
       userId,
       "FILE_UPLOAD",

@@ -24,6 +24,7 @@ export const PATHS = {
   ADMIN_NOTE: "/admin/note",
   ADMIN_USER: "/admin/user",
   ADMIN_ACTIVITY_LOGS: "/admin/activity-logs",
+  ADMIN_BARK_CONFIG: "/admin/settings/bark",
 
   /** ************* AUTH ****************** */
   AUTH_SIGN_IN: "/auth/sign_in",
@@ -53,6 +54,7 @@ export const PATHS_MAP: Record<string, string> = {
   [PATHS.ADMIN_NOTE]: "笔记",
   [PATHS.ADMIN_USER]: "用户管理",
   [PATHS.ADMIN_ACTIVITY_LOGS]: "操作日志",
+  [PATHS.ADMIN_BARK_CONFIG]: "Bark通知配置",
 
   /** ************* AUTH ****************** */
   [PATHS.AUTH_SIGN_IN]: "登录",
@@ -80,6 +82,8 @@ export const PATH_DESCRIPTION_MAP: Record<string, string> = {
   [PATHS.ADMIN_USER]: "管理所有用户",
   [PATHS.ADMIN_ACTIVITY_LOGS]:
     "查看和管理所有用户操作活动记录，包括登录、内容管理等",
+  [PATHS.ADMIN_BARK_CONFIG]:
+    "配置Bark通知服务，管理通知推送设置、音效、图标等",
 
   /** ************* AUTH ****************** */
   [PATHS.AUTH_SIGN_IN]: "登录",

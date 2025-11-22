@@ -1,0 +1,26 @@
+{
+  "configs": [
+    {
+      "id": "primary",
+      "name": "主通知",
+      "url": "https://bark.jiachz.com/xFAZhVwHM4vLEUgvg442m4/",
+      "enabled": true,
+      "defaultGroup": "Blog",
+      "defaultCategory": "通知",
+      "defaultIcon": "https://r2.jiachz.com/jiachz-light.svg",
+      "defaultSound": "default",
+      "description": "主要的Bark通知配置"
+    },
+    {
+      "id": "bark_1763811303057_za10ng1",
+      "name": "air",
+      "url": "https://bark.jiachz.com/aay7pka2P8hXQyBBfTErrH/",
+      "enabled": true,
+      "defaultGroup": "Blog",
+      "defaultCategory": "通知",
+      "defaultIcon": "https://r2.jiachz.com/jiachz-light.svg",
+      "defaultSound": "default",
+      "description": ""
+    }
+  ]
+}

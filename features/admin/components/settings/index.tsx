@@ -34,6 +34,11 @@ export const SettingsModal = ({ open, setOpen }: Props) => {
               操作日志
             </Button>
           </a>
+          <a href={PATHS.ADMIN_BARK_CONFIG}>
+            <Button variant="outline" className="w-full">
+              Bark通知配置
+            </Button>
+          </a>
           <a href={PATHS.SITE_PROFILE}>
             <Button variant="secondary" className="w-full">
               修改密码

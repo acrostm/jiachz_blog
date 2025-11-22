@@ -5,3 +5,5 @@ export * from "./blog";
 export * from "./tag";
 
 export * from "./note";
+
+export * from "./bark-config";

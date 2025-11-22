@@ -3,6 +3,11 @@
  * Supports various notification parameters and types
  */
 
+import {
+  getEnabledBarkConfigs,
+  type BarkConfigItem,
+} from "./bark-config";
+
 export interface BarkNotificationOptions {
   title: string;
   body: string;
@@ -82,14 +87,48 @@ const NOTIFICATION_TEMPLATES = {
 export type NotificationTemplateType = keyof typeof NOTIFICATION_TEMPLATES;
 
 class BarkNotification {
-  private readonly barkUrl: string;
+  /**
+   * 向单个bark配置发送通知
+   */
+  private async sendToConfig(
+    config: BarkConfigItem,
+    options: BarkNotificationOptions,
+  ): Promise<boolean> {
+    try {
+      const payload = {
+        title: options.title,
+        body: options.body,
+        key: options.key ?? "✅",
+        sound: options.sound ?? config.defaultSound,
+        group: options.group ?? config.defaultGroup,
+        category: options.category ?? config.defaultCategory,
+        icon: options.icon ?? config.defaultIcon,
+        ...(options.url && { url: options.url }),
+        ...(options.level && { level: options.level }),
+        ...(options.badge && { badge: options.badge }),
+        ...(options.copy && { copy: options.copy }),
+        ...(options.autoCopy && { autoCopy: options.autoCopy }),
+        ...(options.isArchive && { isArchive: options.isArchive }),
+      };
 
-  constructor(barkUrl = "https://bark.jiachz.com/9fZrbZk3hu2eLs4B24yL2M/") {
-    this.barkUrl = barkUrl;
+      const response = await fetch(config.url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json; charset=utf-8",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      return response.ok;
+    } catch (error) {
+      console.error(`Failed to send notification to ${config.name}:`, error);
+      return false;
+    }
   }
 
   /**
    * Send a notification using a predefined template
+   * 向所有启用的bark配置发送通知
    */
   async sendTemplateNotification(
     templateType: NotificationTemplateType,
@@ -123,35 +162,27 @@ class BarkNotification {
 
   /**
    * Send a custom notification
+   * 向所有启用的bark配置发送通知
    */
   async sendNotification(options: BarkNotificationOptions): Promise<boolean> {
     try {
-      const payload = {
-        title: options.title,
-        body: options.body,
-        key: options.key ?? "✅",
-        sound: options.sound ?? "default",
-        group: options.group ?? "Blog",
-        category: options.category ?? "通知",
-        icon: options.icon ?? "https://r2.jiachz.com/jiachz-light.svg",
-        ...(options.url && { url: options.url }),
-        ...(options.level && { level: options.level }),
-        ...(options.badge && { badge: options.badge }),
-        ...(options.copy && { copy: options.copy }),
-        ...(options.autoCopy && { autoCopy: options.autoCopy }),
-        ...(options.isArchive && { isArchive: options.isArchive }),
-      };
+      // 获取所有启用的bark配置
+      const configs = await getEnabledBarkConfigs();
 
-      const response = await fetch(this.barkUrl, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-        },
-        body: JSON.stringify(payload),
-      });
+      if (configs.length === 0) {
+        console.warn("No enabled bark configs found");
+        return false;
+      }
 
-      return response.ok;
-    } catch {
+      // 向所有启用的配置发送通知
+      const results = await Promise.all(
+        configs.map((config) => this.sendToConfig(config, options)),
+      );
+
+      // 只要有一个成功就返回true
+      return results.some((result) => result);
+    } catch (error) {
+      console.error("Failed to send notification:", error);
       return false;
     }
   }

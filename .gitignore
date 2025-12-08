@@ -63,3 +63,5 @@ yarn-error.log*
 *[0-9].yaml
 *[0-9].md
 ACTIVITY_LOG_MIGRATION.md
+.gemini/
+gha-creds-*.json

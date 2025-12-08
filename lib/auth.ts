@@ -1,5 +1,14 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+
+class UserNotFoundError extends CredentialsSignin {
+  code = "UserNotFound";
+}
+
+class PasswordError extends CredentialsSignin {
+  code = "PasswordError";
+}
+
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 
@@ -66,7 +75,7 @@ export const { handlers, auth, signOut, signIn } = NextAuth({
           } catch {
             // 静默处理日志记录失败
           }
-          throw new Error("用户不存在或未设置密码");
+          throw new UserNotFoundError();
         }
 
         const plainPassword = password;
@@ -85,7 +94,7 @@ export const { handlers, auth, signOut, signIn } = NextAuth({
           } catch {
             // 静默处理日志记录失败
           }
-          throw new Error("密码错误");
+          throw new PasswordError();
         }
         // 检查 account 表
         const account = await prisma.account.findFirst({

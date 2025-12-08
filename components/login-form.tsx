@@ -255,23 +255,22 @@ export function LoginForm({
         ) {
           errorMessage = "请输入邮箱和密码";
         } else if (
+          res.error === "UserNotFound" ||
           res.error === "用户不存在或未设置密码" ||
           res.error.includes("用户不存在")
         ) {
           errorMessage = "用户不存在，请检查邮箱地址或先注册账户";
         } else if (
+          res.error === "PasswordError" ||
           res.error === "密码错误" ||
           res.error.includes("密码错误") ||
-          res.error.includes("Invalid credentials")
+          res.error.includes("Invalid credentials") ||
+          res.error.includes("CredentialsSignin") ||
+          res.error === "CallbackRouteError" ||
+          res.error.includes("Configuration") ||
+          res.error.includes("配置")
         ) {
-          errorMessage = "密码错误，请检查密码是否正确";
-        } else if (res.error.includes("CredentialsSignin")) {
-          errorMessage = "邮箱或密码错误，请检查后重试";
-        } else if (
-          res.error.includes("配置") ||
-          res.error.includes("Configuration")
-        ) {
-          errorMessage = "登录配置异常，请联系管理员";
+          errorMessage = "用户名或者密码错误";
         } else {
           // 保留自定义的中文错误信息
           errorMessage = res.error;

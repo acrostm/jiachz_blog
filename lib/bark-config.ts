@@ -2,9 +2,9 @@
  * Bark配置管理服务
  * 支持从JSON文件读取和写入bark配置，支持热更新
  */
+import path from "path";
 
 import fs from "fs/promises";
-import path from "path";
 
 export interface BarkConfigItem {
   id: string;

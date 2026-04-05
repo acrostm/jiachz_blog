@@ -1,14 +1,5 @@
 import NextAuth, { CredentialsSignin } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-
-class UserNotFoundError extends CredentialsSignin {
-  code = "UserNotFound";
-}
-
-class PasswordError extends CredentialsSignin {
-  code = "PasswordError";
-}
-
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 
@@ -20,6 +11,14 @@ import { NODE_ENV } from "@/config";
 import { PATHS } from "@/constants";
 import { activityLogger } from "@/lib/activity-logger";
 import { prisma } from "@/lib/prisma";
+
+class UserNotFoundError extends CredentialsSignin {
+  code = "UserNotFound";
+}
+
+class PasswordError extends CredentialsSignin {
+  code = "PasswordError";
+}
 
 export const { handlers, auth, signOut, signIn } = NextAuth({
   adapter: PrismaAdapter(prisma),

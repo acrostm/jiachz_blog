@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 import { useSession } from "next-auth/react";
 
@@ -141,57 +140,48 @@ export const AdminNoteListPage = () => {
         <SearchByTags tags={tags} params={params} updateParams={updateParams} />
       </div>
 
-      <ResponsiveMasonry
-        columnsCountBreakPoints={{
-          // BreakPoints https://tailwindcss.com/docs/responsive-design
-          350: 1,
-          // lg
-          1024: 2,
-        }}
-      >
-        <Masonry gutter="1.5rem">
-          {getNotesQuery.loading
-            ? Array.from({ length: 8 }).map((_, idx) => (
-                <div key={idx}>
-                  <Skeleton className="h-[400px] w-full rounded-lg" />
-                </div>
-              ))
-            : data.map((note) => (
-                <div key={note.id} className="w-full">
-                  <div className="relative w-full rounded-lg border px-6 pb-6">
-                    <BytemdViewer body={note.body || ""} />
-                    <div className="flex flex-wrap justify-end gap-2 py-4">
-                      {note.tags?.map((tag) => (
-                        <Badge key={tag.id}>{tag.name}</Badge>
-                      ))}
-                    </div>
-                    <div className="flex items-center justify-end text-sm text-muted-foreground">
-                      <span className="hidden lg:inline-block">
-                        {toSlashDateString(note.createdAt)}
-                      </span>
-                      <span className="mx-2 hidden lg:inline-block">·</span>
-                      <span>{toFromNow(note.createdAt)}</span>
-                    </div>
-                    <div className="absolute right-2 top-2 space-x-2">
-                      <ToggleNotePublishButton
-                        id={note.id}
-                        published={note.published}
-                        refreshAsync={getNotesQuery.refreshAsync}
-                      />
-                      <EditNoteButton
-                        id={note.id}
-                        refreshAsync={getNotesQuery.refreshAsync}
-                      />
-                      <DeleteNoteButton
-                        id={note.id}
-                        refreshAsync={getNotesQuery.refreshAsync}
-                      />
-                    </div>
+      <div className="columns-1 gap-6 lg:columns-2">
+        {getNotesQuery.loading
+          ? Array.from({ length: 8 }).map((_, idx) => (
+              <div key={idx} className="mb-6 break-inside-avoid">
+                <Skeleton className="h-[400px] w-full rounded-lg" />
+              </div>
+            ))
+          : data.map((note) => (
+              <div key={note.id} className="mb-6 w-full break-inside-avoid">
+                <div className="relative w-full rounded-lg border px-6 pb-6">
+                  <BytemdViewer body={note.body || ""} />
+                  <div className="flex flex-wrap justify-end gap-2 py-4">
+                    {note.tags?.map((tag) => (
+                      <Badge key={tag.id}>{tag.name}</Badge>
+                    ))}
+                  </div>
+                  <div className="flex items-center justify-end text-sm text-muted-foreground">
+                    <span className="hidden lg:inline-block">
+                      {toSlashDateString(note.createdAt)}
+                    </span>
+                    <span className="mx-2 hidden lg:inline-block">·</span>
+                    <span>{toFromNow(note.createdAt)}</span>
+                  </div>
+                  <div className="absolute right-2 top-2 space-x-2">
+                    <ToggleNotePublishButton
+                      id={note.id}
+                      published={note.published}
+                      refreshAsync={getNotesQuery.refreshAsync}
+                    />
+                    <EditNoteButton
+                      id={note.id}
+                      refreshAsync={getNotesQuery.refreshAsync}
+                    />
+                    <DeleteNoteButton
+                      id={note.id}
+                      refreshAsync={getNotesQuery.refreshAsync}
+                    />
                   </div>
                 </div>
-              ))}
-        </Masonry>
-      </ResponsiveMasonry>
+              </div>
+            ))}
+      </div>
     </AdminContentLayout>
   );
 

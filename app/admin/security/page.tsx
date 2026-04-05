@@ -3,8 +3,7 @@
 import React from "react";
 
 import { useRequest } from "ahooks";
-import { format } from "date-fns";
-import { zhCN } from "date-fns/locale";
+import dayjs from "dayjs";
 import {
   AlertTriangle,
   MapPin,

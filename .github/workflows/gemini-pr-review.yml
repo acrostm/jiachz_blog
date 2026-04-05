@@ -1,0 +1,34 @@
+name: Gemini PR Review & Auto Approve
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review-and-approve:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      
+    steps:
+      - name: Code Review by Gemini
+        uses: anc95/ChatGPT-CodeReview@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          MODEL: gemini-1.5-pro-latest
+          # 借用 OPENAI_API_KEY 字段传入 Gemini 的 Token
+          OPENAI_API_KEY: ${{ secrets.GEMINI_API_KEY }} 
+
+      - name: Auto Approve PR
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+              event: 'APPROVE',
+              body: '✅ Gemini 已完成代码审查并自动批准此 PR。'
+            })

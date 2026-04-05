@@ -10,10 +10,15 @@ jobs:
   backup:
     runs-on: ubuntu-latest
     steps:
-      - name: Install PostgreSQL Client
+      - name: Install PostgreSQL 17 Client
         run: |
+          # 添加 PostgreSQL 官方仓库以获取最新版本 (17)
           sudo apt-get update
-          sudo apt-get install -y postgresql-client
+          sudo apt-get install -y wget gnupg
+          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+          echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get update
+          sudo apt-get install -y postgresql-client-17
 
       - name: Create Backup and Upload to R2
         env:
@@ -35,11 +40,12 @@ jobs:
           # 定义 R2 上的完整路径: database/YYYY-MM/filename.sql
           UPLOAD_PATH="database/${YEAR_MONTH}/${FILENAME}"
           
-          echo "Starting database dump for $FILENAME..."
-          pg_dump "$DATABASE_URL" --clean --if-exists > dump.sql
+          echo "Starting database dump for $FILENAME using pg_dump 17..."
+          # 明确使用 pg_dump 17 的路径
+          /usr/lib/postgresql/17/bin/pg_dump "$DATABASE_URL" --clean --if-exists > dump.sql
           
           echo "Uploading to R2 bucket '$R2_BUCKET' at path '$UPLOAD_PATH'..."
-          # 使用 aws-cli 上传，region 设为 auto 是 R2 的标准做法
+          # 使用 aws-cli 上传
           aws s3 cp dump.sql "s3://${R2_BUCKET}/${UPLOAD_PATH}" --endpoint-url $R2_ENDPOINT --region auto
           
           echo "✅ Backup successfully stored at: ${R2_BUCKET}/${UPLOAD_PATH}"

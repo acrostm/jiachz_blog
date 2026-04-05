@@ -4,7 +4,6 @@ import React from "react";
 
 import { type CellContext, type ColumnDef } from "@tanstack/react-table";
 import { useRequest, useSetState } from "ahooks";
-import dayjs from "dayjs";
 import {
   Activity,
   AlertCircle,
@@ -60,6 +59,7 @@ import { PageBreadcrumb } from "@/components/page-header";
 
 import { PATHS } from "@/constants";
 import { AdminContentLayout } from "@/features/admin";
+import { formatRelativeTime } from "@/lib/utils";
 import type {
   ActivityLogQueryParams,
   ActivityLogResponse,
@@ -154,11 +154,6 @@ const getStatusBadge = (status: string) => {
       <span>{config.label}</span>
     </Badge>
   );
-};
-
-const formatRelativeTime = (dateString: string) => {
-  const date = new Date(dateString);
-  return format(date, "MM-dd HH:mm", { locale: zhCN });
 };
 
 export const ActivityLogsPage = () => {

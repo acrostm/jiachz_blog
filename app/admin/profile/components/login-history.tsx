@@ -3,8 +3,6 @@
 import React, { useState } from "react";
 
 import { useRequest } from "ahooks";
-import { format } from "date-fns";
-import { zhCN } from "date-fns/locale";
 import {
   Calendar,
   ChevronDownIcon,
@@ -25,6 +23,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+
+import { formatRelativeTime } from "@/lib/utils";
 
 import type { UserActivityLog } from "@/lib/types/activity-log";
 
@@ -104,10 +104,6 @@ const getLoginMethodLabel = (metadata: string | null) => {
   } catch {
     return "未知";
   }
-};
-
-const formatRelativeTime = (dateString: string) => {
-  return dayjs(dateString).format("MM月DD日 HH:mm");
 };
 
 export function LoginHistory() {

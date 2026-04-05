@@ -9,6 +9,8 @@ export const POSTGRES_URL_NON_POOLING = process.env.POSTGRES_URL_NON_POOLING;
 export const KV_URL = process.env.KV_URL;
 
 // Optional legacy/local Redis variables
+// export const KV_URL = process.env.KV_URL;
+
 export const REDIS_HOST = process.env.REDIS_HOST;
 
 export const REDIS_PORT = process.env.REDIS_PORT;

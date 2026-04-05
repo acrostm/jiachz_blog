@@ -4,24 +4,38 @@ import { NODE_ENV, REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } from "@/config";
 
 import { REDIS_KEY_PREFIX } from "@/constants";
 
-const globalForRedis = global as unknown as { redis: RedisInstanceType };
+const globalForRedis = global as unknown as { redis: RedisInstanceType | null };
 
-export const redis =
-  globalForRedis.redis ??
-  new Redis({
-    host: REDIS_HOST || "",
+// 只有在配置了 REDIS_HOST 的情况下才创建真实的 Redis 实例
+const createRedisInstance = () => {
+  if (!REDIS_HOST) {
+    // 如果没有配置 Host，返回一个 Proxy 对象，调用任何方法都会报错，但会被业务逻辑的 try/catch 捕获
+    return new Proxy({} as RedisInstanceType, {
+      get: () => {
+        return () => {
+          throw new Error("Redis host is not configured. Skipping redis operation.");
+        };
+      },
+    });
+  }
+
+  const instance = new Redis({
+    host: REDIS_HOST,
     port: REDIS_PORT ? Number(REDIS_PORT) : 6379,
     password: REDIS_PASSWORD ?? "",
     keyPrefix: REDIS_KEY_PREFIX,
-    // 如果没有 host，直接设置为 0 次重试，让它报错而不是一直重试导致构建失败
-    maxRetriesPerRequest: REDIS_HOST ? 20 : 0,
-    // 允许在没有连接的情况下仍然能执行查询（虽然会报错，但不会阻塞）
-    enableOfflineQueue: false,
+    maxRetriesPerRequest: 5, // 正常运行时允许少量重试
+    enableOfflineQueue: false, // 不堆积离线指令
   });
 
-redis.on("error", (err) => {
-  // eslint-disable-next-line no-console
-  console.log("redis error: ", err);
-});
+  instance.on("error", (err) => {
+    // eslint-disable-next-line no-console
+    console.error("redis error: ", err);
+  });
+
+  return instance;
+};
+
+export const redis = (globalForRedis.redis ?? createRedisInstance()) as RedisInstanceType;
 
 if (NODE_ENV !== "production") globalForRedis.redis = redis;

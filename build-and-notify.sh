@@ -17,6 +17,9 @@ fi
 echo "Generating Prisma Client..."
 pnpm exec prisma generate
 
+echo "Pushing database schema..."
+pnpm exec prisma db push --accept-data-loss
+
 echo "Building Next.js project..."
 pnpm exec next build
 BUILD_STATUS=$?

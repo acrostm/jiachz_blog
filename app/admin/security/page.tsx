@@ -3,7 +3,6 @@
 import React from "react";
 
 import { useRequest } from "ahooks";
-import dayjs from "dayjs";
 import {
   AlertTriangle,
   MapPin,
@@ -22,6 +21,7 @@ import { PageBreadcrumb } from "@/components/page-header";
 
 import { PATHS } from "@/constants";
 import { AdminContentLayout } from "@/features/admin";
+import { formatRelativeTime } from "@/lib/utils";
 
 interface SuspiciousLogin {
   id: string;
@@ -104,22 +104,6 @@ const getLoginMethodBadge = (method: string) => {
 //   if (riskScore >= 40) return "text-yellow-600";
 //   return "text-green-600";
 // };
-
-const formatRelativeTime = (dateString: string) => {
-  const date = new Date(dateString);
-  const now = new Date();
-  const diffInMinutes = Math.floor(
-    (now.getTime() - date.getTime()) / (1000 * 60),
-  );
-
-  if (diffInMinutes < 60) {
-    return `${diffInMinutes}分钟前`;
-  } else if (diffInMinutes < 1440) {
-    return `${Math.floor(diffInMinutes / 60)}小时前`;
-  } else {
-    return format(date, "MM月dd日 HH:mm", { locale: zhCN });
-  }
-};
 
 export default function SecurityMonitorPage() {
   const { data, loading, error } = useRequest(fetchSuspiciousLogins);

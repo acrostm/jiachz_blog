@@ -17,8 +17,12 @@ fi
 echo "Generating Prisma Client..."
 pnpm exec prisma generate
 
-echo "Pushing database schema..."
-pnpm exec prisma db push --accept-data-loss
+if [ "${PRISMA_DB_PUSH_ACCEPT_DATA_LOSS:-false}" = "1" ] || [ "${PRISMA_DB_PUSH_ACCEPT_DATA_LOSS:-false}" = "true" ]; then
+  echo "PRISMA_DB_PUSH_ACCEPT_DATA_LOSS is enabled, pushing database schema..."
+  pnpm exec prisma db push --accept-data-loss
+else
+  echo "Skipping Prisma schema push during normal build. Set PRISMA_DB_PUSH_ACCEPT_DATA_LOSS=true to enable it explicitly."
+fi
 
 echo "Building Next.js project..."
 pnpm exec next build

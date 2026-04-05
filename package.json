@@ -53,6 +53,7 @@
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tooltip": "^1.2.8",
     "@tanstack/react-table": "^8.21.3",
+    "@vercel/analytics": "^2.0.1",
     "ahooks": "^3.9.7",
     "bcryptjs": "^2.4.3",
     "bytemd": "^1.22.0",

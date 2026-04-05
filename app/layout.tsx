@@ -4,6 +4,7 @@ import { type Metadata } from "next";
 import { Inter } from "next/font/google";
 
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { Analytics } from "@vercel/analytics/next";
 
 import { NODE_ENV } from "@/config";
 
@@ -86,6 +87,7 @@ export default function RootLayout({
       {/*TODO*/}
       {/* Google Analytics  */}
       {NODE_ENV === "production" && <GoogleAnalytics gaId="G-1MVP2JY3JG" />}
+      <Analytics />
     </html>
   );
 }

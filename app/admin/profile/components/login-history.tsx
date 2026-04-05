@@ -107,8 +107,7 @@ const getLoginMethodLabel = (metadata: string | null) => {
 };
 
 const formatRelativeTime = (dateString: string) => {
-  const date = new Date(dateString);
-  return format(date, "MM月dd日 HH:mm", { locale: zhCN });
+  return dayjs(dateString).format("MM月DD日 HH:mm");
 };
 
 export function LoginHistory() {

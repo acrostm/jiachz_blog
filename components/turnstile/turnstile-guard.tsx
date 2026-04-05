@@ -2,8 +2,6 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 
-import Aurora from "@/components/aurora";
-
 import TurnstileWidget from "./index";
 
 // Assuming index.tsx is the TurnstileWidget
@@ -183,24 +181,6 @@ const TurnstileGuard: React.FC<TurnstileGuardProps> = ({ children }) => {
 
   return (
     <div style={styles.container}>
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          zIndex: 0,
-          width: "100vw",
-          height: "100vh",
-          pointerEvents: "none",
-          overflow: "hidden",
-        }}
-      >
-        <Aurora
-          colorStops={["#3A29FF", "#FF94B4", "#FF3232"]}
-          blend={0.5}
-          amplitude={1.0}
-          speed={0.5}
-        />
-      </div>
       <div
         style={{
           position: "relative",

@@ -58,7 +58,7 @@ export class ExchangeRateService {
         return null;
       }
 
-      return entry.data as T;
+      return entry.data;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error("Cache read error:", error);
@@ -104,7 +104,7 @@ export class ExchangeRateService {
         throw new Error(`API request failed: ${response.status}`);
       }
 
-      const data = await response.json() as ConversionApiResponse;
+      const data = (await response.json()) as ConversionApiResponse;
 
       if (data.result !== "success") {
         throw new Error(data["error-type"] ?? "API request failed");
@@ -153,7 +153,7 @@ export class ExchangeRateService {
         throw new Error(`API request failed: ${response.status}`);
       }
 
-      const data = await response.json() as RatesApiResponse;
+      const data = (await response.json()) as RatesApiResponse;
 
       if ("success" !== data.result) {
         throw new Error(data["error-type"] ?? "API request failed");
@@ -287,7 +287,7 @@ export class ExchangeRateService {
         throw new Error(`API request failed: ${response.status}`);
       }
 
-      const data = await response.json() as HistoricalApiResponse;
+      const data = (await response.json()) as HistoricalApiResponse;
 
       if (data.result !== "success") {
         if (

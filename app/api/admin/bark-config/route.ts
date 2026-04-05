@@ -53,8 +53,7 @@ export async function POST(request: NextRequest) {
       enabled: body.enabled ?? true,
       defaultGroup: body.defaultGroup ?? "Blog",
       defaultCategory: body.defaultCategory ?? "通知",
-      defaultIcon:
-        body.defaultIcon ?? "https://r2.jiachz.com/jiachz-light.svg",
+      defaultIcon: body.defaultIcon ?? "https://r2.jiachz.com/jiachz-light.svg",
       defaultSound: body.defaultSound ?? "default",
       description: body.description,
     });

@@ -5,7 +5,6 @@ import React from "react";
 import Link from "next/link";
 
 import { useMount } from "ahooks";
-import { load } from "cheerio";
 
 import { type OptionItem } from "@/types";
 
@@ -13,23 +12,24 @@ export const MarkdownTOC = () => {
   const [tocList, setTocList] = React.useState<OptionItem<string>[]>([]);
 
   useMount(() => {
-    const markdownBodyElement = document.querySelector(".markdown-body")!;
-    const $ = load(markdownBodyElement.innerHTML);
-    const h2Elems = $("h2");
-    for (const h2 of h2Elems) {
-      const h2Element = $(h2);
-      const text = h2Element.text();
-      const id = h2Element.attr("id");
+    const markdownBodyElement = document.querySelector(".markdown-body");
+    if (!markdownBodyElement) return;
+
+    const h2Elems = markdownBodyElement.querySelectorAll("h2");
+    const newTocList: OptionItem<string>[] = [];
+
+    h2Elems.forEach((h2) => {
+      const text = h2.textContent;
+      const id = h2.getAttribute("id");
       if (text && id) {
-        setTocList((prev) => [
-          ...prev,
-          {
-            value: id,
-            label: text,
-          },
-        ]);
+        newTocList.push({
+          value: id,
+          label: text,
+        });
       }
-    }
+    });
+
+    setTocList(newTocList);
   });
 
   return (

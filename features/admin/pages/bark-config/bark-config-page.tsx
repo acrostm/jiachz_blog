@@ -29,7 +29,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { PageBreadcrumb } from "@/components/page-header";
 
 import { PATHS } from "@/constants";
-
 import type { BarkConfigItem } from "@/lib/bark-config";
 
 import { AdminContentLayout } from "../../components";
@@ -184,17 +183,17 @@ export const BarkConfigPage = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Bark通知配置</h1>
-            <p className="text-muted-foreground mt-2">
+            <p className="mt-2 text-muted-foreground">
               管理Bark通知服务配置，支持多个通知端点
             </p>
           </div>
           <div className="flex gap-2">
             <Button onClick={testNotification} variant="outline">
-              <Bell className="mr-2 h-4 w-4" />
+              <Bell className="mr-2 size-4" />
               测试通知
             </Button>
             <Button onClick={() => openDialog()}>
-              <Plus className="mr-2 h-4 w-4" />
+              <Plus className="mr-2 size-4" />
               添加配置
             </Button>
           </div>
@@ -202,7 +201,7 @@ export const BarkConfigPage = () => {
 
         {/* 配置列表 */}
         {loading ? (
-          <div className="text-center py-12">加载中...</div>
+          <div className="py-12 text-center">加载中...</div>
         ) : configs.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center text-muted-foreground">
@@ -240,14 +239,14 @@ export const BarkConfigPage = () => {
                         size="icon"
                         onClick={() => openDialog(config)}
                       >
-                        <Settings className="h-4 w-4" />
+                        <Settings className="size-4" />
                       </Button>
                       <Button
                         variant="outline"
                         size="icon"
                         onClick={() => deleteConfig(config.id)}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="size-4" />
                       </Button>
                     </div>
                   </div>
@@ -257,7 +256,7 @@ export const BarkConfigPage = () => {
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <span className="font-medium">URL:</span>{" "}
-                        <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                        <code className="rounded bg-muted px-1 py-0.5 text-xs">
                           {config.url}
                         </code>
                       </div>
@@ -278,7 +277,7 @@ export const BarkConfigPage = () => {
                     </div>
                     <div>
                       <span className="font-medium">默认图标:</span>{" "}
-                      <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                      <code className="rounded bg-muted px-1 py-0.5 text-xs">
                         {config.defaultIcon}
                       </code>
                     </div>
@@ -291,7 +290,7 @@ export const BarkConfigPage = () => {
 
         {/* 新增/编辑对话框 */}
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
             <DialogHeader>
               <DialogTitle>
                 {editingConfig ? "编辑配置" : "添加配置"}
@@ -389,8 +388,7 @@ export const BarkConfigPage = () => {
                   placeholder="default"
                 />
                 <p className="text-xs text-muted-foreground">
-                  常用音效: default, bell.caf, shake.caf, ladder.caf,
-                  alert.caf
+                  常用音效: default, bell.caf, shake.caf, ladder.caf, alert.caf
                 </p>
               </div>
 

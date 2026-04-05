@@ -2,11 +2,7 @@
  * Reusable notification module for Bark notifications
  * Supports various notification parameters and types
  */
-
-import {
-  getEnabledBarkConfigs,
-  type BarkConfigItem,
-} from "./bark-config";
+import { type BarkConfigItem, getEnabledBarkConfigs } from "./bark-config";
 
 export interface BarkNotificationOptions {
   title: string;

@@ -91,45 +91,55 @@ export const getBlogs = async (params: GetBlogsDTO) => {
 };
 
 export const getPublishedBlogs = async () => {
-  const blogs = await prisma.blog.findMany({
-    orderBy: {
-      createdAt: "desc",
-    },
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      description: true,
-      body: true,
-      published: true,
-      cover: true,
-      author: true,
-      creatorIp: true,
-      creatorLocation: true,
-      createdAt: true,
-      updatedAt: true,
-      tags: true,
-    },
-    where: {
-      published: true,
-    },
-  });
+  try {
+    const blogs = await prisma.blog.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        body: true,
+        published: true,
+        cover: true,
+        author: true,
+        creatorIp: true,
+        creatorLocation: true,
+        createdAt: true,
+        updatedAt: true,
+        tags: true,
+      },
+      where: {
+        published: true,
+      },
+    });
 
-  const count = await prisma.blog.count({
-    where: {
-      published: true,
-    },
-  });
+    const count = await prisma.blog.count({
+      where: {
+        published: true,
+      },
+    });
 
-  const total = count ?? 0;
+    const total = count ?? 0;
 
-  const m = await batchGetBlogUV(blogs?.map((el) => el.id));
+    const m = await batchGetBlogUV(blogs?.map((el) => el.id));
 
-  return {
-    blogs,
-    total,
-    uvMap: isUndefined(m) ? undefined : Object.fromEntries(m),
-  };
+    return {
+      blogs,
+      total,
+      uvMap: isUndefined(m) ? undefined : Object.fromEntries(m),
+    };
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.warn("Failed to fetch published blogs from DB:", error);
+    return {
+      blogs: [],
+      total: 0,
+      uvMap: undefined,
+    };
+  }
 };
 
 export const getBlogByID = async (id: string) => {
@@ -156,26 +166,32 @@ export const getBlogByID = async (id: string) => {
 };
 
 export const getPublishedBlogBySlug = async (slug: string) => {
-  const blog = await prisma.blog.findUnique({
-    where: { slug, published: true },
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      description: true,
-      body: true,
-      published: true,
-      cover: true,
-      author: true,
-      creatorIp: true,
-      creatorLocation: true,
-      createdAt: true,
-      updatedAt: true,
-      tags: true,
-    },
-  });
+  try {
+    const blog = await prisma.blog.findUnique({
+      where: { slug, published: true },
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        description: true,
+        body: true,
+        published: true,
+        cover: true,
+        author: true,
+        creatorIp: true,
+        creatorLocation: true,
+        createdAt: true,
+        updatedAt: true,
+        tags: true,
+      },
+    });
 
-  return { blog };
+    return { blog };
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.warn(`Failed to fetch published blog by slug ${slug}:`, error);
+    return { blog: null };
+  }
 };
 
 export const deleteBlogByID = async (id: string) => {

@@ -1,23 +1,58 @@
 import Redis, { type Redis as RedisInstanceType } from "ioredis";
 
-import { NODE_ENV, REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } from "@/config";
+import { KV_URL, NODE_ENV, REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } from "@/config";
 
 import { REDIS_KEY_PREFIX } from "@/constants";
 
-const globalForRedis = global as unknown as { redis: RedisInstanceType };
+const globalForRedis = global as unknown as { redis: RedisInstanceType | null };
 
-export const redis =
-  globalForRedis.redis ??
-  new Redis({
-    host: REDIS_HOST ?? "127.0.0.1",
+// 只有在配置了 KV_URL 或 REDIS_HOST 的情况下才创建真实的 Redis 实例
+const createRedisInstance = () => {
+  if (!KV_URL && !REDIS_HOST) {
+    // 如果没有配置，返回一个 Proxy 对象，调用任何方法都会报错，但会被业务逻辑的 try/catch 捕获
+    return new Proxy({} as RedisInstanceType, {
+      get: () => {
+        return () => {
+          throw new Error("Redis host/URL is not configured. Skipping redis operation.");
+        };
+      },
+    });
+  }
+
+  // 优先使用 Vercel KV 自动注入的连接字符串
+  if (KV_URL) {
+    const instance = new Redis(KV_URL, {
+      keyPrefix: REDIS_KEY_PREFIX,
+      maxRetriesPerRequest: 5,
+      enableOfflineQueue: false,
+    });
+
+    instance.on("error", (err) => {
+      // eslint-disable-next-line no-console
+      console.error("Vercel KV redis error: ", err);
+    });
+
+    return instance;
+  }
+
+  // 降级使用原本的离线自建 Redis 配置
+  const instance = new Redis({
+    host: REDIS_HOST,
     port: REDIS_PORT ? Number(REDIS_PORT) : 6379,
     password: REDIS_PASSWORD ?? "",
     keyPrefix: REDIS_KEY_PREFIX,
+    maxRetriesPerRequest: 5,
+    enableOfflineQueue: false,
   });
 
-redis.on("error", (err) => {
-  // eslint-disable-next-line no-console
-  console.log("redis error: ", err);
-});
+  instance.on("error", (err) => {
+    // eslint-disable-next-line no-console
+    console.error("redis error: ", err);
+  });
+
+  return instance;
+};
+
+export const redis = (globalForRedis.redis ?? createRedisInstance()) as RedisInstanceType;
 
 if (NODE_ENV !== "production") globalForRedis.redis = redis;

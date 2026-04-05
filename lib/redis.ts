@@ -6,6 +6,34 @@ import { REDIS_KEY_PREFIX } from "@/constants";
 
 const globalForRedis = global as unknown as { redis: RedisInstanceType | null };
 
+/**
+ * Creates a Redis instance prioritizing Vercel KV_URL.
+ * If no configuration is available, returns a Proxy that throws errors
+ * which are handled by the business logic's try/catch blocks.
+ */
+const createRedisInstance = () => {
+  // 1. Prioritize Vercel KV (automatically injected in Vercel environment)
+  if (KV_URL) {
+    const instance = new Redis(KV_URL, {
+      keyPrefix: REDIS_KEY_PREFIX,
+      maxRetriesPerRequest: 5,
+      enableOfflineQueue: false,
+    });
+
+    instance.on("error", (err) => {
+      // eslint-disable-next-line no-console
+      console.error("Vercel KV redis error: ", err);
+    });
+
+    return instance;
+  }
+
+  // 2. Fallback to legacy/local REDIS_HOST (manual configuration or local dev)
+  if (REDIS_HOST) {
+    const instance = new Redis({
+      host: REDIS_HOST,
+      port: REDIS_PORT ? Number(REDIS_PORT) : 6379,
+      password: REDIS_PASSWORD ?? "",
 // 只有在配置了 KV_URL 或 REDIS_HOST 的情况下才创建真实的 Redis 实例
 const createRedisInstance = () => {
   if (!KV_URL && !REDIS_HOST) {
@@ -35,6 +63,17 @@ const createRedisInstance = () => {
     return instance;
   }
 
+  // 3. Silent Proxy Mode: For build-time or environments without Redis
+  // Returns a proxy that throws an error on any call, which is then caught by business logic.
+  return new Proxy({} as RedisInstanceType, {
+    get: (target, prop) => {
+      // Allow internal checks or methods that shouldn't crash
+      if (prop === "on" || prop === "quit") return () => {};
+      
+      return () => {
+        throw new Error(`Redis not configured. Skipping operation: ${String(prop)}`);
+      };
+    },
   // 降级使用原本的离线自建 Redis 配置
   const instance = new Redis({
     host: REDIS_HOST,
@@ -44,6 +83,7 @@ const createRedisInstance = () => {
     maxRetriesPerRequest: 5,
     enableOfflineQueue: false,
   });
+};
 
   instance.on("error", (err) => {
     // eslint-disable-next-line no-console

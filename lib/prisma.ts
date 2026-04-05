@@ -1,6 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 
-import { DATABASE_URL, NODE_ENV } from "@/config";
+import { DATABASE_URL, NODE_ENV, POSTGRES_PRISMA_URL } from "@/config";
 
 // PrismaClient is attached to the `global` object in development to prevent
 // exhausting your database connection limit.
@@ -10,10 +10,13 @@ import { DATABASE_URL, NODE_ENV } from "@/config";
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
+// Prioritize POSTGRES_PRISMA_URL (Vercel pooled connection) over DATABASE_URL
+const datasourceUrl = POSTGRES_PRISMA_URL || DATABASE_URL;
+
 export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient({
-    datasourceUrl: DATABASE_URL,
+    datasourceUrl,
     log:
       NODE_ENV === "development"
         ? // ? ['query', 'info', 'warn', 'error']

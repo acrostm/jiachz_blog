@@ -20,18 +20,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
 
-import {
-  IconBrandGithub,
-  IconLogoKuma,
-  IconLogoUmami,
-} from "@/components/icons";
+import { IconBrandGithub } from "@/components/icons";
 
 import { NICKNAME, PATHS, SOURCE_CODE_GITHUB_PAGE, WEBSITE } from "@/constants";
 import { SignOutDialog } from "@/features/auth";
@@ -74,76 +67,17 @@ export const Navbar = () => {
             <NavigationMenuList>
               {navItems.map((el) => (
                 <NavigationMenuItem key={el.link}>
-                  {el.external ? (
-                    <>
-                      <NavigationMenuTrigger
-                        className={cn(
-                          "font-normal text-sm text-muted-foreground transition-colors",
-                          "hover:font-semibold hover:text-primary",
-                          "bg-transparent hover:bg-transparent focus:bg-transparent data-[state=open]:bg-transparent",
-                          pathname.startsWith(el.link) &&
-                            "font-semibold text-primary",
-                        )}
-                      >
-                        {el.label}
-                      </NavigationMenuTrigger>
-                      <NavigationMenuContent>
-                        <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                          <li className="row-span-3">
-                            <NavigationMenuLink asChild>
-                              <Link
-                                className="flex size-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                                href={`https://kuma.jiachz.com/status/1`}
-                                target="_blank"
-                                rel="noreferrer"
-                              >
-                                <IconLogoKuma className="size-20" />
-                                <div className="mb-2 mt-4 text-lg font-medium">
-                                  Uptime Kuma
-                                </div>
-                                <p className="text-sm leading-tight text-muted-foreground">
-                                  服务监控
-                                </p>
-                              </Link>
-                            </NavigationMenuLink>
-                          </li>
-                          <LabItem
-                            href={`https://umami.jiachz.com/share/nqldEpCopR9BMfLj/jiachz.com`}
-                            target="_blank"
-                            title={
-                              <div className="flex items-center">
-                                <IconLogoUmami className="mr-2 size-4" />
-                                <span>Umami</span>
-                              </div>
-                            }
-                          >
-                            流量监控
-                          </LabItem>
-                          <LabItem href="/messages" title="留言板">
-                            来留言！
-                          </LabItem>
-                          <LabItem
-                            href={PATHS.CURRENCY_CONVERTER}
-                            title="汇率转换器"
-                          >
-                            实时汇率转换，支持多种货币互换
-                          </LabItem>
-                        </ul>
-                      </NavigationMenuContent>
-                    </>
-                  ) : (
-                    <Link
-                      href={el.link}
-                      className={cn(
-                        "font-normal text-sm text-muted-foreground transition-colors px-3 py-2 rounded-md",
-                        "hover:font-semibold hover:text-primary",
-                        "bg-transparent hover:bg-transparent focus:bg-transparent",
-                        pathname === el.link && "font-semibold text-primary",
-                      )}
-                    >
-                      {el.label}
-                    </Link>
-                  )}
+                  <Link
+                    href={el.link}
+                    className={cn(
+                      "font-normal text-sm text-muted-foreground transition-colors px-3 py-2 rounded-md",
+                      "hover:font-semibold hover:text-primary",
+                      "bg-transparent hover:bg-transparent focus:bg-transparent",
+                      pathname === el.link && "font-semibold text-primary",
+                    )}
+                  >
+                    {el.label}
+                  </Link>
                 </NavigationMenuItem>
               ))}
             </NavigationMenuList>
@@ -225,33 +159,3 @@ export const Navbar = () => {
     </header>
   );
 };
-
-const LabItem = React.forwardRef<
-  React.ElementRef<"a">,
-  Omit<React.ComponentPropsWithoutRef<"a">, "title"> & {
-    title: React.ReactNode;
-  }
->(({ className, title, children, ...props }, ref) => {
-  return (
-    <li>
-      <NavigationMenuLink asChild>
-        <a
-          ref={ref}
-          className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors",
-            "hover:text-accent-foreground focus:text-accent-foreground",
-            "bg-transparent hover:bg-transparent focus:bg-transparent",
-            className,
-          )}
-          {...props}
-        >
-          <div className="text-sm font-medium leading-none">{title}</div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-            {children}
-          </p>
-        </a>
-      </NavigationMenuLink>
-    </li>
-  );
-});
-LabItem.displayName = "LabItem";

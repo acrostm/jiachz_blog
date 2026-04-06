@@ -8,6 +8,4 @@ export * from "./icon-logo-zsh";
 export * from "./icon-logo-vscode";
 export * from "./icon-logo-webstorm";
 export * from "./icon-logo-spinner";
-export * from "./icon-logo-kuma";
-export * from "./icon-logo-umami";
 export * from "./icon-logo-cloudflare";

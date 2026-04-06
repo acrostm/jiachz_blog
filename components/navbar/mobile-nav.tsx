@@ -5,13 +5,7 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import {
-  ChevronDown,
-  ChevronRight,
-  EggFried,
-  MenuIcon,
-  UserCog,
-} from "lucide-react";
+import { MenuIcon, UserCog } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -32,8 +26,6 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 
-import { IconLogoUmami } from "@/components/icons";
-
 import { PATHS, SLOGAN, WEBSITE } from "@/constants";
 import { SignOutDialog } from "@/features/auth";
 import { useAuth } from "@/hooks/use-auth";
@@ -44,7 +36,6 @@ import { navItems } from "./config";
 export const MobileNav = () => {
   const pathname = usePathname();
   const [open, setOpen] = React.useState(false);
-  const [subMenuOpen, setSubMenuOpen] = React.useState(false);
   const { user, isAuthenticated } = useAuth();
   const [signOutOpen, setSignOutOpen] = React.useState(false);
 
@@ -68,159 +59,22 @@ export const MobileNav = () => {
         <div className="grid gap-4 pt-8">
           {navItems.map((el) => (
             <div key={el.link}>
-              {el.external ? (
-                <div>
-                  <Button
-                    variant="ghost"
-                    className={cn(
-                      "text-md px-4 py-2 flex gap-2 items-center !justify-between w-full",
-                      pathname.startsWith(el.link) && "bg-white text-black",
-                    )}
-                    onClick={() => setSubMenuOpen(!subMenuOpen)}
-                  >
-                    {el.label}
-                    {subMenuOpen ? (
-                      <ChevronDown className="size-4" />
-                    ) : (
-                      <ChevronRight className="size-4" />
-                    )}
-                  </Button>
-                  <div
-                    className={cn(
-                      "overflow-hidden transition-all duration-300 ease-in-out",
-                      subMenuOpen
-                        ? "max-h-[1000px] opacity-100"
-                        : "max-h-0 opacity-0",
-                    )}
-                  >
-                    <div
-                      className={cn(
-                        "ml-4 transition-all duration-300 ease-in-out",
-                        subMenuOpen ? "translate-y-0" : "-translate-y-full",
-                      )}
-                    >
-                      <Link
-                        href={`https://kuma.jiachz.com/status/1`}
-                        target={"_blank"}
-                        className={cn(
-                          buttonVariants({
-                            variant:
-                              pathname ===
-                              `${el.link.toLowerCase().replace(" ", "-")}`
-                                ? "default"
-                                : "ghost",
-                          }),
-                          "text-md px-4 py-2 flex gap-2 items-center !justify-start w-full",
-                        )}
-                        onClick={() => {
-                          setOpen(false);
-                          setSubMenuOpen(false);
-                        }}
-                      >
-                        <EggFried
-                          color="#8bdb99"
-                          width={16}
-                          height={16}
-                          className={"mr-2"}
-                        />
-                        Uptime Kuma
-                      </Link>
-                      <Link
-                        href={`https://umami.jiachz.com/share/nqldEpCopR9BMfLj/jiachz.com`}
-                        target={"_blank"}
-                        className={cn(
-                          buttonVariants({
-                            variant:
-                              pathname ===
-                              `${el.link.toLowerCase().replace(" ", "-")}`
-                                ? "default"
-                                : "ghost",
-                          }),
-                          "text-md px-4 py-2 flex gap-2 items-center !justify-start w-full",
-                        )}
-                        onClick={() => {
-                          setOpen(false);
-                          setSubMenuOpen(false);
-                        }}
-                      >
-                        <IconLogoUmami className="mr-2 size-4" />
-                        Umami
-                      </Link>
-                      <Link
-                        href={`/coming-soon`}
-                        className={cn(
-                          buttonVariants({
-                            variant:
-                              pathname ===
-                              `${el.link.toLowerCase().replace(" ", "-")}`
-                                ? "default"
-                                : "ghost",
-                          }),
-                          "text-md px-4 py-2 flex gap-2 items-center !justify-start w-full",
-                        )}
-                        onClick={() => {
-                          setOpen(false);
-                        }}
-                      >
-                        Project 2
-                      </Link>
-                      <Link
-                        href={PATHS.CURRENCY_CONVERTER}
-                        className={cn(
-                          buttonVariants({
-                            variant:
-                              pathname === PATHS.CURRENCY_CONVERTER
-                                ? "default"
-                                : "ghost",
-                          }),
-                          "text-md px-4 py-2 flex gap-2 items-center !justify-start w-full",
-                        )}
-                        onClick={() => {
-                          setOpen(false);
-                        }}
-                      >
-                        <span className="text-lg">💱</span>
-                        汇率转换器
-                      </Link>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <Link
-                  href={el.link}
-                  className={cn(
-                    buttonVariants({
-                      variant: pathname === el.link ? "default" : "ghost",
-                    }),
-                    "text-md px-4 py-2 flex gap-2 items-center !justify-start w-full",
-                  )}
-                  onClick={() => {
-                    setOpen(false);
-                    setSubMenuOpen(false);
-                  }}
-                >
-                  {el.label}
-                </Link>
-              )}
+              <Link
+                href={el.link}
+                className={cn(
+                  buttonVariants({
+                    variant: pathname === el.link ? "default" : "ghost",
+                  }),
+                  "text-md px-4 py-2 flex gap-2 items-center !justify-start w-full",
+                )}
+                onClick={() => {
+                  setOpen(false);
+                }}
+              >
+                {el.label}
+              </Link>
             </div>
           ))}
-          {/* 留言板入口 */}
-          <Link
-            href="/messages"
-            className={cn(
-              buttonVariants({
-                variant: pathname === "/messages" ? "default" : "ghost",
-              }),
-              "text-md px-4 py-2 flex gap-2 items-center !justify-start w-full",
-            )}
-            onClick={() => {
-              setOpen(false);
-              setSubMenuOpen(false);
-            }}
-          >
-            <span className="text-lg">💬</span>
-            <span>留言板</span>
-          </Link>
           {/* 后台管理/用户菜单 */}
           <div className="mt-4 border-t pt-4">
             <DropdownMenu>

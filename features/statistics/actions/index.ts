@@ -14,33 +14,28 @@ import { redis } from "@/lib/redis";
 export const recordPV = async () => {
   try {
     const todayKey = dayjs().format("YYYY-MM-DD");
-    await redis.incr(`${REDIS_PAGE_VIEW_TODAY}:${todayKey}`);
-
-    const pv = await redis.get(REDIS_PAGE_VIEW);
-
-    if (pv) {
-      await redis.incr(REDIS_PAGE_VIEW);
-    } else {
-      await redis.set(REDIS_PAGE_VIEW, 1);
-    }
+    // incr handles initialization automatically (starts at 1)
+    await Promise.all([
+      redis.incr(`${REDIS_PAGE_VIEW_TODAY}:${todayKey}`),
+      redis.incr(REDIS_PAGE_VIEW),
+    ]);
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.warn("Failed to record PV:", error);
+    console.warn("Failed to record PV:", error instanceof Error ? error.message : error);
   }
 };
 
 export const getSiteStatistics = async () => {
   try {
-    // 总
-    const pv = await redis.get(REDIS_PAGE_VIEW);
-    const uv = await redis.scard(REDIS_UNIQUE_VISITOR);
-
-    // 今日
     const todayKey = dayjs().format("YYYY-MM-DD");
-    const todayPV = await redis.get(`${REDIS_PAGE_VIEW_TODAY}:${todayKey}`);
-    const todayUV = await redis.scard(
-      `${REDIS_UNIQUE_VISITOR_TODAY}:${todayKey}`,
-    );
+
+    // Fetch all statistics in parallel for better performance
+    const [pv, uv, todayPV, todayUV] = await Promise.all([
+      redis.get(REDIS_PAGE_VIEW),
+      redis.scard(REDIS_UNIQUE_VISITOR),
+      redis.get(`${REDIS_PAGE_VIEW_TODAY}:${todayKey}`),
+      redis.scard(`${REDIS_UNIQUE_VISITOR_TODAY}:${todayKey}`),
+    ]);
 
     return {
       pv: pv ? Number(pv) : 0,
@@ -50,7 +45,7 @@ export const getSiteStatistics = async () => {
     };
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.warn("Failed to fetch site statistics from Redis:", error);
+    console.warn("Failed to fetch site statistics from Redis:", error instanceof Error ? error.message : error);
     return { pv: 0, uv: 0, todayUV: 0, todayPV: 0 };
   }
 };
@@ -62,11 +57,13 @@ export const recordUV = async (cid?: string) => {
 
   try {
     const todayKey = dayjs().format("YYYY-MM-DD");
-    await redis.sadd(`${REDIS_UNIQUE_VISITOR_TODAY}:${todayKey}`, cid);
-    await redis.sadd(REDIS_UNIQUE_VISITOR, cid);
+    await Promise.all([
+      redis.sadd(`${REDIS_UNIQUE_VISITOR_TODAY}:${todayKey}`, cid),
+      redis.sadd(REDIS_UNIQUE_VISITOR, cid),
+    ]);
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.warn("Failed to record UV:", error);
+    console.warn("Failed to record UV:", error instanceof Error ? error.message : error);
   }
 };
 
@@ -74,52 +71,35 @@ export const recordBlogUV = async (blogID?: string, cid?: string) => {
   if (!blogID || !cid) {
     return;
   }
+
   try {
     await redis.sadd(`${REDIS_BLOG_UNIQUE_VISITOR}:${blogID}`, cid);
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.warn(`Failed to record blog UV for ${blogID}:`, error);
+    console.warn("Failed to record Blog UV:", error instanceof Error ? error.message : error);
   }
 };
 
-export const getBlogUV = async (blogID?: string) => {
-  if (!blogID) {
-    return 0;
-  }
+export const getBlogUV = async (blogID: string) => {
   try {
     const uv = await redis.scard(`${REDIS_BLOG_UNIQUE_VISITOR}:${blogID}`);
     return uv || 0;
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.warn(`Failed to fetch blog UV for ${blogID}:`, error);
+    console.warn("Failed to fetch Blog UV from Redis:", error instanceof Error ? error.message : error);
     return 0;
   }
 };
 
-export const batchGetBlogUV = async (blogIDs?: string[]) => {
-  if (!blogIDs?.length) {
-    return new Map<string, number>();
-  }
-
-  const m = new Map<string, number>();
-
+export const getBlogsUV = async (blogIDs: string[]) => {
   try {
     const uvs = await Promise.all(
       blogIDs.map((el) => redis.scard(`${REDIS_BLOG_UNIQUE_VISITOR}:${el}`)),
     );
-    let idx = 0;
-    for (const uv of uvs) {
-      m.set(blogIDs[idx]!, uv || 0);
-      idx++;
-    }
+    return uvs.map((uv) => uv || 0);
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.warn("Failed to fetch batch blog UVs:", error);
-    // Return empty counts as fallback
-    for (const blogID of blogIDs) {
-      m.set(blogID, 0);
-    }
+    console.warn("Failed to fetch Blogs UV from Redis:", error instanceof Error ? error.message : error);
+    return blogIDs.map(() => 0);
   }
-
-  return m;
 };

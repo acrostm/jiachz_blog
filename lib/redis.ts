@@ -12,39 +12,51 @@ const globalForRedis = global as unknown as { redis: RedisInstanceType | null };
  * which are handled by the business logic's try/catch blocks.
  */
 const createRedisInstance = () => {
-  // 1. Prioritize Vercel KV (automatically injected in Vercel environment)
-  if (KV_URL) {
-    const instance = new Redis(KV_URL, {
-      keyPrefix: REDIS_KEY_PREFIX,
-      maxRetriesPerRequest: 5,
-      enableOfflineQueue: false,
-    });
+  try {
+    // 1. Prioritize Vercel KV or Upstash URL (automatically injected in Vercel environment or integration)
+    const redisUrl = KV_URL || process.env.REDIS_URL || process.env.UPSTASH_REDIS_URL;
+    
+    if (redisUrl) {
+      // ioredis automatically handles rediss:// for TLS
+      const instance = new Redis(redisUrl, {
+        keyPrefix: REDIS_KEY_PREFIX,
+        maxRetriesPerRequest: 5,
+        enableOfflineQueue: false,
+        connectTimeout: 10000, // 10s timeout
+      });
 
-    instance.on("error", (err) => {
-      // eslint-disable-next-line no-console
-      console.error("Vercel KV redis error: ", err);
-    });
+      instance.on("error", (err) => {
+        // eslint-disable-next-line no-console
+        console.error("Vercel KV/Redis error: ", err);
+      });
 
-    return instance;
-  }
+      return instance;
+    }
 
-  // 2. Fallback to legacy/local REDIS_HOST (manual configuration or local dev)
-  if (REDIS_HOST) {
-    const instance = new Redis({
-      host: REDIS_HOST,
-      port: REDIS_PORT ? Number(REDIS_PORT) : 6379,
-      password: REDIS_PASSWORD ?? "",
-      keyPrefix: REDIS_KEY_PREFIX,
-      maxRetriesPerRequest: 5,
-      enableOfflineQueue: false,
-    });
+    // 2. Fallback to legacy/local REDIS_HOST (manual configuration or local dev)
+    if (REDIS_HOST) {
+      const instance = new Redis({
+        host: REDIS_HOST,
+        port: REDIS_PORT ? Number(REDIS_PORT) : 6379,
+        password: REDIS_PASSWORD ?? "",
+        keyPrefix: REDIS_KEY_PREFIX,
+        maxRetriesPerRequest: 5,
+        enableOfflineQueue: false,
+        connectTimeout: 10000,
+        // If it's a remote connection and not local, we might need TLS
+        tls: REDIS_HOST !== "127.0.0.1" && REDIS_HOST !== "localhost" ? {} : undefined,
+      });
 
-    instance.on("error", (err) => {
-      // eslint-disable-next-line no-console
-      console.error("redis error: ", err);
-    });
+      instance.on("error", (err) => {
+        // eslint-disable-next-line no-console
+        console.error("redis error: ", err);
+      });
 
-    return instance;
+      return instance;
+    }
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to initialize Redis client:", error);
   }
 
   // 3. Silent Proxy Mode: For build-time or environments without Redis
@@ -55,12 +67,11 @@ const createRedisInstance = () => {
       if (prop === "on" || prop === "quit" || prop === "then") return () => {};
       
       return () => {
-        throw new Error(`Redis not configured. Skipping operation: ${String(prop)}`);
+        throw new Error(`Redis not configured. Missing KV_URL, REDIS_URL, or REDIS_HOST. Skipping operation: ${String(prop)}`);
       };
     },
   });
 };
 
-export const redis = (globalForRedis.redis ?? createRedisInstance()) as RedisInstanceType;
-
-if (NODE_ENV !== "production") globalForRedis.redis = redis;
+// Reuse connection in both dev and prod to avoid hitting connection limits in serverless
+export const redis = (globalForRedis.redis || (globalForRedis.redis = createRedisInstance())) as RedisInstanceType;

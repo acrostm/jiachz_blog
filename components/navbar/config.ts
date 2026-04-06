@@ -21,11 +21,6 @@ export const navItems: Array<{
     external: false,
   },
   {
-    label: PATHS_MAP[PATHS.SITE_COMING],
-    link: PATHS.SITE_COMING,
-    external: true,
-  },
-  {
     label: PATHS_MAP[PATHS.SITE_ABOUT],
     link: PATHS.SITE_ABOUT,
     external: false,

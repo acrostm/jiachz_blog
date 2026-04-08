@@ -1,5 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 
+import { checkBotId } from "botid/server";
+
 import { auth } from "@/lib/auth";
 import { notifyNewMessage } from "@/lib/notification";
 import { prisma } from "@/lib/prisma";
@@ -76,6 +78,11 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
+    const { isBot, isVerifiedBot } = await checkBotId();
+    if (isBot && !isVerifiedBot) {
+      return NextResponse.json({ error: "Access Denied" }, { status: 403 });
+    }
+
     const session = await auth();
     const body = (await req.json()) as { content?: string };
     const content = (body.content ?? "").trim();

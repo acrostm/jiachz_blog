@@ -5,6 +5,7 @@ import GoogleProvider from "next-auth/providers/google";
 
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import bcrypt from "bcryptjs";
+import { checkBotId } from "botid/server";
 
 import { NODE_ENV } from "@/config";
 
@@ -40,6 +41,15 @@ export const { handlers, auth, signOut, signIn } = NextAuth({
         password: { label: "密码", type: "password" },
       },
       async authorize(credentials) {
+        try {
+          const { isBot, isVerifiedBot } = await checkBotId();
+          if (isBot && !isVerifiedBot) {
+            throw new Error("Bot detected");
+          }
+        } catch (e: any) {
+          if (e.message === "Bot detected") throw e;
+        }
+
         const email = credentials?.email as string;
         const password = credentials?.password as string;
 

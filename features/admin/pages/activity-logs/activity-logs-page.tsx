@@ -59,7 +59,6 @@ import { PageBreadcrumb } from "@/components/page-header";
 
 import { PATHS } from "@/constants";
 import { AdminContentLayout } from "@/features/admin";
-import { formatRelativeTime } from "@/lib/utils";
 import type {
   ActivityLogQueryParams,
   ActivityLogResponse,
@@ -70,6 +69,7 @@ import {
   ACTIVITY_TYPE_LABELS,
   RESOURCE_TYPE_LABELS,
 } from "@/lib/types/activity-log";
+import { formatRelativeTime } from "@/lib/utils";
 
 const fetchActivityLogs = async (
   params: ActivityLogQueryParams,

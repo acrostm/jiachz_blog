@@ -4,7 +4,7 @@ import { type Prisma } from "@prisma/client";
 import { isUndefined } from "lodash-es";
 
 import { ERROR_NO_PERMISSION, PUBLISHED_MAP } from "@/constants";
-import { batchGetBlogUV } from "@/features/statistics";
+import { getBlogsUV } from "@/features/statistics";
 import { noPermission } from "@/features/user";
 import { notifyNewBlogCreated } from "@/lib/notification";
 import { prisma } from "@/lib/prisma";
@@ -124,12 +124,16 @@ export const getPublishedBlogs = async () => {
 
     const total = count ?? 0;
 
-    const m = await batchGetBlogUV(blogs?.map((el) => el.id));
+    const m = await getBlogsUV(blogs?.map((el) => el.id) || []);
+    const uvMap = new Map<string, number>();
+    blogs?.forEach((blog, idx) => {
+      uvMap.set(blog.id, m[idx] || 0);
+    });
 
     return {
       blogs,
       total,
-      uvMap: isUndefined(m) ? undefined : Object.fromEntries(m),
+      uvMap: Object.fromEntries(uvMap),
     };
   } catch (error) {
     // eslint-disable-next-line no-console

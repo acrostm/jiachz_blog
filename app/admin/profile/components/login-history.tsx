@@ -24,9 +24,8 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 
-import { formatRelativeTime } from "@/lib/utils";
-
 import type { UserActivityLog } from "@/lib/types/activity-log";
+import { formatRelativeTime } from "@/lib/utils";
 
 // API响应类型
 interface LoginHistoryResponse {

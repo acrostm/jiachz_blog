@@ -1,6 +1,12 @@
 import Redis, { type Redis as RedisInstanceType } from "ioredis";
 
-import { KV_URL, NODE_ENV, REDIS_HOST, REDIS_PASSWORD, REDIS_PORT } from "@/config";
+import {
+  KV_URL,
+  NODE_ENV,
+  REDIS_HOST,
+  REDIS_PASSWORD,
+  REDIS_PORT,
+} from "@/config";
 
 import { REDIS_KEY_PREFIX } from "@/constants";
 
@@ -65,7 +71,7 @@ const createRedisInstance = () => {
     get: (target, prop) => {
       // Allow internal checks or methods that shouldn't crash
       if (prop === "on" || prop === "quit" || prop === "then") return () => {};
-      
+
       return () => {
         throw new Error(`Redis not configured. Missing KV_URL, REDIS_URL, or REDIS_HOST. Skipping operation: ${String(prop)}`);
       };

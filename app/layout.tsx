@@ -6,6 +6,7 @@ import { Inter } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { BotIdClient } from "botid/react";
 
 import { NODE_ENV } from "@/config";
 
@@ -44,6 +45,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <head>
+        <BotIdClient protect={["/api/auth/callback/credentials", "/api/message-board", "/api/auth/register"]} />
         <link rel="icon" type="image/svg+xml" href={ImageAssets.logoDark} />
         {/*TODO*/}
         {/* Google Search Console 验证 */}

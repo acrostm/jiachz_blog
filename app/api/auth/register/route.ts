@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 
 import bcrypt from "bcryptjs";
+import { checkBotId } from "botid/server";
 
 import { activityLogger } from "@/lib/activity-logger";
 import { notifyNewUserRegistered } from "@/lib/notification";
@@ -8,6 +9,11 @@ import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
   try {
+    const { isBot, isVerifiedBot } = await checkBotId();
+    if (isBot && !isVerifiedBot) {
+      return NextResponse.json({ message: "Access Denied" }, { status: 403 });
+    }
+
     const body = (await req.json()) as Record<string, unknown>;
     const email = typeof body.email === "string" ? body.email : "";
     const name = typeof body.name === "string" ? body.name : "";

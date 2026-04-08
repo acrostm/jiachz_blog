@@ -1,4 +1,5 @@
 import NextBundleAnalyzer from "@next/bundle-analyzer";
+import { withBotId } from "botid/next/config";
 
 const withBundleAnalyzer = NextBundleAnalyzer({
   enabled: process.env.ANALYZE === "true",
@@ -47,4 +48,4 @@ const config = {
   },
 };
 
-export default withBundleAnalyzer(config);
+export default withBotId(withBundleAnalyzer(config));

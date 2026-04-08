@@ -20,14 +20,18 @@ const globalForRedis = global as unknown as { redis: RedisInstanceType | null };
 const createRedisInstance = () => {
   try {
     // 1. Prioritize Vercel KV or Upstash URL (automatically injected in Vercel environment or integration)
-    const redisUrl = KV_URL || process.env.REDIS_URL || process.env.UPSTASH_REDIS_URL;
+    let redisUrl = KV_URL || process.env.REDIS_URL || process.env.UPSTASH_REDIS_URL;
     
     if (redisUrl) {
+      // Ensure Vercel KV / Upstash URLs use TLS by replacing redis:// with rediss://
+      if (redisUrl.startsWith("redis://") && (redisUrl.includes("vercel-storage.com") || redisUrl.includes("upstash.io"))) {
+        redisUrl = redisUrl.replace("redis://", "rediss://");
+      }
+
       // ioredis automatically handles rediss:// for TLS
       const instance = new Redis(redisUrl, {
         keyPrefix: REDIS_KEY_PREFIX,
         maxRetriesPerRequest: 5,
-        enableOfflineQueue: false,
         connectTimeout: 10000, // 10s timeout
       });
 
@@ -47,7 +51,6 @@ const createRedisInstance = () => {
         password: REDIS_PASSWORD ?? "",
         keyPrefix: REDIS_KEY_PREFIX,
         maxRetriesPerRequest: 5,
-        enableOfflineQueue: false,
         connectTimeout: 10000,
         // If it's a remote connection and not local, we might need TLS
         tls: REDIS_HOST !== "127.0.0.1" && REDIS_HOST !== "localhost" ? {} : undefined,

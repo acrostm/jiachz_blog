@@ -2,7 +2,7 @@ name: Database Backup to R2 (1panel Style)
 
 on:
   schedule:
-    # 每 12 小时执行一次 (UTC 0, 6, 12, 18)
+    # 每 12 小时执行一次 (UTC 0, 12)
     - cron: '0 */12 * * *'
   workflow_dispatch: # 允许手动触发测试
 

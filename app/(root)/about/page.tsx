@@ -34,8 +34,6 @@ import {
   IconSkillPrisma,
   IconSkillReactDark,
   IconSkillReactLight,
-  IconSkillRedisDark,
-  IconSkillRedisLight,
   IconSkillSpringDark,
   IconSkillSpringLight,
   IconSkillStackoverflowDark,
@@ -134,11 +132,6 @@ export default function Page() {
                 <IconSkillSpringLight className="mx-1 hidden translate-y-0.5 dark:inline-block" />
               </>
               Spring Boot +
-              <>
-                <IconSkillRedisDark className="mx-1 translate-y-0.5 dark:hidden" />
-                <IconSkillRedisLight className="mx-1 hidden translate-y-0.5 dark:inline-block" />
-              </>
-              Redis +
               <>
                 <IconSkillMybatisDark className="mx-1 inline-block translate-y-0.5 dark:hidden" />
                 <IconSkillMybatisLight className="mx-1 hidden translate-y-0.5 dark:inline-block" />

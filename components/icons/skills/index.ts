@@ -20,6 +20,5 @@ export * from "./icon-skill-java";
 export * from "./icon-skill-spring";
 export * from "./icon-skill-mybatis";
 export * from "./icon-skill-nestjs";
-export * from "./icon-skill-redis";
 export * from "./icon-skill-ubuntu";
 export * from "./icon-skill-postgresql";

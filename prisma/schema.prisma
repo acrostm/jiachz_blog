@@ -15,7 +15,7 @@ generator client {
 datasource db {
   provider  = "postgresql"
   url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
-  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+  // directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
 model Account {
@@ -240,9 +240,17 @@ model Blog {
   tags        Tag[]
   creatorIp   String?
   creatorLocation String?
+  views       Int     @default(0)
 
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model WebsiteStatistics {
+  id        String   @id @default("singleton")
+  pv        Int      @default(0)
+  uv        Int      @default(0)
   updatedAt DateTime @updatedAt
 }
 

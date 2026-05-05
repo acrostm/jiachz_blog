@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # 标记开始
 echo "Starting Next.js build and notify system..."
 
@@ -28,8 +30,10 @@ else
 fi
 
 echo "Building Next.js project..."
+set +e
 pnpm exec next build
 BUILD_STATUS=$?
+set -e
 
 # 获取当前时间
 CURRENT_TIME=$(date +'%Y-%m-%d %H:%M:%S')

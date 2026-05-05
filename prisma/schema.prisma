@@ -254,6 +254,20 @@ model WebsiteStatistics {
   updatedAt DateTime @updatedAt
 }
 
+model BarkConfig {
+  id              String   @id
+  name            String
+  url             String   @db.Text
+  enabled         Boolean  @default(true)
+  defaultGroup    String   @default("Blog")
+  defaultCategory String   @default("通知")
+  defaultIcon     String   @db.Text
+  defaultSound    String   @default("default")
+  description     String?  @db.Text
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
 model Note {
   body      String  @db.Text
   published Boolean @default(false)

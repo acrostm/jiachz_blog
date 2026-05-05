@@ -7,6 +7,9 @@ import {
   updateBarkConfig,
 } from "@/lib/bark-config";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 /**
  * 获取所有bark配置
  */

@@ -55,7 +55,9 @@ export const BarkConfigPage = () => {
   const loadConfigs = async () => {
     try {
       setLoading(true);
-      const response = await fetch("/api/admin/bark-config");
+      const response = await fetch("/api/admin/bark-config", {
+        cache: "no-store",
+      });
       if (!response.ok) throw new Error("Failed to load configs");
       const data = (await response.json()) as { configs: BarkConfigItem[] };
       setConfigs(data.configs);
@@ -111,6 +113,7 @@ export const BarkConfigPage = () => {
 
       const response = await fetch(url, {
         method,
+        cache: "no-store",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(
           editingConfig ? { id: editingConfig.id, ...formData } : formData,
@@ -138,6 +141,7 @@ export const BarkConfigPage = () => {
         `/api/admin/bark-config?id=${encodeURIComponent(id)}`,
         {
           method: "DELETE",
+          cache: "no-store",
         },
       );
 

@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "next dev -p 6121",
     "start": "next start -p 3000",
-    "build": "sh ./build-and-notify.sh",
+    "build": "bash ./build-and-notify.sh",
     "postbuild": "next-sitemap --config next-sitemap.config.cjs",
     "build:analyzer": "cross-env ANALYZE=true next build",
     "lint": "next lint",

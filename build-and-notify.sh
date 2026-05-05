@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # 标记开始
 echo "Starting Next.js build and notify system..."
 
@@ -17,12 +19,21 @@ fi
 echo "Generating Prisma Client..."
 pnpm exec prisma generate
 
-echo "Pushing database schema..."
-pnpm exec prisma db push --accept-data-loss
+if [ "${VERCEL_ENV:-}" = "production" ]; then
+  echo "Applying production database migrations..."
+  pnpm exec prisma migrate deploy
+elif [ "${RUN_PRISMA_MIGRATE_ON_PREVIEW:-false}" = "true" ]; then
+  echo "Applying preview database migrations..."
+  pnpm exec prisma migrate deploy
+else
+  echo "Skipping database migrations for Vercel environment: ${VERCEL_ENV:-local}"
+fi
 
 echo "Building Next.js project..."
+set +e
 pnpm exec next build
 BUILD_STATUS=$?
+set -e
 
 # 获取当前时间
 CURRENT_TIME=$(date +'%Y-%m-%d %H:%M:%S')

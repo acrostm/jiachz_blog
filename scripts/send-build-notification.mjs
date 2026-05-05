@@ -2,13 +2,14 @@
 
 /**
  * 发送构建通知脚本
- * 读取config/bark.json配置，向所有启用的bark配置发送通知
+ * 读取数据库中的bark配置，向所有启用的bark配置发送通知
  */
+import { PrismaClient } from "@prisma/client";
+import { join } from "path";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
 
 import { readFile } from "fs/promises";
-import { join } from "path";
-import { fileURLToPath } from "url";
-import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -16,20 +17,49 @@ const __dirname = dirname(__filename);
 // 获取命令行参数
 const args = process.argv.slice(2);
 const buildStatus = args[0]; // "success" or "failed"
-const currentTime = args[1] || new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" });
+const currentTime =
+  args[1] || new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" });
 const serverIp = args[2] || "Unknown";
 
-// 读取bark配置
-async function readBarkConfig() {
+async function readBarkConfigFromFile() {
   try {
     const configPath = join(__dirname, "..", "config", "bark.json");
     const content = await readFile(configPath, "utf-8");
     const config = JSON.parse(content);
     return config.configs.filter((c) => c.enabled);
   } catch (error) {
-    console.error("Failed to read bark config:", error);
+    console.error("Failed to read bark config file:", error);
     return [];
   }
+}
+
+// 读取bark配置
+async function readBarkConfig() {
+  const datasourceUrl =
+    process.env.POSTGRES_PRISMA_URL || process.env.DATABASE_URL;
+
+  if (!datasourceUrl) {
+    return readBarkConfigFromFile();
+  }
+
+  const prisma = new PrismaClient({ datasourceUrl });
+
+  try {
+    const configs = await prisma.barkConfig.findMany({
+      where: { enabled: true },
+      orderBy: { createdAt: "asc" },
+    });
+
+    if (configs.length > 0) {
+      return configs;
+    }
+  } catch (error) {
+    console.error("Failed to read bark config from database:", error);
+  } finally {
+    await prisma.$disconnect();
+  }
+
+  return readBarkConfigFromFile();
 }
 
 // 发送bark通知
@@ -47,11 +77,16 @@ async function sendBarkNotification(config, payload) {
       console.log(`✓ Notification sent to ${config.name}`);
       return true;
     } else {
-      console.error(`✗ Failed to send notification to ${config.name}: ${response.status}`);
+      console.error(
+        `✗ Failed to send notification to ${config.name}: ${response.status}`,
+      );
       return false;
     }
   } catch (error) {
-    console.error(`✗ Error sending notification to ${config.name}:`, error.message);
+    console.error(
+      `✗ Error sending notification to ${config.name}:`,
+      error.message,
+    );
     return false;
   }
 }
@@ -96,13 +131,15 @@ async function main() {
         group: config.defaultGroup,
         category: config.defaultCategory,
         icon: config.defaultIcon,
-      })
-    )
+      }),
+    ),
   );
 
   // 检查结果
   const successCount = results.filter((r) => r).length;
-  console.log(`Sent ${successCount}/${configs.length} notification(s) successfully`);
+  console.log(
+    `Sent ${successCount}/${configs.length} notification(s) successfully`,
+  );
 
   // 如果全部失败，退出码为1
   if (successCount === 0 && configs.length > 0) {

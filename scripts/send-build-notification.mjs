@@ -21,6 +21,59 @@ const currentTime =
   args[1] || new Date().toLocaleString("zh-CN", { timeZone: "Asia/Shanghai" });
 const serverIp = args[2] || "Unknown";
 
+const BARK_REQUEST_HEADERS = {
+  "Content-Type": "application/json; charset=utf-8",
+  Accept: "application/json",
+  "User-Agent":
+    "Mozilla/5.0 (compatible; JiachzBlogBarkNotifier/1.0; +https://jiachz.com)",
+};
+
+function isCloudflareChallenge(status, responseText) {
+  return (
+    status === 403 &&
+    (responseText.includes("Just a moment") ||
+      responseText.includes("challenges.cloudflare.com") ||
+      responseText.includes("__cf_chl_"))
+  );
+}
+
+function formatBarkErrorResponse(status, responseText) {
+  if (isCloudflareChallenge(status, responseText)) {
+    return "Cloudflare Managed Challenge blocked the Bark request.";
+  }
+
+  return responseText.slice(0, 500);
+}
+
+function createBarkGetUrl(baseUrl, payload) {
+  const baseWithSlash = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+  const url = new URL(
+    `${encodeURIComponent(payload.title)}/${encodeURIComponent(payload.body)}`,
+    baseWithSlash,
+  );
+
+  const searchParams = {
+    sound: payload.sound,
+    group: payload.group,
+    category: payload.category,
+    icon: payload.icon,
+    url: payload.url,
+    level: payload.level,
+    badge: payload.badge?.toString(),
+    copy: payload.copy,
+    autoCopy: payload.autoCopy,
+    isArchive: payload.isArchive,
+  };
+
+  Object.entries(searchParams).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") {
+      url.searchParams.set(key, value);
+    }
+  });
+
+  return url.toString();
+}
+
 async function readBarkConfigFromFile() {
   try {
     const configPath = join(__dirname, "..", "config", "bark.json");
@@ -65,9 +118,7 @@ async function sendBarkNotification(config, payload) {
   try {
     const response = await fetch(config.url, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json; charset=utf-8",
-      },
+      headers: BARK_REQUEST_HEADERS,
       body: JSON.stringify(payload),
     });
 
@@ -75,9 +126,38 @@ async function sendBarkNotification(config, payload) {
       console.log(`✓ Notification sent to ${config.name}`);
       return true;
     } else {
+      const responseText = await response.text().catch(() => "");
       console.error(
-        `✗ Failed to send notification to ${config.name}: ${response.status}`,
+        `✗ Failed to send notification to ${config.name}: ${response.status} ${response.statusText}`,
+        formatBarkErrorResponse(response.status, responseText),
       );
+
+      if (isCloudflareChallenge(response.status, responseText)) {
+        const fallbackResponse = await fetch(
+          createBarkGetUrl(config.url, payload),
+          {
+            method: "GET",
+            headers: BARK_REQUEST_HEADERS,
+          },
+        );
+
+        if (fallbackResponse.ok) {
+          console.log(`✓ Fallback notification sent to ${config.name}`);
+          return true;
+        }
+
+        const fallbackResponseText = await fallbackResponse
+          .text()
+          .catch(() => "");
+        console.error(
+          `✗ Failed to send fallback notification to ${config.name}: ${fallbackResponse.status} ${fallbackResponse.statusText}`,
+          formatBarkErrorResponse(
+            fallbackResponse.status,
+            fallbackResponseText,
+          ),
+        );
+      }
+
       return false;
     }
   } catch (error) {
@@ -104,25 +184,22 @@ async function main() {
   console.log(`Found ${configs.length} enabled bark config(s)`);
 
   // 准备通知内容
-  let title, body, sound, key;
+  let title, body, sound;
 
   if (buildStatus === "success") {
     title = "🚀 [Next Build Success] 🎉";
     body = `🎉 **Build Status:** SUCCESS ✅\n\n🕒 **Build Time:** ${currentTime}\n\n🌐 **Server IP:** ${serverIp}\n\n✨ Congratulations! Your Next.js project has been successfully built! 🎊`;
     sound = "shake.caf";
-    key = "✅";
   } else {
     title = "🚨 [Next Build Failed] ❌";
     body = `⚠️ **Build Status:** FAILED ❌\n\n🕒 **Failure Time:** ${currentTime}\n\n🌐 **Server IP:** ${serverIp}\n\n💥 Please check the logs and fix the issues. Good luck! 💪`;
     sound = "ladder.caf";
-    key = "❌";
   }
 
   // 向所有启用的配置发送通知
   const results = await Promise.all(
     configs.map((config) =>
       sendBarkNotification(config, {
-        key,
         body,
         title,
         sound,

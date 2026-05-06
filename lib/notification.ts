@@ -7,7 +7,6 @@ import { type BarkConfigItem, getEnabledBarkConfigs } from "./bark-config";
 export interface BarkNotificationOptions {
   title: string;
   body: string;
-  key?: string;
   sound?: string;
   group?: string;
   category?: string;
@@ -80,7 +79,60 @@ const NOTIFICATION_TEMPLATES = {
   },
 } as const;
 
+const BARK_REQUEST_HEADERS = {
+  "Content-Type": "application/json; charset=utf-8",
+  Accept: "application/json",
+  "User-Agent":
+    "Mozilla/5.0 (compatible; JiachzBlogBarkNotifier/1.0; +https://jiachz.com)",
+};
+
 export type NotificationTemplateType = keyof typeof NOTIFICATION_TEMPLATES;
+
+type BarkPayload = Required<Pick<BarkNotificationOptions, "title" | "body">> &
+  Partial<Omit<BarkNotificationOptions, "title" | "body">>;
+
+const isCloudflareChallenge = (status: number, responseText: string) =>
+  status === 403 &&
+  (responseText.includes("Just a moment") ||
+    responseText.includes("challenges.cloudflare.com") ||
+    responseText.includes("__cf_chl_"));
+
+const formatBarkErrorResponse = (status: number, responseText: string) => {
+  if (isCloudflareChallenge(status, responseText)) {
+    return "Cloudflare Managed Challenge blocked the Bark request.";
+  }
+
+  return responseText.slice(0, 500);
+};
+
+const createBarkGetUrl = (baseUrl: string, payload: BarkPayload): string => {
+  const baseWithSlash = baseUrl.endsWith("/") ? baseUrl : `${baseUrl}/`;
+  const url = new URL(
+    `${encodeURIComponent(payload.title)}/${encodeURIComponent(payload.body)}`,
+    baseWithSlash,
+  );
+
+  const searchParams: Record<string, string | undefined> = {
+    sound: payload.sound,
+    group: payload.group,
+    category: payload.category,
+    icon: payload.icon,
+    url: payload.url,
+    level: payload.level,
+    badge: payload.badge?.toString(),
+    copy: payload.copy,
+    autoCopy: payload.autoCopy,
+    isArchive: payload.isArchive,
+  };
+
+  Object.entries(searchParams).forEach(([key, value]) => {
+    if (value !== undefined && value !== "") {
+      url.searchParams.set(key, value);
+    }
+  });
+
+  return url.toString();
+};
 
 class BarkNotification {
   /**
@@ -94,7 +146,6 @@ class BarkNotification {
       const payload = {
         title: options.title,
         body: options.body,
-        key: options.key ?? "✅",
         sound: options.sound ?? config.defaultSound,
         group: options.group ?? config.defaultGroup,
         category: options.category ?? config.defaultCategory,
@@ -109,11 +160,42 @@ class BarkNotification {
 
       const response = await fetch(config.url, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json; charset=utf-8",
-        },
+        headers: BARK_REQUEST_HEADERS,
         body: JSON.stringify(payload),
       });
+
+      if (!response.ok) {
+        const responseText = await response.text().catch(() => "");
+        console.error(
+          `Failed to send notification to ${config.name}: ${response.status} ${response.statusText}`,
+          formatBarkErrorResponse(response.status, responseText),
+        );
+
+        if (isCloudflareChallenge(response.status, responseText)) {
+          const fallbackResponse = await fetch(
+            createBarkGetUrl(config.url, payload),
+            {
+              method: "GET",
+              headers: BARK_REQUEST_HEADERS,
+            },
+          );
+
+          if (!fallbackResponse.ok) {
+            const fallbackResponseText = await fallbackResponse
+              .text()
+              .catch(() => "");
+            console.error(
+              `Failed to send fallback notification to ${config.name}: ${fallbackResponse.status} ${fallbackResponse.statusText}`,
+              formatBarkErrorResponse(
+                fallbackResponse.status,
+                fallbackResponseText,
+              ),
+            );
+          }
+
+          return fallbackResponse.ok;
+        }
+      }
 
       return response.ok;
     } catch (error) {
@@ -134,8 +216,8 @@ class BarkNotification {
     const template = NOTIFICATION_TEMPLATES[templateType];
 
     // Replace variables in template
-    let title = template.title;
-    let body = template.body;
+    let title: string = template.title;
+    let body: string = template.body;
 
     Object.entries(variables).forEach(([key, value]) => {
       const placeholder = `{${key}}`;

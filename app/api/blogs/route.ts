@@ -100,12 +100,12 @@ export async function POST(req: NextRequest) {
 
     const status = published ? "已发布 ✅" : "草稿 📝";
 
-    notifyNewBlogCreated(title, author ?? "未知", status, creationTime).catch(
-      (error) => {
-        // Silently handle notification errors
-        void error;
-      },
-    );
+    try {
+      await notifyNewBlogCreated(title, author ?? "未知", status, creationTime);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to send new blog Bark notification:", error);
+    }
 
     return NextResponse.json({ success: true, blog });
   } catch {

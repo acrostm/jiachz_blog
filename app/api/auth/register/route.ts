@@ -8,6 +8,9 @@ import { notifyNewUserRegistered } from "@/lib/notification";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest) {
+  let email = "";
+  let name = "";
+
   try {
     const { isBot, isVerifiedBot } = await checkBotId();
     if (isBot && !isVerifiedBot) {
@@ -15,8 +18,8 @@ export async function POST(req: NextRequest) {
     }
 
     const body = (await req.json()) as Record<string, unknown>;
-    const email = typeof body.email === "string" ? body.email : "";
-    const name = typeof body.name === "string" ? body.name : "";
+    email = typeof body.email === "string" ? body.email : "";
+    name = typeof body.name === "string" ? body.name : "";
     const password = typeof body.password === "string" ? body.password : "";
     const image = typeof body.image === "string" ? body.image : undefined;
 
@@ -78,12 +81,12 @@ export async function POST(req: NextRequest) {
       second: "2-digit",
     });
 
-    notifyNewUserRegistered(name, email, registrationTime, clientIp).catch(
-      (error) => {
-        // Silently handle notification errors
-        void error;
-      },
-    );
+    try {
+      await notifyNewUserRegistered(name, email, registrationTime, clientIp);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to send new user Bark notification:", error);
+    }
 
     // 记录注册成功日志
     await activityLogger.logAuthActivity(user.id, "REGISTER", "SUCCESS", {

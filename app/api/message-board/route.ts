@@ -133,10 +133,12 @@ export async function POST(req: NextRequest) {
       second: "2-digit",
     });
 
-    // Send notification asynchronously (don't block the response)
-    notifyNewMessage(author, content, currentTime, ip).catch(() => {
-      // Ignore notification errors
-    });
+    try {
+      await notifyNewMessage(author, content, currentTime, ip);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("Failed to send new message Bark notification:", error);
+    }
 
     // 记录留言发送活动日志
     if (userId) {

@@ -1,12 +1,4 @@
-/**
- * Bark配置管理服务
- * 使用数据库持久化Bark配置，并从JSON文件提供首次迁移兜底
- */
-import path from "path";
-
 import { prisma } from "./prisma";
-
-import fs from "fs/promises";
 
 export interface BarkConfigItem {
   id: string;
@@ -26,22 +18,6 @@ export interface BarkConfigFile {
 
 type StoredBarkConfigItem = Omit<BarkConfigItem, "description"> & {
   description?: string | null;
-};
-
-const CONFIG_FILE_PATH = path.join(process.cwd(), "config", "bark.json");
-const DEFAULT_CONFIG: BarkConfigFile = {
-  configs: [
-    {
-      id: "default",
-      name: "默认通知",
-      url: "https://bark.jiachz.com/xFAZhVwHM4vLEUgvg442m4/",
-      enabled: true,
-      defaultGroup: "Blog",
-      defaultCategory: "通知",
-      defaultIcon: "https://r2.jiachz.com/jiachz-light.svg",
-      defaultSound: "default",
-    },
-  ],
 };
 
 // 内存缓存
@@ -81,40 +57,6 @@ const toBarkConfigUpdate = (item: BarkConfigItem) =>
     description: item.description,
   });
 
-async function readBarkConfigFile(): Promise<BarkConfigFile> {
-  try {
-    const content = await fs.readFile(CONFIG_FILE_PATH, "utf-8");
-    const config = JSON.parse(content) as BarkConfigFile;
-
-    if (!config.configs || !Array.isArray(config.configs)) {
-      throw new Error("Invalid bark config format");
-    }
-
-    return {
-      configs: config.configs.map(normalizeBarkConfigItem),
-    };
-  } catch (error) {
-    console.error("Failed to read bark config file:", error);
-    return DEFAULT_CONFIG;
-  }
-}
-
-async function seedBarkConfigs(config: BarkConfigFile): Promise<void> {
-  if (!config.configs.length) {
-    return;
-  }
-
-  await prisma.$transaction(
-    config.configs.map((item) =>
-      prisma.barkConfig.upsert({
-        where: { id: item.id },
-        create: item,
-        update: toBarkConfigUpdate(item),
-      }),
-    ),
-  );
-}
-
 /**
  * 读取bark配置
  */
@@ -131,14 +73,9 @@ export async function readBarkConfig(): Promise<BarkConfigFile> {
       orderBy: { createdAt: "asc" },
     });
 
-    const config: BarkConfigFile =
-      configs.length > 0
-        ? { configs: configs.map(normalizeBarkConfigItem) }
-        : await readBarkConfigFile();
-
-    if (configs.length === 0) {
-      await seedBarkConfigs(config);
-    }
+    const config: BarkConfigFile = {
+      configs: configs.map(normalizeBarkConfigItem),
+    };
 
     configCache = config;
     lastReadTime = now;
@@ -146,7 +83,7 @@ export async function readBarkConfig(): Promise<BarkConfigFile> {
     return config;
   } catch (error) {
     console.error("Failed to read bark config from database:", error);
-    return readBarkConfigFile();
+    throw new Error("Failed to read bark configuration");
   }
 }
 
@@ -203,20 +140,18 @@ export async function getBarkConfigById(
 export async function addBarkConfig(
   newConfig: Omit<BarkConfigItem, "id">,
 ): Promise<BarkConfigItem> {
-  const config = await readBarkConfig();
-
   // 生成唯一ID
   const id = `bark_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
-  const configItem: BarkConfigItem = {
-    id,
-    ...newConfig,
-  };
+  const configItem = await prisma.barkConfig.create({
+    data: {
+      id,
+      ...newConfig,
+    },
+  });
 
-  config.configs.push(configItem);
-  await writeBarkConfig(config);
-
-  return configItem;
+  clearBarkConfigCache();
+  return normalizeBarkConfigItem(configItem);
 }
 
 /**
@@ -226,39 +161,57 @@ export async function updateBarkConfig(
   id: string,
   updates: Partial<Omit<BarkConfigItem, "id">>,
 ): Promise<BarkConfigItem | null> {
-  const config = await readBarkConfig();
-  const index = config.configs.findIndex((c) => c.id === id);
-  const existingConfig = config.configs[index];
+  const updateData = stripUndefined(updates);
 
-  if (!existingConfig) {
-    return null;
+  if (Object.keys(updateData).length === 0) {
+    return getBarkConfigById(id);
   }
 
-  const updatedConfig: BarkConfigItem = {
-    ...existingConfig,
-    ...stripUndefined(updates),
-  };
+  try {
+    const updatedConfig = await prisma.barkConfig.update({
+      where: { id },
+      data: updateData,
+    });
 
-  config.configs[index] = updatedConfig;
-  await writeBarkConfig(config);
-  return updatedConfig;
+    clearBarkConfigCache();
+    return normalizeBarkConfigItem(updatedConfig);
+  } catch (error: unknown) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "P2025"
+    ) {
+      return null;
+    }
+
+    throw error;
+  }
 }
 
 /**
  * 删除bark配置
  */
 export async function deleteBarkConfig(id: string): Promise<boolean> {
-  const config = await readBarkConfig();
-  const initialLength = config.configs.length;
+  try {
+    await prisma.barkConfig.delete({
+      where: { id },
+    });
 
-  config.configs = config.configs.filter((c) => c.id !== id);
+    clearBarkConfigCache();
+    return true;
+  } catch (error: unknown) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      error.code === "P2025"
+    ) {
+      return false;
+    }
 
-  if (config.configs.length === initialLength) {
-    return false; // 没有找到要删除的配置
+    throw error;
   }
-
-  await writeBarkConfig(config);
-  return true;
 }
 
 /**

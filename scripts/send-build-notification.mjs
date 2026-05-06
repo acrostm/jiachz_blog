@@ -50,9 +50,7 @@ async function readBarkConfig() {
       orderBy: { createdAt: "asc" },
     });
 
-    if (configs.length > 0) {
-      return configs;
-    }
+    return configs;
   } catch (error) {
     console.error("Failed to read bark config from database:", error);
   } finally {

@@ -41,7 +41,7 @@ const fetchLoginHistory = async (): Promise<LoginHistoryResponse> => {
   if (!response.ok) {
     throw new Error("Failed to fetch login history");
   }
-  return response.json() as Promise<{ data: UserActivityLog[] }>;
+  return response.json() as Promise<LoginHistoryResponse>;
 };
 
 const getDeviceIcon = (deviceType: string) => {
@@ -147,7 +147,7 @@ export function LoginHistory() {
                 {loginHistory.map((log) => (
                   <div
                     key={log.id}
-                    className="flex items-center justify-between rounded-lg border p-3"
+                    className="future-control-glass flex items-center justify-between rounded-2xl p-3"
                   >
                     <div className="flex items-center gap-3">
                       {getDeviceIcon(log.deviceType)}

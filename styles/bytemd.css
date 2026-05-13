@@ -523,17 +523,24 @@
 .future-site .markdown-body {
   @apply !max-w-none;
   color: var(--future-ink);
-  font-size: 1.06rem;
-  line-height: 1.86;
+  font-family:
+    Inter, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei",
+    "Noto Sans CJK SC", ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.0625rem;
+  letter-spacing: 0;
+  line-height: 1.92;
+  text-rendering: optimizeLegibility;
 }
 
 .future-site .markdown-body p,
 .future-site .markdown-body li {
   color: var(--future-muted);
+  margin-bottom: 1.05rem;
 }
 
 .future-site .markdown-body strong {
   color: var(--future-ink);
+  font-weight: 700;
 }
 
 .future-site .markdown-body a {
@@ -546,36 +553,44 @@
 .future-site .markdown-body :where(h2, h3, h4, h5, h6) {
   @apply scroll-mt-28;
   color: var(--future-ink);
-  letter-spacing: -0.04em;
+  letter-spacing: 0;
+  text-wrap: balance;
 }
 
 .future-site .markdown-body h2 {
   margin-top: 3.2rem;
   padding-top: 1.35rem;
   border-top: 1px solid var(--future-line);
-  font-size: clamp(2rem, 4vw, 3.5rem);
-  line-height: 1.02;
+  font-size: 2.35rem;
+  line-height: 1.18;
 }
 
 .future-site .markdown-body h3 {
   margin-top: 2.6rem;
-  font-size: clamp(1.55rem, 3vw, 2.25rem);
-  line-height: 1.08;
+  font-size: 1.72rem;
+  line-height: 1.28;
+}
+
+.future-site .markdown-body h4 {
+  margin-top: 2rem;
+  font-size: 1.32rem;
+  line-height: 1.38;
 }
 
 .future-site .markdown-body blockquote {
   margin: 2.5rem 0;
   border-left: 3px solid var(--future-accent);
-  border-radius: 0 1.25rem 1.25rem 0;
-  background:
-    linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--future-accent) 13%, transparent),
-      transparent
-    ),
-    rgb(255 255 255 / 0.035);
+  border-radius: 0 1.35rem 1.35rem 0;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--future-accent) 13%, var(--future-panel)),
+    var(--future-panel)
+  );
+  box-shadow: var(--future-inner);
   padding: 1.2rem 1.4rem;
   color: var(--future-ink);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  backdrop-filter: blur(20px) saturate(1.2);
 }
 
 .future-site .markdown-body blockquote p {
@@ -598,15 +613,20 @@
 .future-site .markdown-body img {
   @apply max-h-none rounded-[1.5rem] p-0;
   border: 1px solid var(--future-line);
-  background: rgb(255 255 255 / 0.04);
+  background: var(--future-panel);
   box-shadow: var(--future-shadow);
 }
 
 .future-site .markdown-body table {
+  display: block;
+  width: 100%;
   overflow: hidden;
   border: 1px solid var(--future-line);
   border-radius: 1rem;
-  background: rgb(255 255 255 / 0.035);
+  background: var(--future-panel);
+  box-shadow: var(--future-inner);
+  overflow-x: auto;
+  white-space: nowrap;
 }
 
 .future-site .markdown-body table th,
@@ -624,15 +644,21 @@
 .future-site .markdown-body td code,
 .future-site .markdown-body th code,
 .future-site .inline-code-enhanced {
+  border: 1px solid color-mix(in srgb, var(--future-accent) 24%, transparent);
+  border-radius: 0.45rem;
+  background: color-mix(in srgb, var(--future-accent) 10%, transparent);
   color: var(--future-accent);
   font-weight: 700;
+  padding: 0.12rem 0.34rem;
 }
 
 .future-site .markdown-body pre {
   border: 1px solid var(--future-line);
   border-radius: 1.35rem;
-  background: #08090c;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.055), transparent 3rem), #07080b;
   box-shadow: var(--future-shadow);
+  overflow-x: auto;
 }
 
 .future-site .markdown-body pre::before,
@@ -649,9 +675,12 @@
 }
 
 .future-site .markdown-body pre > code {
+  display: block;
   color: #f2eee8;
-  font-size: 0.875rem;
-  line-height: 1.75;
+  font-size: 0.9rem;
+  line-height: 1.8;
+  min-width: max-content;
+  white-space: pre;
 }
 
 .future-site .markdown-body pre > .copy-code-button {
@@ -662,11 +691,17 @@
 
 @media (max-width: 768px) {
   .future-site .markdown-body {
-    font-size: 1rem;
+    font-size: 1.01rem;
+    line-height: 1.86;
   }
 
   .future-site .markdown-body h2 {
-    font-size: 2.15rem;
+    font-size: 1.9rem;
+    line-height: 1.24;
+  }
+
+  .future-site .markdown-body h3 {
+    font-size: 1.45rem;
   }
 
   .future-site .markdown-body pre {

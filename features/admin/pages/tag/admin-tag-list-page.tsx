@@ -11,7 +11,6 @@ import {
   ArrowUpNarrowWide,
   Book,
   Calendar,
-  CodeXml,
   ImageIcon,
   RotateCw,
   ScrollIcon,
@@ -273,7 +272,7 @@ export const AdminTagListPage = () => {
         <PageBreadcrumb breadcrumbList={[PATHS.ADMIN_HOME, PATHS.ADMIN_TAG]} />
       }
     >
-      <div className="mb-4 grid grid-cols-4 gap-4 px-1 py-4">
+      <div className="future-glass mb-4 grid grid-cols-1 gap-4 rounded-2xl p-4 md:grid-cols-2 xl:grid-cols-4">
         <Input
           placeholder="请输入名称"
           value={inputParams.name}
@@ -311,7 +310,7 @@ export const AdminTagListPage = () => {
             ))}
           </SelectContent>
         </Select>
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-wrap items-center gap-3 xl:col-span-2">
           <Button onClick={handleSearch}>
             <Search className="mr-2 size-4" />
             搜索

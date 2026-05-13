@@ -40,13 +40,13 @@ export default async function Page() {
             >
               <div>
                 <p className="future-label">Articles</p>
-                <p className="mt-3 font-mono text-4xl font-semibold tracking-[-0.08em]">
+                <p className="mt-3 font-mono text-4xl font-semibold tracking-normal">
                   {String(total).padStart(2, "0")}
                 </p>
               </div>
               <div>
                 <p className="future-label">Reads</p>
-                <p className="mt-3 font-mono text-4xl font-semibold tracking-[-0.08em]">
+                <p className="mt-3 font-mono text-4xl font-semibold tracking-normal">
                   {totalViews}
                 </p>
               </div>

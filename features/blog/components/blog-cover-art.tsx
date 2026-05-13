@@ -71,7 +71,7 @@ export const BlogCoverArt = ({
             {title}
           </p>
         </div>
-        <div className="font-mono text-5xl font-semibold tracking-[-0.08em] text-white/15">
+        <div className="font-mono text-5xl font-semibold tracking-normal text-white/15">
           {String(index + 1).padStart(2, "0")}
         </div>
       </div>

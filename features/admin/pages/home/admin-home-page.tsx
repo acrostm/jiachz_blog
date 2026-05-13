@@ -22,11 +22,11 @@ export const AdminHomePage = () => {
     <AdminContentLayout
       breadcrumb={<PageBreadcrumb breadcrumbList={[PATHS.ADMIN_HOME]} />}
     >
-      <div className="mt-[10vh] grid place-content-center gap-4 px-4 lg:mt-[18vh]">
-        <h2 className="text-center text-xl font-medium lg:text-3xl">
+      <div className="future-glass-strong mx-auto mt-[10vh] grid max-w-2xl place-content-center gap-4 rounded-[2rem] px-6 py-10 lg:mt-[18vh] lg:px-10">
+        <h2 className="text-center text-xl font-medium text-[var(--future-ink)] lg:text-3xl">
           {sayHi()} 欢迎使用后台管理系统
         </h2>
-        <p className="text-center text-base text-muted-foreground lg:text-lg">
+        <p className="text-center text-base text-[var(--future-muted)] lg:text-lg">
           你可能想 🤔
         </p>
 

@@ -7,7 +7,7 @@ import { Navbar } from "@/components/navbar";
 export default function Layout({ children }: React.PropsWithChildren) {
   return (
     <SessionProvider>
-      <div className="future-site min-h-screen">
+      <div className="min-h-screen">
         <Navbar />
         <main className="relative z-[1] min-h-[calc(100vh-190px)]">
           {children}

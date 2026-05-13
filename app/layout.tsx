@@ -1,7 +1,6 @@
 import React from "react";
 
 import { type Metadata } from "next";
-import { Inter } from "next/font/google";
 
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/next";
@@ -19,14 +18,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Console } from "@/components/console";
 import { Favicon } from "@/components/favicon";
 import { Fingerprint } from "@/components/fingerprint";
+import { FutureShell } from "@/components/future-shell";
 
 import { ImageAssets, NICKNAME, SLOGAN, WEBSITE } from "@/constants";
 import "@/styles/global.css";
-
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: {
@@ -45,7 +40,13 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <head>
-        <BotIdClient protect={[{ path: "/api/auth/callback/credentials", method: "POST" }, { path: "/api/message-board", method: "POST" }, { path: "/api/auth/register", method: "POST" }]} />
+        <BotIdClient
+          protect={[
+            { path: "/api/auth/callback/credentials", method: "POST" },
+            { path: "/api/message-board", method: "POST" },
+            { path: "/api/auth/register", method: "POST" },
+          ]}
+        />
         <link rel="icon" type="image/svg+xml" href={ImageAssets.logoDark} />
         {/*TODO*/}
         {/* Google Search Console 验证 */}
@@ -59,7 +60,7 @@ export default function RootLayout({
           data-website-id="56094296-ecd7-4340-bc0b-dfc93a182c75"
         ></script>
       </head>
-      <body className={inter.className} suppressHydrationWarning={true}>
+      <body className="font-sans" suppressHydrationWarning>
         <ClickSpark
           sparkColor="--click-spark"
           sparkSize={10}
@@ -74,14 +75,16 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <TooltipProvider>
-              {children}
+              <FutureShell>
+                {children}
 
-              <Favicon />
-              <Toaster />
+                <Favicon />
+                <Toaster />
 
-              <Console />
+                <Console />
 
-              <Fingerprint />
+                <Fingerprint />
+              </FutureShell>
             </TooltipProvider>
           </ThemeProvider>
         </ClickSpark>

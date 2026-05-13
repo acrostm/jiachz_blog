@@ -88,7 +88,7 @@ export const BlogListItem = ({ blog, uvMap, index = 0 }: BlogListItemProps) => {
             )}
           </div>
 
-          <h4 className="line-clamp-2 text-2xl font-semibold leading-tight tracking-[-0.035em]">
+          <h4 className="line-clamp-2 text-2xl font-semibold leading-tight tracking-normal">
             {blog.title}
           </h4>
           <p className="future-muted mt-3 line-clamp-2 text-sm leading-6">

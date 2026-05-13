@@ -62,7 +62,7 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="rounded-lg border">
+    <div className="future-card overflow-hidden rounded-2xl">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -84,7 +84,7 @@ export function DataTable<TData, TValue>({
         </TableHeader>
         <TableBody>{renderContent()}</TableBody>
       </Table>
-      <div className="flex items-center border-t px-4">
+      <div className="flex items-center border-t border-[var(--future-line)] px-4">
         <div className="flex-1 text-sm text-muted-foreground">
           {renderInfo()}
         </div>

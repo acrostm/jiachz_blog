@@ -73,8 +73,8 @@ export function SimpleLineChart({
     const actualX = mouseX * scaleX;
 
     // Find closest point
-    let closestPoint = points[0];
-    let minDistance = Math.abs(actualX - points[0].x);
+    let closestPoint = points[0]!;
+    let minDistance = Math.abs(actualX - closestPoint.x);
 
     points.forEach((point) => {
       const distance = Math.abs(actualX - point.x);
@@ -109,16 +109,20 @@ export function SimpleLineChart({
     const labels = [];
     const step = Math.ceil(data.length / 5); // Show about 5 date labels
     for (let i = 0; i < data.length; i += step) {
+      const point = data[i]!;
+      const chartPoint = points[i]!;
       labels.push({
-        date: data[i].date,
-        x: points[i].x,
+        date: point.date,
+        x: chartPoint.x,
       });
     }
     // Always include the last point
-    if (labels[labels.length - 1].date !== data[data.length - 1].date) {
+    const lastDataPoint = data[data.length - 1]!;
+    const lastChartPoint = points[points.length - 1]!;
+    if (labels[labels.length - 1]?.date !== lastDataPoint.date) {
       labels.push({
-        date: data[data.length - 1].date,
-        x: points[points.length - 1].x,
+        date: lastDataPoint.date,
+        x: lastChartPoint.x,
       });
     }
     return labels;
@@ -128,7 +132,7 @@ export function SimpleLineChart({
     <>
       {/* Hover rate display in parent container */}
       {hoveredPoint && showHoverInParent && (
-        <div className="absolute right-6 top-6 z-20 rounded-lg border border-border bg-background/95 px-4 py-3 shadow-lg backdrop-blur-sm">
+        <div className="future-glass-strong absolute right-6 top-6 z-20 rounded-lg px-4 py-3 shadow-lg">
           <div className="font-mono text-sm text-muted-foreground">
             {formatDate(hoveredPoint.date)}
           </div>
@@ -141,7 +145,7 @@ export function SimpleLineChart({
       <div className={cn("w-full relative", className)}>
         {/* Hover rate display */}
         {hoveredPoint && !showHoverInParent && (
-          <div className="absolute right-2 top-2 z-10 rounded-lg border border-border bg-background/95 px-4 py-3 shadow-lg backdrop-blur-sm">
+          <div className="future-glass-strong absolute right-2 top-2 z-10 rounded-lg px-4 py-3 shadow-lg">
             <div className="font-mono text-sm text-muted-foreground">
               {formatDate(hoveredPoint.date)}
             </div>
@@ -261,8 +265,8 @@ export function SimpleLineChart({
           {/* End point */}
           {points.length > 0 && (
             <circle
-              cx={points[points.length - 1].x}
-              cy={points[points.length - 1].y}
+              cx={points[points.length - 1]!.x}
+              cy={points[points.length - 1]!.y}
               r="4"
               fill={strokeColor}
               className="drop-shadow-lg"

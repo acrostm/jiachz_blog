@@ -48,9 +48,9 @@ export const Navbar = () => {
     <header
       className={cn(
         "sticky top-0 z-30 flex w-full justify-center border-x-0 transition-[background-color,border-color,box-shadow] duration-300",
-        "border-b border-transparent bg-[color-mix(in_srgb,var(--future-bg)_74%,transparent)] backdrop-blur-2xl",
+        "future-nav-glass border-transparent",
         (scroll?.top ?? 0) > 60 &&
-          "border-[var(--future-line)] shadow-[0_14px_60px_rgb(0_0_0/0.18)]",
+          "border-[var(--future-line)] shadow-[0_18px_70px_rgb(0_0_0/0.2)]",
       )}
     >
       <div className="flex h-16 w-full items-center px-4 sm:px-8 md:max-w-screen-md 2xl:max-w-screen-xl">
@@ -68,7 +68,7 @@ export const Navbar = () => {
         </NextLink>
         <div className="mr-8 hidden h-16 flex-1 items-center justify-end text-base font-medium sm:flex">
           <NavigationMenu>
-            <NavigationMenuList className="gap-1 rounded-full border border-[var(--future-line)] bg-white/[0.04] p-1">
+            <NavigationMenuList className="future-control-glass gap-1 rounded-full p-1">
               {navItems.map((el) => (
                 <NavigationMenuItem key={el.link}>
                   <Link
@@ -76,7 +76,7 @@ export const Navbar = () => {
                     className={cn(
                       "rounded-full px-3 py-1.5 text-xs font-medium text-[var(--future-muted)] transition-colors",
                       "hover:text-[var(--future-ink)]",
-                      "bg-transparent hover:bg-transparent focus:bg-transparent",
+                      "bg-transparent hover:bg-white/20 focus:bg-white/20 dark:hover:bg-white/10 dark:focus:bg-white/10",
                       pathname === el.link &&
                         "bg-[var(--future-accent)]/12 text-[var(--future-ink)] shadow-[inset_0_0_0_1px_rgb(255_255_255/0.08)]",
                     )}

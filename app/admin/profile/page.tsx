@@ -64,7 +64,7 @@ export default async function ProfilePage() {
           <ProfileEmailVerification userEmail={user.email} />
         )}
 
-        <div className="flex flex-col items-center gap-4 rounded-lg border bg-background p-6 shadow-sm">
+        <div className="future-glass-strong flex flex-col items-center gap-4 rounded-2xl p-6">
           <AvatarUpload
             currentImage={user?.image}
             userName={user?.name}
@@ -79,7 +79,7 @@ export default async function ProfilePage() {
           </div>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="rounded-lg border bg-background p-4">
+          <div className="future-card rounded-2xl p-4">
             <div className="mb-2 text-sm font-medium text-foreground">
               注册时间
             </div>
@@ -97,7 +97,7 @@ export default async function ProfilePage() {
                 : "-"}
             </div>
           </div>
-          <div className="rounded-lg border bg-background p-4">
+          <div className="future-card rounded-2xl p-4">
             <div className="mb-2 text-sm font-medium text-foreground">
               已绑定账号
             </div>
@@ -128,7 +128,7 @@ export default async function ProfilePage() {
         </div>
 
         {/* 登录信息 */}
-        <div className="rounded-lg border bg-background p-4">
+        <div className="future-card rounded-2xl p-4">
           <div className="mb-4 text-lg font-medium text-foreground">
             登录信息
           </div>

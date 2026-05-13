@@ -118,8 +118,8 @@ export default function MessagesPage() {
   };
 
   return (
-    <div className="mx-auto max-w-xl space-y-6 py-8">
-      <Card className="space-y-2 p-4">
+    <div className="mx-auto max-w-3xl space-y-6 px-4 py-8">
+      <Card className="space-y-3 rounded-[1.75rem] p-4 sm:p-5">
         <Textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -156,7 +156,7 @@ export default function MessagesPage() {
           return (
             <Card
               key={msg.id}
-              className="group relative mb-6 rounded-2xl border border-border/60 bg-background/90 p-5 shadow-sm transition-all duration-200 ease-in-out hover:scale-[1.025] hover:border-primary/60 hover:bg-background/95 hover:shadow-2xl"
+              className="group relative mb-6 rounded-[1.75rem] p-5 transition-all duration-200 ease-in-out hover:-translate-y-0.5"
             >
               {/* 删除按钮，仅 admin 可见，右下角，hover 显示更明显 */}
               {isAdmin(session?.user?.email) && (
@@ -226,8 +226,8 @@ export default function MessagesPage() {
                   {new Date(msg.createdAt).toLocaleString()}
                 </span>
               </div>
-              <div className="my-2 h-px w-full bg-border/60" />
-              <pre className="whitespace-pre-wrap break-words px-1 font-sans text-[1.08rem] leading-relaxed tracking-wide text-foreground">
+              <div className="my-2 h-px w-full bg-[var(--future-line)]" />
+              <pre className="whitespace-pre-wrap break-words px-1 font-sans text-[1.03rem] leading-8 tracking-normal text-[var(--future-ink)]">
                 {msg.content}
               </pre>
             </Card>

@@ -55,7 +55,7 @@ export const MobileNav = () => {
       </SheetTrigger>
       <SheetContent
         side="left"
-        className="border-[var(--future-line)] bg-[var(--future-bg)] text-[var(--future-ink)]"
+        className="border-[var(--future-line)] text-[var(--future-ink)]"
       >
         <SheetHeader>
           <SheetTitle className="font-mono text-sm uppercase tracking-[0.28em]">

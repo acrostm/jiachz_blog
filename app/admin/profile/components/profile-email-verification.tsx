@@ -25,7 +25,7 @@ export function ProfileEmailVerification({
 
   return (
     <>
-      <div className="rounded-lg border border-orange-200 bg-orange-50 p-4 dark:border-orange-800 dark:bg-orange-900/20">
+      <div className="future-glass-strong rounded-2xl border-orange-300/60 p-4 dark:border-orange-500/30">
         <div className="flex items-center gap-2">
           <div className="text-orange-600 dark:text-orange-400">
             <svg

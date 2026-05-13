@@ -22,10 +22,10 @@ export const AdminLayout = ({ children }: React.PropsWithChildren) => {
 
   return (
     <SessionProvider>
-      <div className="flex min-h-screen w-full bg-muted/40">
+      <div className="relative flex min-h-screen w-full bg-transparent">
         <aside
           className={cn(
-            "hidden lg:flex flex-col border-r bg-background transition-all",
+            "future-glass-strong hidden lg:flex flex-col rounded-r-[1.75rem] border-r transition-all",
             open ? "w-36" : "w-14",
           )}
         >
@@ -36,9 +36,11 @@ export const AdminLayout = ({ children }: React.PropsWithChildren) => {
             )}
             aria-label={NICKNAME}
           >
-            <Logo className="size-8" />
+            <span className="grid size-9 place-items-center rounded-full border border-[var(--future-line)] bg-white/10">
+              <Logo className="size-8" />
+            </span>
             {open && (
-              <span className="ml-2 text-base font-semibold text-primary">
+              <span className="ml-2 text-base font-semibold text-[var(--future-ink)]">
                 后台管理
               </span>
             )}

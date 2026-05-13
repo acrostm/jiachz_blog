@@ -78,7 +78,7 @@ export const AdminNoteListPage = () => {
         <PageBreadcrumb breadcrumbList={[PATHS.ADMIN_HOME, PATHS.ADMIN_NOTE]} />
       }
     >
-      <div className="grid grid-cols-4 items-end gap-4 px-1 py-4">
+      <div className="future-glass mb-4 grid grid-cols-1 items-end gap-4 rounded-2xl p-4 md:grid-cols-2 xl:grid-cols-4">
         <Input
           placeholder="请输入内容"
           value={inputParams.body}
@@ -123,7 +123,7 @@ export const AdminNoteListPage = () => {
           </Select>
         )}
 
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-wrap items-center gap-3 xl:col-span-2">
           <Button onClick={handleSearch}>
             <Search className="mr-2 size-4" />
             搜索
@@ -149,7 +149,7 @@ export const AdminNoteListPage = () => {
             ))
           : data.map((note) => (
               <div key={note.id} className="mb-6 w-full break-inside-avoid">
-                <div className="relative w-full rounded-lg border px-6 pb-6">
+                <div className="future-card relative w-full rounded-2xl px-6 pb-6">
                   <BytemdViewer body={note.body || ""} />
                   <div className="flex flex-wrap justify-end gap-2 py-4">
                     {note.tags?.map((tag) => (

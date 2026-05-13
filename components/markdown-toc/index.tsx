@@ -34,21 +34,21 @@ export const MarkdownTOC = () => {
 
   return (
     <div>
-      <div>目录</div>
-      <ul className="flex flex-col gap-2 pt-8 text-sm text-muted-foreground">
+      <div className="future-label">Contents</div>
+      <ul className="flex flex-col gap-3 pt-6 text-sm">
         {tocList.length > 0 ? (
           tocList.map((el) => (
             <li key={el.value}>
               <Link
                 href={`#${el.value}`}
-                className="line-clamp-1 text-ellipsis transition-colors hover:text-primary"
+                className="future-muted line-clamp-2 text-ellipsis border-l border-[var(--future-line)] pl-3 leading-5 transition-colors hover:border-[var(--future-accent)] hover:text-[var(--future-ink)]"
               >
                 {el.label}
               </Link>
             </li>
           ))
         ) : (
-          <li>无目录</li>
+          <li className="future-muted">无目录</li>
         )}
       </ul>
     </div>

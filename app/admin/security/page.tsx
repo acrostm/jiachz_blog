@@ -202,7 +202,7 @@ export default function SecurityMonitorPage() {
                 {suspiciousLogins.map((login) => (
                   <div
                     key={login.id}
-                    className="rounded-lg border border-red-200 bg-red-50/50 p-4"
+                    className="rounded-lg border border-red-200/70 bg-red-50/60 p-4 dark:border-red-800/70 dark:bg-red-900/20"
                   >
                     <div className="flex items-start justify-between">
                       <div className="flex items-center gap-3">

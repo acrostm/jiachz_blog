@@ -5,7 +5,7 @@ import React from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 
-import { Book, CodeXml, Home, PanelLeft, ScrollIcon, Tags } from "lucide-react";
+import { Book, Home, PanelLeft, ScrollIcon, Tags } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -71,7 +71,7 @@ export const AdminContentLayout = ({
 
   return (
     <div className="h-screen flex-1 overflow-hidden">
-      <header className="fixed inset-x-0 top-0 z-10 flex h-14 items-center justify-between gap-4 border-b bg-background px-4 py-2 lg:static lg:h-auto lg:px-6">
+      <header className="future-nav-glass fixed inset-x-0 top-0 z-10 flex h-14 items-center justify-between gap-4 px-4 py-2 lg:static lg:h-auto lg:rounded-bl-3xl lg:px-6">
         <Sheet>
           <SheetTrigger asChild>
             <Button size="icon" variant="outline" className="lg:hidden">
@@ -149,7 +149,7 @@ export const AdminContentLayout = ({
         ref={scrollRef}
         className="h-screen px-4 pt-20 lg:px-6 lg:pt-6"
       >
-        {children}
+        <div className="mx-auto w-full max-w-[1500px]">{children}</div>
 
         {/* padding */}
         <div className="h-32"></div>

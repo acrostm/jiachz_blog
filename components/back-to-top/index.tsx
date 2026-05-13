@@ -30,9 +30,12 @@ export const BackToTop = ({ scrollRef }: BackToTopProps) => {
 
   return (
     <Button
-      className={cn("fixed bottom-8 right-8", {
-        hidden: (scroll?.top ?? 0) < 100,
-      })}
+      className={cn(
+        "fixed bottom-8 right-8 z-30 rounded-full border-[var(--future-line)] bg-[var(--future-panel-strong)] text-[var(--future-ink)] shadow-lg backdrop-blur-xl hover:bg-white/[0.08]",
+        {
+          hidden: (scroll?.top ?? 0) < 100,
+        },
+      )}
       variant="outline"
       size={"icon"}
       onClick={handleClick}

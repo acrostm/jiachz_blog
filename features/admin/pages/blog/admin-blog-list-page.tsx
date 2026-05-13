@@ -299,7 +299,7 @@ export const AdminBlogListPage = () => {
         <PageBreadcrumb breadcrumbList={[PATHS.ADMIN_HOME, PATHS.ADMIN_BLOG]} />
       }
     >
-      <div className="grid grid-cols-4 items-end gap-4 px-1 py-4">
+      <div className="future-glass mb-4 grid grid-cols-1 items-end gap-4 rounded-2xl p-4 md:grid-cols-2 xl:grid-cols-4">
         <Input
           placeholder="请输入标题"
           value={inputParams.title}
@@ -343,7 +343,7 @@ export const AdminBlogListPage = () => {
           </Select>
         )}
 
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-wrap items-center gap-3 xl:col-span-2">
           <Button onClick={handleSearch}>
             <Search className="mr-2 size-4" />
             搜索

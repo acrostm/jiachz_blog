@@ -113,7 +113,7 @@ export function PasswordChange() {
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent className="mt-4">
-          <div className="rounded-lg border bg-background p-6 shadow-sm">
+          <div className="future-card rounded-2xl p-6">
             <form onSubmit={handleSubmitPasswordForm} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="currentPassword">当前密码</Label>

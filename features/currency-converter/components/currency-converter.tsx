@@ -143,8 +143,8 @@ export function CurrencyConverter({ apiKey }: CurrencyConverterProps) {
 
       setState((prev) => ({
         ...prev,
-        result: response.conversion_result || 0,
-        lastUpdated: response.time_last_update_utc || new Date().toISOString(),
+        result: response.conversion_result ?? 0,
+        lastUpdated: response.time_last_update_utc ?? new Date().toISOString(),
         isLoading: false,
       }));
 
@@ -239,7 +239,7 @@ export function CurrencyConverter({ apiKey }: CurrencyConverterProps) {
             {/* Chart */}
             <div className="relative mb-4">
               {isLoadingChart ? (
-                <div className="flex h-64 items-center justify-center rounded-lg bg-muted/20">
+                <div className="future-control-glass flex h-64 items-center justify-center rounded-2xl">
                   <div className="flex flex-col items-center space-y-2">
                     <div className="size-8 animate-spin rounded-full border-b-2 border-green-600"></div>
                     <p className="text-sm text-muted-foreground">
@@ -258,7 +258,7 @@ export function CurrencyConverter({ apiKey }: CurrencyConverterProps) {
                   showHoverInParent={true}
                 />
               ) : (
-                <div className="flex h-64 items-center justify-center rounded-lg bg-muted/20">
+                <div className="future-control-glass flex h-64 items-center justify-center rounded-2xl">
                   <div className="text-center">
                     <p className="text-sm text-muted-foreground">
                       No historical data available
@@ -351,7 +351,7 @@ export function CurrencyConverter({ apiKey }: CurrencyConverterProps) {
 
         {/* Error Display */}
         {state.error && (
-          <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/20">
+          <Card className="border-red-200/70 bg-red-50/70 dark:border-red-800/70 dark:bg-red-900/20">
             <CardContent className="p-4">
               <p className="text-sm text-red-600 dark:text-red-400">
                 {state.error}

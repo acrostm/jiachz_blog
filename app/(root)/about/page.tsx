@@ -56,8 +56,8 @@ export default function Page() {
   const getDelay = () => (delay += 200);
 
   return (
-    <div className="flex w-full flex-col justify-center px-6 pb-24 pt-8">
-      <section className="prose prose-neutral mx-auto max-w-screen-wrapper dark:prose-invert">
+    <div className="flex w-full flex-col justify-center px-4 pb-24 pt-8 sm:px-6">
+      <section className="future-glass-strong prose prose-neutral mx-auto max-w-screen-wrapper rounded-[2rem] px-5 py-7 dark:prose-invert sm:px-8 md:px-10">
         <h2 className="text-3xl font-bold md:text-4xl">关于</h2>
         <div
           className="animate-fade-up animate-ease-in-out"

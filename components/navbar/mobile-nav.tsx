@@ -46,15 +46,22 @@ export const MobileNav = () => {
           variant="outline"
           size="icon"
           aria-label="菜单"
-          className={cn("sm:hidden")}
+          className={cn(
+            "border-[var(--future-line)] bg-white/[0.04] text-[var(--future-ink)] sm:hidden",
+          )}
         >
           <MenuIcon className="size-4" />
         </Button>
       </SheetTrigger>
-      <SheetContent side="left">
+      <SheetContent
+        side="left"
+        className="border-[var(--future-line)] text-[var(--future-ink)]"
+      >
         <SheetHeader>
-          <SheetTitle>{WEBSITE}</SheetTitle>
-          <SheetDescription>{SLOGAN}</SheetDescription>
+          <SheetTitle className="font-mono text-sm uppercase tracking-[0.28em]">
+            {WEBSITE}
+          </SheetTitle>
+          <SheetDescription className="future-muted">{SLOGAN}</SheetDescription>
         </SheetHeader>
         <div className="grid gap-4 pt-8">
           {navItems.map((el) => (
@@ -65,7 +72,10 @@ export const MobileNav = () => {
                   buttonVariants({
                     variant: pathname === el.link ? "default" : "ghost",
                   }),
-                  "text-md px-4 py-2 flex gap-2 items-center !justify-start w-full",
+                  "text-md flex w-full items-center gap-2 rounded-full px-4 py-2 !justify-start",
+                  pathname === el.link
+                    ? "bg-[var(--future-accent)] text-white hover:bg-[var(--future-accent)]"
+                    : "text-[var(--future-muted)] hover:bg-white/[0.06] hover:text-[var(--future-ink)]",
                 )}
                 onClick={() => {
                   setOpen(false);
@@ -76,14 +86,14 @@ export const MobileNav = () => {
             </div>
           ))}
           {/* 后台管理/用户菜单 */}
-          <div className="mt-4 border-t pt-4">
+          <div className="mt-4 border-t border-[var(--future-line)] pt-4">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 {isAuthenticated ? (
                   <Avatar
                     className={cn(
                       buttonVariants({ variant: "outline", size: "icon" }),
-                      "cursor-pointer",
+                      "cursor-pointer border-[var(--future-line)] bg-white/[0.04]",
                     )}
                   >
                     <AvatarImage
@@ -96,7 +106,12 @@ export const MobileNav = () => {
                     </AvatarFallback>
                   </Avatar>
                 ) : (
-                  <Button variant="outline" size="icon" aria-label="后台管理">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label="后台管理"
+                    className="border-[var(--future-line)] bg-white/[0.04] text-[var(--future-ink)]"
+                  >
                     <UserCog className="size-4" />
                   </Button>
                 )}

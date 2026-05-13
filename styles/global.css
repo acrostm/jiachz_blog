@@ -35,6 +35,29 @@
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
     --click-spark: 268 83% 58%;
+    --future-bg: #f7f1e8;
+    --future-bg-soft: #ece2d7;
+    --future-glass: rgb(255 251 244 / 0.5);
+    --future-glass-strong: rgb(255 253 249 / 0.72);
+    --future-panel: var(--future-glass);
+    --future-panel-strong: var(--future-glass-strong);
+    --future-control: rgb(255 253 249 / 0.46);
+    --future-ink: #17110d;
+    --future-muted: rgb(23 17 13 / 0.64);
+    --future-line: rgb(81 57 39 / 0.2);
+    --future-accent: #d76e43;
+    --future-accent-soft: rgb(215 110 67 / 0.18);
+    --future-cyan: #108a98;
+    --future-cyan-soft: rgb(16 138 152 / 0.16);
+    --future-gold: #d6a354;
+    --future-gold-soft: rgb(214 163 84 / 0.14);
+    --future-rose-soft: rgb(187 88 112 / 0.13);
+    --future-signal-soft: rgb(111 89 255 / 0.11);
+    --future-shadow: 0 28px 90px rgb(83 58 39 / 0.18);
+    --future-inner:
+      inset 0 1px 0 rgb(255 255 255 / 0.62),
+      inset 0 -1px 0 rgb(255 255 255 / 0.24);
+    --future-blur: 30px;
   }
 
   .dark {
@@ -63,6 +86,28 @@
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
     --click-spark: 340 82% 67%;
+    --future-bg: #050506;
+    --future-bg-soft: #0d0d10;
+    --future-glass: rgb(16 17 22 / 0.48);
+    --future-glass-strong: rgb(20 21 27 / 0.66);
+    --future-panel: var(--future-glass);
+    --future-panel-strong: var(--future-glass-strong);
+    --future-control: rgb(255 255 255 / 0.06);
+    --future-ink: #f5efe7;
+    --future-muted: rgb(245 239 231 / 0.62);
+    --future-line: rgb(255 255 255 / 0.13);
+    --future-accent: #df7245;
+    --future-accent-soft: rgb(223 114 69 / 0.2);
+    --future-cyan: #22d3ee;
+    --future-cyan-soft: rgb(34 211 238 / 0.16);
+    --future-gold: #e3ad5d;
+    --future-gold-soft: rgb(227 173 93 / 0.11);
+    --future-rose-soft: rgb(202 90 121 / 0.13);
+    --future-signal-soft: rgb(125 92 255 / 0.13);
+    --future-shadow: 0 24px 90px rgb(0 0 0 / 0.44);
+    --future-inner:
+      inset 0 1px 0 rgb(255 255 255 / 0.12),
+      inset 0 -1px 0 rgb(255 255 255 / 0.04);
   }
 
   *,
@@ -106,5 +151,297 @@ html.dark .shiki span {
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .future-site {
+    --background: 33 42% 95%;
+    --foreground: 24 20% 9%;
+    --card: 32 48% 96%;
+    --card-foreground: 24 20% 9%;
+    --popover: 32 52% 96%;
+    --popover-foreground: 24 20% 9%;
+    --primary: 17 66% 52%;
+    --primary-foreground: 34 60% 97%;
+    --secondary: 32 32% 88%;
+    --secondary-foreground: 24 20% 12%;
+    --muted: 31 26% 89%;
+    --muted-foreground: 24 10% 41%;
+    --accent: 184 57% 88%;
+    --accent-foreground: 184 66% 18%;
+    --border: 25 21% 78%;
+    --input: 25 21% 78%;
+    --ring: 17 66% 52%;
+    --future-bg: #f7f1e8;
+    --future-bg-soft: #ece2d7;
+    --future-glass: rgb(255 251 244 / 0.5);
+    --future-glass-strong: rgb(255 253 249 / 0.72);
+    --future-panel: var(--future-glass);
+    --future-panel-strong: var(--future-glass-strong);
+    --future-control: rgb(255 253 249 / 0.46);
+    --future-ink: #17110d;
+    --future-muted: rgb(23 17 13 / 0.64);
+    --future-line: rgb(81 57 39 / 0.2);
+    --future-accent: #d76e43;
+    --future-accent-soft: rgb(215 110 67 / 0.18);
+    --future-cyan: #108a98;
+    --future-cyan-soft: rgb(16 138 152 / 0.16);
+    --future-gold: #d6a354;
+    --future-gold-soft: rgb(214 163 84 / 0.14);
+    --future-rose-soft: rgb(187 88 112 / 0.13);
+    --future-signal-soft: rgb(111 89 255 / 0.11);
+    --future-shadow: 0 28px 90px rgb(83 58 39 / 0.18);
+    --future-inner:
+      inset 0 1px 0 rgb(255 255 255 / 0.62),
+      inset 0 -1px 0 rgb(255 255 255 / 0.24);
+    --future-blur: 30px;
+    @apply relative isolate overflow-x-clip text-[var(--future-ink)];
+    background: linear-gradient(
+      180deg,
+      var(--future-bg),
+      var(--future-bg-soft)
+    );
+  }
+
+  .dark .future-site {
+    --background: 240 9% 4%;
+    --foreground: 35 47% 94%;
+    --card: 230 10% 9%;
+    --card-foreground: 35 47% 94%;
+    --popover: 230 10% 8%;
+    --popover-foreground: 35 47% 94%;
+    --primary: 17 73% 58%;
+    --primary-foreground: 24 18% 8%;
+    --secondary: 230 8% 15%;
+    --secondary-foreground: 35 47% 94%;
+    --muted: 230 8% 16%;
+    --muted-foreground: 34 17% 66%;
+    --accent: 187 45% 18%;
+    --accent-foreground: 186 80% 78%;
+    --border: 30 9% 24%;
+    --input: 30 9% 24%;
+    --ring: 17 73% 58%;
+    --future-bg: #050506;
+    --future-bg-soft: #0d0d10;
+    --future-glass: rgb(16 17 22 / 0.48);
+    --future-glass-strong: rgb(20 21 27 / 0.66);
+    --future-panel: var(--future-glass);
+    --future-panel-strong: var(--future-glass-strong);
+    --future-control: rgb(255 255 255 / 0.06);
+    --future-ink: #f5efe7;
+    --future-muted: rgb(245 239 231 / 0.62);
+    --future-line: rgb(255 255 255 / 0.13);
+    --future-accent: #df7245;
+    --future-accent-soft: rgb(223 114 69 / 0.2);
+    --future-cyan: #22d3ee;
+    --future-cyan-soft: rgb(34 211 238 / 0.16);
+    --future-gold: #e3ad5d;
+    --future-gold-soft: rgb(227 173 93 / 0.11);
+    --future-rose-soft: rgb(202 90 121 / 0.13);
+    --future-signal-soft: rgb(125 92 255 / 0.13);
+    --future-shadow: 0 24px 90px rgb(0 0 0 / 0.44);
+    --future-inner:
+      inset 0 1px 0 rgb(255 255 255 / 0.12),
+      inset 0 -1px 0 rgb(255 255 255 / 0.04);
+  }
+
+  .future-site::before {
+    content: "";
+    @apply pointer-events-none fixed inset-0 z-0;
+    background:
+      radial-gradient(
+        circle at 50% -12%,
+        rgb(255 255 255 / 0.16),
+        transparent 32rem
+      ),
+      linear-gradient(180deg, transparent, rgb(0 0 0 / 0.05));
+    mix-blend-mode: soft-light;
+  }
+
+  .future-site::after {
+    content: "";
+    @apply pointer-events-none fixed inset-0 z-0 opacity-[0.2];
+    background-image:
+      radial-gradient(
+        circle at 25% 25%,
+        rgb(255 255 255 / 0.16) 0 1px,
+        transparent 1px
+      ),
+      radial-gradient(
+        circle at 80% 15%,
+        rgb(255 255 255 / 0.12) 0 1px,
+        transparent 1px
+      );
+    background-size:
+      19px 19px,
+      31px 31px;
+    mix-blend-mode: overlay;
+  }
+
+  .future-ambient {
+    @apply pointer-events-none fixed inset-0 z-0 overflow-hidden;
+    background:
+      radial-gradient(
+        circle at 14% 8%,
+        var(--future-accent-soft),
+        transparent 34rem
+      ),
+      radial-gradient(
+        circle at 92% 20%,
+        var(--future-cyan-soft),
+        transparent 31rem
+      ),
+      radial-gradient(
+        circle at 45% 92%,
+        var(--future-gold-soft),
+        transparent 34rem
+      );
+  }
+
+  .future-ambient__grid {
+    @apply absolute -inset-24;
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.055) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: linear-gradient(to bottom, black, transparent 84%);
+  }
+
+  .future-ambient__blob {
+    @apply absolute block rounded-full;
+    filter: blur(58px);
+    opacity: 0.74;
+    transform: translateZ(0);
+    will-change: transform;
+  }
+
+  .future-ambient__blob--copper {
+    left: -8rem;
+    top: 4rem;
+    width: min(42vw, 34rem);
+    height: min(42vw, 34rem);
+    background: var(--future-accent-soft);
+  }
+
+  .future-ambient__blob--cyan {
+    right: -10rem;
+    top: 9rem;
+    width: min(44vw, 36rem);
+    height: min(44vw, 36rem);
+    background: var(--future-cyan-soft);
+  }
+
+  .future-ambient__blob--gold {
+    left: 24%;
+    bottom: -12rem;
+    width: min(46vw, 38rem);
+    height: min(46vw, 38rem);
+    background: var(--future-gold-soft);
+  }
+
+  .future-ambient__blob--rose {
+    right: 18%;
+    bottom: 10%;
+    width: min(34vw, 30rem);
+    height: min(34vw, 30rem);
+    background: var(--future-rose-soft);
+  }
+
+  .future-ambient__blob--signal {
+    left: 42%;
+    top: 22%;
+    width: min(30vw, 26rem);
+    height: min(30vw, 26rem);
+    background: var(--future-signal-soft);
+  }
+
+  .future-glass,
+  .future-panel {
+    border: 1px solid var(--future-line);
+    background: var(--future-panel);
+    box-shadow: var(--future-shadow), var(--future-inner);
+    -webkit-backdrop-filter: blur(var(--future-blur)) saturate(1.28);
+    backdrop-filter: blur(var(--future-blur)) saturate(1.28);
+  }
+
+  .future-glass-strong,
+  .future-panel-strong,
+  .future-card {
+    border: 1px solid var(--future-line);
+    background: var(--future-panel-strong);
+    box-shadow: var(--future-shadow), var(--future-inner);
+    -webkit-backdrop-filter: blur(calc(var(--future-blur) + 6px)) saturate(1.34);
+    backdrop-filter: blur(calc(var(--future-blur) + 6px)) saturate(1.34);
+  }
+
+  .future-card {
+    color: var(--future-ink);
+    transition:
+      border-color 220ms ease,
+      background-color 220ms ease,
+      box-shadow 220ms ease,
+      transform 220ms ease;
+  }
+
+  .future-card:hover {
+    border-color: color-mix(
+      in srgb,
+      var(--future-accent) 42%,
+      var(--future-line)
+    );
+    box-shadow:
+      0 30px 100px rgb(0 0 0 / 0.18),
+      0 0 42px color-mix(in srgb, var(--future-accent) 12%, transparent),
+      var(--future-inner);
+  }
+
+  .future-nav-glass {
+    border-bottom: 1px solid var(--future-line);
+    background: color-mix(in srgb, var(--future-bg) 62%, transparent);
+    box-shadow:
+      0 20px 70px rgb(0 0 0 / 0.12),
+      var(--future-inner);
+    -webkit-backdrop-filter: blur(30px) saturate(1.35);
+    backdrop-filter: blur(30px) saturate(1.35);
+  }
+
+  .future-control-glass {
+    border: 1px solid var(--future-line);
+    background: var(--future-control);
+    color: var(--future-ink);
+    -webkit-backdrop-filter: blur(22px) saturate(1.24);
+    backdrop-filter: blur(22px) saturate(1.24);
+  }
+
+  .future-label {
+    @apply font-mono text-[0.68rem] font-semibold uppercase tracking-[0.32em];
+    color: var(--future-accent);
+  }
+
+  .future-muted {
+    color: var(--future-muted);
+  }
+
+  .future-heading {
+    @apply tracking-normal;
+    color: var(--future-ink);
+  }
+
+  .future-hairline {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      var(--future-line),
+      transparent
+    );
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .future-ambient__blob,
+    .future-ambient__grid {
+      animation: none !important;
+      transform: none !important;
+    }
   }
 }

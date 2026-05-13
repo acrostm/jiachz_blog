@@ -76,7 +76,16 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["Avenir Next", "Avenir", ...fontFamily.sans],
+        sans: [
+          "Inter",
+          "Avenir Next",
+          "Avenir",
+          "PingFang SC",
+          "Hiragino Sans GB",
+          "Microsoft YaHei",
+          "Noto Sans CJK SC",
+          ...fontFamily.sans,
+        ],
         mono: [...fontFamily.mono],
       },
       keyframes: {

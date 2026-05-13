@@ -23,6 +23,7 @@ export const TagList = ({ tags }: TagListProps) => {
             buttonVariants({
               variant: "outline",
             }),
+            "rounded-full border-[var(--future-line)] bg-white/[0.04] font-mono text-xs uppercase tracking-[0.18em] text-[var(--future-muted)] hover:bg-white/[0.08] hover:text-[var(--future-ink)]",
           )}
         >
           <TagPrefixIcon tag={el} />

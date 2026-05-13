@@ -13,19 +13,19 @@ export const Footer = async () => {
   const { pv, uv, todayPV, todayUV } = await getSiteStatistics();
 
   return (
-    <footer className="px-6 py-12">
+    <footer className="relative z-[1] px-6 pb-12 pt-24">
       <Wrapper
         className={cn(
-          "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-24 gap-y-8 text-sm text-muted-foreground",
+          "future-panel grid grid-cols-1 gap-x-24 gap-y-10 rounded-[1.5rem] px-6 py-8 text-sm sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
         )}
       >
         <dl className="flex flex-col gap-3">
-          <dt className="text-lg font-semibold text-primary">导航 🧭</dt>
+          <dt className="future-label">Navigation</dt>
           {navItems.map((el) => (
             <dd key={el.link}>
               <Link
                 href={el.link}
-                className="flex items-center transition-colors hover:font-semibold hover:text-primary"
+                className="future-muted flex items-center transition-colors hover:text-[var(--future-ink)]"
               >
                 {el.label}
               </Link>
@@ -34,14 +34,14 @@ export const Footer = async () => {
           <dd>
             <Link
               href={PATHS.SITEMAP}
-              className="transition-colors hover:font-semibold hover:text-primary"
+              className="future-muted transition-colors hover:text-[var(--future-ink)]"
             >
               {PATHS_MAP[PATHS.SITEMAP]}
             </Link>
           </dd>
         </dl>
         <dl className="flex flex-col gap-3">
-          <dt className="text-lg font-semibold text-primary">统计 📊</dt>
+          <dt className="future-label">Signal</dt>
           <dd>
             今日 <span>{formatNum(todayPV)}</span> 次浏览
           </dd>
@@ -58,10 +58,10 @@ export const Footer = async () => {
         </dl>
       </Wrapper>
 
-      <Wrapper className="flex flex-col items-center justify-center space-y-1 pt-24 text-sm text-muted-foreground md:flex-row md:space-x-4 md:space-y-0">
-        <div className="order-3">
+      <Wrapper className="future-muted flex flex-col items-center justify-center gap-1 pt-10 text-sm md:flex-row md:gap-4">
+        <div className="order-3 font-mono text-xs uppercase tracking-[0.2em]">
           &copy; {new Date().getFullYear()} {`Jiach`}&nbsp;&nbsp;·&nbsp;&nbsp;
-          {SLOGAN} 🚀
+          {SLOGAN}
         </div>
       </Wrapper>
     </footer>

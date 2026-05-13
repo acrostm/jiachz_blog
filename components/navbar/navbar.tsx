@@ -47,33 +47,38 @@ export const Navbar = () => {
   return (
     <header
       className={cn(
-        "w-full sticky top-0 backdrop-blur transition-[background-color,border-width] border-x-0 flex justify-center z-10",
-        (scroll?.top ?? 0) > 60 && "bg-background/50 border-b border-border/50",
+        "sticky top-0 z-30 flex w-full justify-center border-x-0 transition-[background-color,border-color,box-shadow] duration-300",
+        "border-b border-transparent bg-[color-mix(in_srgb,var(--future-bg)_74%,transparent)] backdrop-blur-2xl",
+        (scroll?.top ?? 0) > 60 &&
+          "border-[var(--future-line)] shadow-[0_14px_60px_rgb(0_0_0/0.18)]",
       )}
     >
-      <div className="flex h-16 w-full items-center p-4 sm:p-8 md:max-w-screen-md 2xl:max-w-screen-xl">
+      <div className="flex h-16 w-full items-center px-4 sm:px-8 md:max-w-screen-md 2xl:max-w-screen-xl">
         <NextLink
           href={PATHS.SITE_HOME}
-          className={cn("mr-4 hidden sm:flex")}
+          className={cn("mr-4 hidden items-center gap-3 sm:flex")}
           aria-label={NICKNAME}
         >
-          <Logo />
-          <span className="ml-2 text-base font-semibold text-primary">
+          <span className="grid size-9 place-items-center rounded-full border border-[var(--future-line)] bg-white/5 shadow-inner">
+            <Logo />
+          </span>
+          <span className="font-mono text-xs font-semibold uppercase tracking-[0.28em] text-[var(--future-ink)]">
             {WEBSITE}
           </span>
         </NextLink>
         <div className="mr-8 hidden h-16 flex-1 items-center justify-end text-base font-medium sm:flex">
           <NavigationMenu>
-            <NavigationMenuList>
+            <NavigationMenuList className="gap-1 rounded-full border border-[var(--future-line)] bg-white/[0.04] p-1">
               {navItems.map((el) => (
                 <NavigationMenuItem key={el.link}>
                   <Link
                     href={el.link}
                     className={cn(
-                      "font-normal text-sm text-muted-foreground transition-colors px-3 py-2 rounded-md",
-                      "hover:font-semibold hover:text-primary",
+                      "rounded-full px-3 py-1.5 text-xs font-medium text-[var(--future-muted)] transition-colors",
+                      "hover:text-[var(--future-ink)]",
                       "bg-transparent hover:bg-transparent focus:bg-transparent",
-                      pathname === el.link && "font-semibold text-primary",
+                      pathname === el.link &&
+                        "bg-[var(--future-accent)]/12 text-[var(--future-ink)] shadow-[inset_0_0_0_1px_rgb(255_255_255/0.08)]",
                     )}
                   >
                     {el.label}
@@ -92,7 +97,12 @@ export const Navbar = () => {
             title={SOURCE_CODE_GITHUB_PAGE}
             aria-label={SOURCE_CODE_GITHUB_PAGE}
           >
-            <Button variant="outline" size={"icon"} aria-label="Github Icon">
+            <Button
+              variant="outline"
+              size={"icon"}
+              aria-label="Github Icon"
+              className="border-[var(--future-line)] bg-white/[0.04] text-[var(--future-ink)] hover:bg-white/[0.08]"
+            >
               <IconBrandGithub className="text-base" />
             </Button>
           </Link>
@@ -102,7 +112,7 @@ export const Navbar = () => {
                 <Avatar
                   className={cn(
                     buttonVariants({ variant: "outline", size: "icon" }),
-                    "cursor-pointer",
+                    "cursor-pointer border-[var(--future-line)] bg-white/[0.04]",
                   )}
                 >
                   <AvatarImage
@@ -115,7 +125,12 @@ export const Navbar = () => {
                   </AvatarFallback>
                 </Avatar>
               ) : (
-                <Button variant="outline" size="icon" aria-label="后台管理">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label="后台管理"
+                  className="border-[var(--future-line)] bg-white/[0.04] text-[var(--future-ink)] hover:bg-white/[0.08]"
+                >
                   <UserCog className="size-4" />
                 </Button>
               )}

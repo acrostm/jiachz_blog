@@ -1,4 +1,12 @@
+"use client";
+
+import React from "react";
+
 import Link from "next/link";
+
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ArrowUpRight, Braces, Cpu, Newspaper, Sparkles } from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -8,113 +16,180 @@ import {
 } from "@/components/ui/tooltip";
 
 import { NICKNAME, PATHS } from "@/constants";
-import { TypeIntro } from "@/features/home";
 import { cn } from "@/lib/utils";
 
 import { socialMediaList } from "./social-media";
 
-export const HeroSection = () => {
-  let delay = 0;
+gsap.registerPlugin(useGSAP);
 
-  // 每次调用，增加延时
-  const getDelay = () => (delay += 200);
+export const HeroSection = () => {
+  const scope = React.useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      const reduceMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+
+      if (reduceMotion) {
+        gsap.set("[data-hero-reveal]", { autoAlpha: 1 });
+        return;
+      }
+
+      gsap
+        .timeline({ defaults: { ease: "power3.out", duration: 0.85 } })
+        .fromTo(
+          "[data-hero-reveal]",
+          { autoAlpha: 0, y: 28, filter: "blur(12px)" },
+          {
+            autoAlpha: 1,
+            y: 0,
+            filter: "blur(0px)",
+            stagger: 0.08,
+          },
+        )
+        .fromTo(
+          "[data-hero-orbit]",
+          { autoAlpha: 0, scale: 0.92, rotate: -8 },
+          { autoAlpha: 1, scale: 1, rotate: 0 },
+          "-=0.45",
+        );
+
+      gsap.to("[data-hero-orbit]", {
+        y: -12,
+        duration: 3.8,
+        repeat: -1,
+        yoyo: true,
+        ease: "sine.inOut",
+      });
+    },
+    { scope },
+  );
 
   return (
-    <div className="flex min-h-full  max-w-screen-md flex-col justify-center gap-5 px-6 md:px-10 2xl:max-w-7xl">
-      <p
-        className="animate-fade-up text-2xl tracking-widest animate-ease-in-out md:text-5xl"
-        style={{
-          animationDelay: `${getDelay()}ms`,
-        }}
-      >
-        你好，我是 👋
-      </p>
-      <strong
-        className={cn(
-          `text-5xl md:text-8xl tracking-widest font-black  bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500`,
-          "animate-fade-up animate-ease-in-out",
-        )}
-        style={{
-          WebkitTextFillColor: "transparent",
-          animationDelay: `${getDelay()}ms`,
-        }}
-      >
-        {NICKNAME}
-      </strong>
-      <div
-        className={cn("animate-fade-up animate-ease-in-out")}
-        style={{
-          animationDelay: `${getDelay()}ms`,
-        }}
-      >
-        <TypeIntro />
-      </div>
-      <p
-        className={cn(
-          "text-2xl md:text-5xl tracking-widest",
-          "animate-fade-up animate-ease-in-out",
-        )}
-        style={{
-          animationDelay: `${getDelay()}ms`,
-        }}
-      >
-        学习 📚
-        <span className={`font-semibold text-[#00d8ff]`}>Java</span>、
-        <span className={`font-semibold text-[#007acc]`}>Spring</span>
-        <span className="ml-4">~ \owo/ ~ </span>
-      </p>
-      <p
-        className={cn(
-          "text-base md:text-2xl text-muted-foreground tracking-widest",
-          "animate-fade-up animate-ease-in-out",
-        )}
-        style={{
-          animationDelay: `${getDelay()}ms`,
-        }}
-      >
-        我在这个网站记录我的学习，文章！📝
-      </p>
-      <div
-        className={cn("flex space-x-4", "animate-fade-up animate-ease-in-out")}
-        style={{
-          animationDelay: `${getDelay()}ms`,
-        }}
-      >
-        <Link
-          href={PATHS.SITE_BLOG}
-          className={cn(buttonVariants({ variant: "outline" }))}
+    <section
+      ref={scope}
+      className="mx-auto grid min-h-[calc(100vh-64px)] w-full max-w-screen-2xl items-center gap-12 px-6 py-16 md:grid-cols-[minmax(0,1fr)_minmax(340px,480px)] md:px-10 lg:px-16"
+    >
+      <div className="max-w-4xl">
+        <div data-hero-reveal className="mb-8 flex items-center gap-3">
+          <span className="future-label">Jiach / Digital Field Notes</span>
+          <span className="h-px w-16 bg-[color:var(--future-accent)] opacity-55" />
+        </div>
+
+        <h1
+          data-hero-reveal
+          className="future-heading max-w-5xl text-6xl font-black leading-[0.92] md:text-8xl lg:text-9xl"
         >
-          我的博客
-        </Link>
-        <Link
-          href={PATHS.SITE_ABOUT}
-          className={cn(buttonVariants({ variant: "outline" }))}
+          写给 AI 时代的软件开发现场
+        </h1>
+
+        <p
+          data-hero-reveal
+          className="future-muted mt-8 max-w-2xl text-lg leading-8 md:text-xl"
         >
-          关于我
-        </Link>
+          你好，我是 {NICKNAME}。这里记录工程实践、系统设计、工具链、AI
+          协作和那些真正改变开发效率的细节。
+        </p>
+
+        <div data-hero-reveal className="mt-9 flex flex-col gap-3 sm:flex-row">
+          <Link
+            href={PATHS.SITE_BLOG}
+            className={cn(
+              buttonVariants({ variant: "default" }),
+              "h-12 rounded-full bg-[var(--future-accent)] px-6 text-white hover:bg-[var(--future-accent)]/90",
+            )}
+          >
+            进入博客
+            <ArrowUpRight className="ml-2 size-4" />
+          </Link>
+          <Link
+            href={PATHS.SITE_ABOUT}
+            className={cn(
+              buttonVariants({ variant: "outline" }),
+              "h-12 rounded-full border-[var(--future-line)] bg-white/[0.04] px-6 text-[var(--future-ink)] hover:bg-white/[0.08]",
+            )}
+          >
+            关于我
+          </Link>
+        </div>
+
+        <ul data-hero-reveal className="mt-10 flex flex-wrap gap-3">
+          {socialMediaList.map((el) => (
+            <li key={el.link}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="icon"
+                    className="rounded-full border-[var(--future-line)] bg-white/[0.04] text-[var(--future-ink)] hover:bg-white/[0.08]"
+                  >
+                    <Link href={el.link} target="_blank">
+                      {el.icon}
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{el.label}</TooltipContent>
+              </Tooltip>
+            </li>
+          ))}
+        </ul>
       </div>
 
-      <ul
-        className={cn("flex space-x-4", "animate-fade-up animate-ease-in-out")}
-        style={{
-          animationDelay: `${getDelay()}ms`,
-        }}
+      <div
+        data-hero-orbit
+        className="future-panel relative min-h-[520px] overflow-hidden rounded-[2rem] p-6"
       >
-        {socialMediaList.map((el) => (
-          <li key={el.link}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button asChild variant="outline" size="icon">
-                  <Link href={el.link} target="_blank">
-                    {el.icon}
-                  </Link>
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>{el.label}</TooltipContent>
-            </Tooltip>
-          </li>
-        ))}
-      </ul>
-    </div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_28%_15%,rgb(223_114_69/0.22),transparent_32%),radial-gradient(circle_at_80%_70%,rgb(34_211_238/0.18),transparent_28%)]" />
+        <div className="absolute inset-0 opacity-35 [background-image:linear-gradient(90deg,rgba(255,255,255,.08)_1px,transparent_1px),linear-gradient(0deg,rgba(255,255,255,.08)_1px,transparent_1px)] [background-size:34px_34px]" />
+
+        <div className="relative z-[1] flex h-full min-h-[470px] flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <div className="future-label">Live Stack</div>
+            <div className="font-mono text-sm text-[var(--future-muted)]">
+              01 / 04
+            </div>
+          </div>
+
+          <div className="grid gap-4">
+            {[
+              { icon: Cpu, label: "Backend Systems", value: "Java / Spring" },
+              { icon: Braces, label: "Frontend Craft", value: "React / Next" },
+              { icon: Sparkles, label: "AI Workflow", value: "Agentic Dev" },
+              { icon: Newspaper, label: "Writing", value: "Notes / Essays" },
+            ].map((item) => {
+              const Icon = item.icon;
+
+              return (
+                <div
+                  key={item.label}
+                  className="rounded-2xl border border-white/10 bg-black/20 p-4 shadow-inner backdrop-blur"
+                >
+                  <div className="flex items-center gap-3">
+                    <span className="grid size-10 place-items-center rounded-full border border-white/10 bg-white/[0.06] text-[var(--future-accent)]">
+                      <Icon className="size-4" />
+                    </span>
+                    <div>
+                      <p className="font-mono text-xs uppercase tracking-[0.22em] text-[var(--future-muted)]">
+                        {item.label}
+                      </p>
+                      <p className="mt-1 text-lg font-semibold">{item.value}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div>
+            <div className="mb-4 h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+            <p className="future-muted text-sm leading-6">
+              每篇文章都尽量保留代码、上下文、取舍和可回看的视觉记忆。
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 };

@@ -1,16 +1,21 @@
+import React from "react";
+
 import Link from "next/link";
 
-import { MapPin, MoveLeft, User } from "lucide-react";
+import { CalendarDays, Eye, MapPin, MoveLeft, User } from "lucide-react";
 
 import { BytemdViewer } from "@/components/bytemd";
 import { DetailSidebar } from "@/components/detail-sidebar";
 import { MarkdownTOC } from "@/components/markdown-toc";
+import { GsapReveal } from "@/components/motion/gsap-reveal";
 import { Wrapper } from "@/components/wrapper";
 
 import { PATHS, PLACEHOLDER_TEXT } from "@/constants";
 import { TagList } from "@/features/tag";
 import { cn, prettyDateWithWeekday } from "@/lib/utils";
 
+import { ArticleReadingProgress } from "../components/article-reading-progress";
+import { BlogCoverArt } from "../components/blog-cover-art";
 import { BlogEventTracking } from "../components/blog-event-tracking";
 import { type Blog } from "../types";
 
@@ -21,57 +26,119 @@ type BlogDetailProps = {
 
 export const BlogDetailPage = ({ blog, uv = 0 }: BlogDetailProps) => {
   return (
-    <Wrapper className="flex flex-col pt-8">
-      <div>
+    <Wrapper className="flex flex-col px-6 pb-24 pt-8">
+      <ArticleReadingProgress />
+      <GsapReveal>
         <Link
           href={PATHS.SITE_BLOG}
+          data-gsap-reveal
           className={cn(
-            "text-sm flex items-center space-x-1 transition-colors py-2",
-            "text-muted-foreground hover:text-primary",
+            "future-muted mb-6 inline-flex items-center gap-2 rounded-full border border-[var(--future-line)] bg-white/[0.04] px-4 py-2 text-sm transition-colors",
+            "hover:text-[var(--future-ink)]",
           )}
         >
           <MoveLeft className="size-3.5" />
           <span>返回博客</span>
         </Link>
-      </div>
-      <div className="flex flex-wrap items-center gap-4 pb-4 pt-8 text-sm text-muted-foreground">
-        <p>发布于&nbsp;&nbsp;{prettyDateWithWeekday(blog.createdAt)}</p>
-        <p>{uv || PLACEHOLDER_TEXT}&nbsp;&nbsp;人浏览过</p>
-        {blog.author && (
-          <div className="flex items-center space-x-1">
-            <User className="size-3.5" />
-            <span>作者：{blog.author}</span>
-          </div>
-        )}
-        {blog.creatorLocation && (
-          <div className="flex items-center space-x-1">
-            <MapPin className="size-3.5" />
-            <span>{blog.creatorLocation}</span>
-          </div>
-        )}
-      </div>
-      <h1 className="break-all py-6 text-4xl font-semibold">{blog.title}</h1>
 
-      <p className="py-4 text-neutral-500">{blog.description}</p>
-
-      <div className="flex">
-        <div
-          className={cn(
-            "flex-1",
-            "wrapper:border-r wrapper:border-r-border wrapper:pr-14",
-          )}
+        <section
+          data-gsap-reveal
+          className="future-panel-strong relative isolate overflow-hidden rounded-[2rem] p-5 md:p-8"
         >
-          <BytemdViewer body={blog.body || ""} />
-        </div>
-        <DetailSidebar>
-          <MarkdownTOC />
-        </DetailSidebar>
-      </div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_16%,rgb(223_114_69/0.18),transparent_32%),radial-gradient(circle_at_82%_24%,rgb(34_211_238/0.16),transparent_28%)]" />
+          <div className="relative z-[1] grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-stretch">
+            <div className="flex min-h-[420px] flex-col justify-between px-1 py-2 md:px-3">
+              <div>
+                <div className="mb-6 flex items-center gap-3">
+                  <span className="future-label">Article Plate</span>
+                  <span className="h-px w-16 bg-[color:var(--future-accent)] opacity-55" />
+                </div>
+                <h1 className="future-heading max-w-4xl break-words text-5xl font-black leading-[0.98] md:text-7xl">
+                  {blog.title}
+                </h1>
+                <p className="future-muted mt-6 max-w-2xl text-base leading-8 md:text-lg">
+                  {blog.description}
+                </p>
+              </div>
 
-      <div className="pb-14 pt-16">
-        <TagList tags={blog.tags} />
-      </div>
+              <div className="mt-10 grid gap-3 sm:grid-cols-2">
+                <MetaItem
+                  icon={<CalendarDays className="size-4" />}
+                  label="Published"
+                  value={prettyDateWithWeekday(blog.createdAt)}
+                />
+                <MetaItem
+                  icon={<Eye className="size-4" />}
+                  label="Views"
+                  value={`${uv || PLACEHOLDER_TEXT} 人浏览过`}
+                />
+                {blog.author && (
+                  <MetaItem
+                    icon={<User className="size-4" />}
+                    label="Author"
+                    value={blog.author}
+                  />
+                )}
+                {blog.creatorLocation && (
+                  <MetaItem
+                    icon={<MapPin className="size-4" />}
+                    label="Location"
+                    value={blog.creatorLocation}
+                  />
+                )}
+              </div>
+            </div>
+
+            <BlogCoverArt
+              title={blog.title}
+              cover={blog.cover}
+              className="min-h-[360px] lg:min-h-full"
+              priority
+            />
+          </div>
+        </section>
+
+        <div
+          data-gsap-reveal
+          className="mt-8 grid gap-8 wrapper:grid-cols-[minmax(0,1fr)_240px]"
+        >
+          <article className="future-panel-strong overflow-hidden rounded-[2rem] px-5 py-7 md:p-10">
+            <BytemdViewer body={blog.body || ""} />
+
+            <div className="mt-12 border-t border-[var(--future-line)] pt-8">
+              <p className="future-label mb-4">Tagged</p>
+              <TagList tags={blog.tags} />
+            </div>
+          </article>
+
+          <DetailSidebar>
+            <MarkdownTOC />
+          </DetailSidebar>
+        </div>
+      </GsapReveal>
       <BlogEventTracking blogID={blog.id} />
     </Wrapper>
+  );
+};
+
+const MetaItem = ({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+}) => {
+  return (
+    <div className="rounded-2xl border border-[var(--future-line)] bg-white/[0.04] p-4">
+      <div className="mb-3 flex items-center gap-2 text-[var(--future-accent)]">
+        {icon}
+        <span className="font-mono text-[0.62rem] uppercase tracking-[0.22em]">
+          {label}
+        </span>
+      </div>
+      <div className="future-muted text-sm leading-6">{value}</div>
+    </div>
   );
 };

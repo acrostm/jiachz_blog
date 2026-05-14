@@ -11,7 +11,6 @@ import { NODE_ENV } from "@/config";
 
 import { ThemeProvider } from "@/providers";
 
-import { ClickSpark } from "@/components/ui/click-spark";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
@@ -61,33 +60,25 @@ export default function RootLayout({
         ></script>
       </head>
       <body className="font-sans" suppressHydrationWarning>
-        <ClickSpark
-          sparkColor="--click-spark"
-          sparkSize={10}
-          sparkRadius={15}
-          sparkCount={8}
-          duration={400}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
         >
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <TooltipProvider>
-              <FutureShell>
-                {children}
+          <TooltipProvider>
+            <FutureShell>
+              {children}
 
-                <Favicon />
-                <Toaster />
+              <Favicon />
+              <Toaster />
 
-                <Console />
+              <Console />
 
-                <Fingerprint />
-              </FutureShell>
-            </TooltipProvider>
-          </ThemeProvider>
-        </ClickSpark>
+              <Fingerprint />
+            </FutureShell>
+          </TooltipProvider>
+        </ThemeProvider>
       </body>
 
       {/*TODO*/}

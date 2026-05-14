@@ -44,7 +44,6 @@ const config = {
     // 参考 issue: https://github.com/vercel/next.js/issues/64434#issuecomment-2082964050
     // 参考 issue: https://github.com/vercel/next.js/issues/64434#issuecomment-2084270758
     optimizePackageImports: ["shiki"],
-    nodeMiddleware: true,
   },
 };
 

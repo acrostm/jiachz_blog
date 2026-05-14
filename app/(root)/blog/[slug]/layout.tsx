@@ -10,9 +10,10 @@ import { getPublishedBlogBySlug } from "@/features/blog";
 export async function generateMetadata({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
-  const { blog } = await getPublishedBlogBySlug(params.slug);
+  const { slug } = await params;
+  const { blog } = await getPublishedBlogBySlug(slug);
 
   if (isNil(blog)) {
     return {};

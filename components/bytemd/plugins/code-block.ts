@@ -6,14 +6,15 @@ import { visit } from "unist-util-visit";
 
 import { copyToClipboard, isBrowser } from "@/lib/utils";
 
+const copyIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+
 const copyBtnNode = fromHtmlIsomorphic(`
-<div class="copy-code-button">
-<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
-</div>
+<button type="button" class="copy-code-button" title="复制代码" aria-label="复制代码">
+${copyIcon}
+</button>
 `);
 
-const clipboardCheckIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-copy-check"><path d="m12 15 2 2 4-4"/><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
-const successTip = `<span style="font-size: 0.75em;">复制成功!</span>`;
+const clipboardCheckIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m12 15 2 2 4-4"/><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
 
 /**
  * 插件功能
@@ -35,9 +36,11 @@ export const codeBlockPlugin = (): BytemdPlugin => {
             );
 
             if (codeElement) {
-              const language = codeElement.properties?.className
-                ?.find((cls) => cls.startsWith("language-"))
-                ?.split("-")[1]
+              const languageClass = codeElement.properties?.className?.find(
+                (cls) => cls.startsWith("language-") || cls.startsWith("lang-"),
+              );
+              const language = languageClass
+                ?.replace(/^lang(uage)?-/, "")
                 ?.split(":")[0];
 
               if (language) {
@@ -46,7 +49,7 @@ export const codeBlockPlugin = (): BytemdPlugin => {
                   node.properties = {};
                 }
                 if (!node.properties["data-language"]) {
-                  node.properties["data-language"] = language;
+                  node.properties["data-language"] = language.toUpperCase();
                 }
               }
             }
@@ -62,24 +65,37 @@ export const codeBlockPlugin = (): BytemdPlugin => {
 
       const elements = markdownBody.querySelectorAll(".copy-code-button");
       for (const element of elements) {
+        if ((element as HTMLElement).dataset.copyBound === "true") {
+          continue;
+        }
+        (element as HTMLElement).dataset.copyBound = "true";
+
         // 点击按钮复制代码到粘贴板
         element.addEventListener("click", () => {
-          let codeText = element.textContent ?? "";
-          // 复制代码时去除开头的$符号，然后trim一下，一般是复制shell命令的代码块会用到
-          if (codeText.startsWith("$")) {
-            codeText = codeText.slice(1).trim();
-          }
-          copyToClipboard(element.parentElement?.textContent?.trim() || "");
+          void (async () => {
+            const code = element.parentElement?.querySelector("code");
+            let codeText = code?.textContent ?? "";
+            // 复制代码时去除开头的$符号，然后trim一下，一般是复制shell命令的代码块会用到
+            if (codeText.startsWith("$")) {
+              codeText = codeText.slice(1).trim();
+            }
+            const copied = await copyToClipboard(codeText);
+            if (!copied) {
+              return;
+            }
 
-          const tmp = element.innerHTML;
-          element.innerHTML = clipboardCheckIcon + successTip;
-          let timer = 0;
+            const tmp = element.innerHTML;
+            element.innerHTML = clipboardCheckIcon;
+            element.setAttribute("aria-label", "代码已复制");
+            let timer = 0;
 
-          timer = window.setTimeout(() => {
-            element.innerHTML = tmp;
-            window.clearTimeout(timer);
-            timer = 0;
-          }, 3 * 1000);
+            timer = window.setTimeout(() => {
+              element.innerHTML = tmp;
+              element.setAttribute("aria-label", "复制代码");
+              window.clearTimeout(timer);
+              timer = 0;
+            }, 3 * 1000);
+          })();
         });
       }
     },

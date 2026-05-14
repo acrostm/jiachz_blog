@@ -9,7 +9,7 @@ export default function Layout({ children }: React.PropsWithChildren) {
     <SessionProvider>
       <div className="min-h-screen">
         <Navbar />
-        <main className="relative z-[1] min-h-[calc(100vh-190px)]">
+        <main className="relative z-[1] min-h-[calc(100vh-190px)] pt-16">
           {children}
         </main>
         <Footer />

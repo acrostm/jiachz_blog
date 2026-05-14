@@ -12,9 +12,12 @@ export const inlineCodePlugin = (): BytemdPlugin => {
   return {
     rehype: (process) =>
       process.use(() => (tree) => {
-        visit(tree, "element", (node) => {
+        visit(tree, "element", (node, _index, parent) => {
           // Handle inline code elements (not in pre blocks)
-          if (node.tagName === "code" && node.parent?.tagName !== "pre") {
+          if (
+            node.tagName === "code" &&
+            !(parent?.type === "element" && parent.tagName === "pre")
+          ) {
             // Add a class for styling
             if (!node.properties) {
               node.properties = {};

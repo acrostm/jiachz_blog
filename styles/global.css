@@ -122,6 +122,11 @@
       "rlig" 1,
       "calt" 1;
   }
+
+  html,
+  body {
+    overscroll-behavior-y: none;
+  }
 }
 /* 适配 shiki 深色模式 */
 html.dark .shiki,

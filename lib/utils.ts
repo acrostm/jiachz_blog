@@ -24,19 +24,21 @@ export const toSlug = (s: string) => {
   });
 };
 
-export const copyToClipboard = (text: string) => {
+export const copyToClipboard = async (text: string): Promise<boolean> => {
+  const content = text?.trim();
   // 实测 Clipboard API 在 iPhone 上不支持，可恶！
   if (navigator.clipboard) {
-    navigator.clipboard
-      // 去除首尾空白字符
-      .writeText(text?.trim())
-      .then(() => {
-        toast.success("已复制到粘贴板");
-      })
-      .catch((error) => {
-        toast.error(error as string);
-      });
-  } else {
+    try {
+      await navigator.clipboard.writeText(content);
+      toast.success("已复制到粘贴板");
+      return true;
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : String(error));
+      return false;
+    }
+  }
+
+  try {
     // 以下代码来自：https://www.zhangxinxu.com/wordpress/2021/10/js-copy-paste-clipboard/
     const textarea = document.createElement("textarea");
     document.body.appendChild(textarea);
@@ -45,14 +47,22 @@ export const copyToClipboard = (text: string) => {
     textarea.style.clip = "rect(0 0 0 0)";
     textarea.style.top = "10px";
     // 赋值，手动去除首尾空白字符
-    textarea.value = text?.trim();
+    textarea.value = content;
     // 选中
     textarea.select();
     // 复制
-    document.execCommand("copy", true);
-    toast.success("已复制到粘贴板");
+    const copied = document.execCommand("copy", true);
+    if (copied) {
+      toast.success("已复制到粘贴板");
+    } else {
+      toast.error("复制失败，请手动复制代码");
+    }
     // 移除输入框
     document.body.removeChild(textarea);
+    return copied;
+  } catch (error) {
+    toast.error(error instanceof Error ? error.message : String(error));
+    return false;
   }
 };
 

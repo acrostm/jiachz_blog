@@ -47,7 +47,7 @@ export const Navbar = () => {
   return (
     <header
       className={cn(
-        "sticky top-0 z-30 flex w-full justify-center border-x-0 transition-[background-color,border-color,box-shadow] duration-300",
+        "fixed inset-x-0 top-0 z-50 flex w-full justify-center border-x-0 transition-[background-color,border-color,box-shadow] duration-300",
         "future-nav-glass border-transparent",
         (scroll?.top ?? 0) > 60 &&
           "border-[var(--future-line)] shadow-[0_18px_70px_rgb(0_0_0/0.2)]",

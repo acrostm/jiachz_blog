@@ -207,10 +207,9 @@ export const toggleNotePublished = async (id: string) => {
     });
 
     if (!note) {
-      const activityType = note?.published ? "NOTE_UNPUBLISH" : "NOTE_PUBLISH";
       await logNoteActivity(
         userId,
-        activityType,
+        "NOTE_PUBLISH",
         "FAILED",
         id,
         undefined,
@@ -289,18 +288,21 @@ export const updateNote = async (params: UpdateNoteDTO) => {
 
   try {
     const noteTagIDs = note.tags.map(({ id }) => id);
-    const connectTags = tags
+    const nextBody = body ?? note.body;
+    const nextPublished = published ?? note.published;
+    const nextTagIDs = tags ?? noteTagIDs;
+    const connectTags = nextTagIDs
       ?.filter((tagID) => !noteTagIDs.includes(tagID))
       ?.map((id) => ({ id }));
     const disconnectTags = note.tags
-      .filter(({ id }) => !tags?.includes(id))
+      .filter(({ id }) => !nextTagIDs.includes(id))
       .map(({ id }) => ({ id }));
 
     await prisma.note.update({
       where: { id },
       data: {
-        body,
-        published,
+        body: nextBody,
+        published: nextPublished,
         tags: {
           connect: connectTags?.length ? connectTags : undefined,
           disconnect: disconnectTags?.length ? disconnectTags : undefined,
@@ -310,9 +312,9 @@ export const updateNote = async (params: UpdateNoteDTO) => {
 
     // 分析变更内容
     const changes: string[] = [];
-    if (body !== note.body) changes.push("内容");
-    if (published !== note.published) {
-      changes.push(published ? "发布状态" : "取消发布");
+    if (nextBody !== note.body) changes.push("内容");
+    if (nextPublished !== note.published) {
+      changes.push(nextPublished ? "发布状态" : "取消发布");
     }
     if (connectTags?.length || disconnectTags?.length) changes.push("标签");
 
@@ -325,9 +327,9 @@ export const updateNote = async (params: UpdateNoteDTO) => {
         tagCount: note.tags.length,
       },
       newValue: {
-        bodyLength: body.length,
-        published,
-        tagCount: tags?.length || 0,
+        bodyLength: nextBody.length,
+        published: nextPublished,
+        tagCount: nextTagIDs.length,
       },
       changes,
     });

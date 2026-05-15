@@ -32,20 +32,10 @@ export const plugins = [
 
 export const sanitize: EditorProps["sanitize"] = (schema) => {
   return merge(schema, {
-    tagNames: ["iframe"],
-    attributes: {
-      iframe: [
-        "src",
-        "style",
-        "title",
-        "all",
-        "sandbox",
-        "scrolling",
-        "border",
-        "frameborder",
-        "framespacing",
-        "allowfullscreen",
-      ],
+    protocols: {
+      href: ["http", "https", "mailto"],
+      src: ["http", "https"],
     },
+    clobberPrefix: "md-",
   } as typeof schema);
 };

@@ -124,10 +124,10 @@ export const getPublishedBlogs = async () => {
 
     const total = count ?? 0;
 
-    const m = await getBlogsUV(blogs?.map((el) => el.id) || []);
+    const m = await getBlogsUV(blogs?.map((el) => el.id) ?? []);
     const uvMap = new Map<string, number>();
     blogs?.forEach((blog, idx) => {
-      uvMap.set(blog.id, m[idx] || 0);
+      uvMap.set(blog.id, m[idx] ?? 0);
     });
 
     return {
@@ -337,7 +337,7 @@ export const createBlog = async (params: CreateBlogDTO) => {
         slug,
         published,
         author,
-        tags: tags?.length || 0,
+        tags: tags?.length ?? 0,
       },
     });
 
@@ -359,13 +359,15 @@ export const createBlog = async (params: CreateBlogDTO) => {
 
     const status = published ? "已发布 ✅" : "草稿 📝";
 
-    notifyNewBlogCreated(title, author, status, creationTime).catch((error) => {
-      // Silently handle notification errors
-      void error;
-    });
+    notifyNewBlogCreated(title, author ?? "未知", status, creationTime).catch(
+      (error) => {
+        // Silently handle notification errors
+        void error;
+      },
+    );
 
     return { success: true };
-  } catch (error) {
+  } catch {
     await logBlogActivity(
       userId,
       "BLOG_CREATE",
@@ -512,8 +514,8 @@ export const updateBlog = async (params: UpdateBlogDTO) => {
 
     // 记录变更内容
     const changes: string[] = [];
-    const previousValue: Record<string, any> = {};
-    const newValue: Record<string, any> = {};
+    const previousValue: Record<string, unknown> = {};
+    const newValue: Record<string, unknown> = {};
 
     if (title && title !== blog.title) {
       changes.push("标题");
@@ -578,7 +580,7 @@ export const updateBlog = async (params: UpdateBlogDTO) => {
     }
 
     return { success: true };
-  } catch (error) {
+  } catch {
     await logBlogActivity(
       userId,
       "BLOG_UPDATE",

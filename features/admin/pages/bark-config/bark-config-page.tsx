@@ -61,8 +61,7 @@ export const BarkConfigPage = () => {
       if (!response.ok) throw new Error("Failed to load configs");
       const data = (await response.json()) as { configs: BarkConfigItem[] };
       setConfigs(data.configs);
-    } catch (error) {
-      console.error(error);
+    } catch {
       toast.error("无法加载Bark配置");
     } finally {
       setLoading(false);
@@ -126,8 +125,7 @@ export const BarkConfigPage = () => {
 
       setDialogOpen(false);
       await loadConfigs();
-    } catch (error) {
-      console.error(error);
+    } catch {
       toast.error("无法保存Bark配置");
     }
   };
@@ -150,8 +148,7 @@ export const BarkConfigPage = () => {
       toast.success("配置已删除");
 
       await loadConfigs();
-    } catch (error) {
-      console.error(error);
+    } catch {
       toast.error("无法删除Bark配置");
     }
   };
@@ -168,8 +165,7 @@ export const BarkConfigPage = () => {
       if (!response.ok) throw new Error("Failed to send test notification");
 
       toast.success("测试通知已发送，请检查你的设备是否收到通知");
-    } catch (error) {
-      console.error(error);
+    } catch {
       toast.error("无法发送测试通知");
     }
   };
@@ -209,7 +205,7 @@ export const BarkConfigPage = () => {
         ) : configs.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center text-muted-foreground">
-              暂无配置，点击"添加配置"按钮创建第一个Bark通知配置
+              暂无配置，点击&quot;添加配置&quot;按钮创建第一个Bark通知配置
             </CardContent>
           </Card>
         ) : (

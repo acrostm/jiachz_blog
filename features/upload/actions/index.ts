@@ -16,69 +16,56 @@ import {
   logFileActivity,
 } from "@/lib/utils/activity-logger-helper";
 
-const getImageInfo = async (file: File) => {
-  const buffer = await file.arrayBuffer();
-  const typeInfo = await imageType(new Uint8Array(buffer));
+const ONE_MIB = 1024 * 1024;
+
+type UploadResult = { error?: string; url?: string };
+
+interface ImageInfo {
+  buffer: Buffer;
+  isImage: boolean;
+  isGif: boolean;
+  isWebp: boolean;
+}
+
+interface ImageUploadOptions {
+  uploadDir: string;
+  sizeLimit: number;
+  sizeLimitError: string;
+  metadataType?: string;
+  sizeLimitReason: string;
+  compressFailureReason: string;
+  uploadFailureReason: string;
+}
+
+const getImageInfo = async (file: File): Promise<ImageInfo> => {
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const typeInfo = await imageType(buffer);
 
   return {
-    info: typeInfo,
+    buffer,
     isImage: Boolean(typeInfo),
-    isGif: typeInfo ? typeInfo.ext === "gif" : false,
-    isWebp: typeInfo ? typeInfo.ext === "webp" : false,
+    isGif: typeInfo?.ext === "gif",
+    isWebp: typeInfo?.ext === "webp",
   };
 };
 
-const compressImage = async (file: File): Promise<Buffer> => {
-  const buffer = await file.arrayBuffer();
-  const { isGif, isImage, isWebp } = await getImageInfo(file);
-
-  // 如果不是图片，或者已经是 WebP 格式，直接返回原始文件数据
-  if (!isImage || isWebp) {
-    return Buffer.from(buffer);
+const compressImage = async (image: ImageInfo): Promise<Buffer> => {
+  if (!image.isImage || image.isWebp) {
+    return image.buffer;
   }
-
-  // 如果是 GIF 动图，设置 animated 为 true
-  const options = isGif ? { animated: true } : {};
 
   try {
-    // 使用 sharp 将图像转换为 WebP 格式
-    return await sharp(Buffer.from(buffer), options)
-      .webp({ quality: 66, lossless: false }) // 设置质量和无损/有损压缩
+    return await sharp(image.buffer, image.isGif ? { animated: true } : {})
+      .webp({ quality: 66, lossless: false })
       .toBuffer();
-  } catch (error) {
-    throw new Error(`Failed to compress image`);
+  } catch {
+    throw new Error("Failed to compress image");
   }
-};
-
-const uploadToR2 = async (
-  file: File,
-  compressedFile: Buffer,
-  useWebp: boolean,
-  upload_dir: string,
-) => {
-  // 使用 WebP 格式时，手动设置扩展名为 .webp
-  const fileExtension = useWebp ? ".webp" : path.extname(file.name);
-
-  const key = `${upload_dir}${new Date().toISOString().split("T")[0]}/${
-    createCuid() + fileExtension
-  }`;
-
-  const uploadParams = {
-    Bucket: R2_BUCKET,
-    Key: key,
-    Body: compressedFile,
-    // 根据实际的压缩格式来确定 Content-Type
-    ContentType: useWebp ? "image/webp" : getContentType(file.name),
-  };
-
-  const command = new PutObjectCommand(uploadParams);
-  await s3.send(command);
-
-  return `https://r2.jiachz.com/${key}`;
 };
 
 const getContentType = (fileName: string): string => {
   const ext = path.extname(fileName).toLowerCase();
+
   switch (ext) {
     case ".jpg":
     case ".jpeg":
@@ -94,13 +81,152 @@ const getContentType = (fileName: string): string => {
   }
 };
 
-export const uploadFile = async (
-  formData: FormData,
-): Promise<{ error?: string; url?: string }> => {
-  const userId = await getCurrentUserId();
+const uploadToR2 = async (
+  file: File,
+  body: Buffer,
+  options: {
+    useWebp: boolean;
+    uploadDir: string;
+  },
+) => {
+  const fileExtension = options.useWebp ? ".webp" : path.extname(file.name);
+  const key = `${options.uploadDir}${new Date().toISOString().slice(0, 10)}/${
+    createCuid() + fileExtension
+  }`;
 
-  // 调试信息：检查权限验证结果
+  await s3.send(
+    new PutObjectCommand({
+      Bucket: R2_BUCKET,
+      Key: key,
+      Body: body,
+      ContentType: options.useWebp ? "image/webp" : getContentType(file.name),
+    }),
+  );
+
+  return `https://r2.jiachz.com/${key}`;
+};
+
+const withUploadType = (
+  metadataType: string | undefined,
+  metadata: Record<string, unknown>,
+) => (metadataType ? { type: metadataType, ...metadata } : metadata);
+
+const logUploadFailure = async (
+  userId: string | null,
+  fileName: string,
+  metadataType: string | undefined,
+  metadata: Record<string, unknown>,
+  errorMessage: string,
+) => {
+  await logFileActivity(
+    userId,
+    "FILE_UPLOAD",
+    "FAILED",
+    fileName,
+    withUploadType(metadataType, metadata),
+    errorMessage,
+  );
+};
+
+const handleImageUpload = async (
+  formData: FormData,
+  userId: string | null,
+  options: ImageUploadOptions,
+): Promise<UploadResult> => {
+  const file = formData.get("file");
+
+  if (!(file instanceof File)) {
+    await logUploadFailure(
+      userId,
+      "unknown",
+      options.metadataType,
+      { reason: "没有找到文件" },
+      "No file found",
+    );
+    return { error: "No file found" };
+  }
+
+  const image = await getImageInfo(file);
+  const baseMetadata = {
+    fileName: file.name,
+    fileSize: file.size,
+  };
+
+  if (!image.isImage) {
+    await logUploadFailure(
+      userId,
+      file.name,
+      options.metadataType,
+      {
+        ...baseMetadata,
+        reason: "不是图片文件",
+      },
+      "Uploaded file is not an image",
+    );
+    return { error: "Uploaded file is not an image" };
+  }
+
+  if (file.size > options.sizeLimit) {
+    await logUploadFailure(
+      userId,
+      file.name,
+      options.metadataType,
+      {
+        ...baseMetadata,
+        sizeLimit: options.sizeLimit,
+        reason: options.sizeLimitReason,
+      },
+      options.sizeLimitError,
+    );
+    return { error: options.sizeLimitError };
+  }
+
+  const shouldCompress = !image.isWebp && file.size >= ONE_MIB;
+
+  try {
+    const body = shouldCompress ? await compressImage(image) : image.buffer;
+    const uploadedUrl = await uploadToR2(file, body, {
+      useWebp: shouldCompress,
+      uploadDir: options.uploadDir,
+    });
+
+    await logFileActivity(
+      userId,
+      "FILE_UPLOAD",
+      "SUCCESS",
+      file.name,
+      withUploadType(options.metadataType, {
+        ...baseMetadata,
+        ...(shouldCompress ? { originalSize: file.size } : {}),
+        ...(shouldCompress ? { compressedSize: body.length } : {}),
+        uploadUrl: uploadedUrl,
+        compressed: shouldCompress,
+        format: shouldCompress ? "webp" : image.isWebp ? "webp" : "original",
+      }),
+    );
+
+    return { url: uploadedUrl };
+  } catch {
+    await logUploadFailure(
+      userId,
+      file.name,
+      options.metadataType,
+      {
+        ...baseMetadata,
+        reason: shouldCompress
+          ? options.compressFailureReason
+          : options.uploadFailureReason,
+      },
+      "Upload failed",
+    );
+    return { error: "Upload failed" };
+  }
+};
+
+export const uploadFile = async (formData: FormData): Promise<UploadResult> => {
+  const userId = await getCurrentUserId();
   const hasNoPermission = await noPermission();
+
   if (hasNoPermission) {
     await logFileActivity(
       userId,
@@ -113,257 +239,28 @@ export const uploadFile = async (
     return { error: ERROR_NO_PERMISSION.message };
   }
 
-  // Get file from formData
-  const file = formData.get("file") as File;
-  if (!file) {
-    await logFileActivity(
-      userId,
-      "FILE_UPLOAD",
-      "FAILED",
-      "unknown",
-      { reason: "没有找到文件" },
-      "No file found",
-    );
-    return { error: "No file found" };
-  }
-
-  const { isImage, isWebp } = await getImageInfo(file);
-  if (!isImage) {
-    await logFileActivity(
-      userId,
-      "FILE_UPLOAD",
-      "FAILED",
-      file.name,
-      {
-        fileName: file.name,
-        fileSize: file.size,
-        reason: "不是图片文件",
-      },
-      "Uploaded file is not an image",
-    );
-    return { error: "Uploaded file is not an image" };
-  }
-
-  const fileSize = file.size;
-  const sizeLimit = 1024 * 1024 * 30; // 30MB
-
-  if (fileSize > sizeLimit) {
-    await logFileActivity(
-      userId,
-      "FILE_UPLOAD",
-      "FAILED",
-      file.name,
-      {
-        fileName: file.name,
-        fileSize,
-        sizeLimit,
-        reason: "文件大小超出限制",
-      },
-      "File size too large",
-    );
-    return { error: "File size too large" };
-  }
-
-  if (!(isWebp || fileSize < 1024 * 1024)) {
-    try {
-      const compressedFile = await compressImage(file);
-      const uploadedUrl = await uploadToR2(
-        file,
-        compressedFile,
-        true,
-        R2_UPLOAD_DIR ?? "uploads/",
-      ); // 使用 WebP 格式
-
-      await logFileActivity(userId, "FILE_UPLOAD", "SUCCESS", file.name, {
-        fileName: file.name,
-        originalSize: fileSize,
-        compressedSize: compressedFile.length,
-        uploadUrl: uploadedUrl,
-        compressed: true,
-        format: "webp",
-      });
-
-      return { url: uploadedUrl };
-    } catch (error) {
-      await logFileActivity(
-        userId,
-        "FILE_UPLOAD",
-        "FAILED",
-        file.name,
-        {
-          fileName: file.name,
-          fileSize,
-          reason: "压缩或上传失败",
-        },
-        "Upload failed",
-      );
-      return { error: "Upload failed" };
-    }
-  } else {
-    try {
-      const uploadedUrl = await uploadToR2(
-        file,
-        Buffer.from(await file.arrayBuffer()),
-        false,
-        R2_UPLOAD_DIR ?? "uploads/",
-      );
-
-      await logFileActivity(userId, "FILE_UPLOAD", "SUCCESS", file.name, {
-        fileName: file.name,
-        fileSize,
-        uploadUrl: uploadedUrl,
-        compressed: false,
-        format: isWebp ? "webp" : "original",
-      });
-
-      return { url: uploadedUrl };
-    } catch (error) {
-      await logFileActivity(
-        userId,
-        "FILE_UPLOAD",
-        "FAILED",
-        file.name,
-        {
-          fileName: file.name,
-          fileSize,
-          reason: "上传失败",
-        },
-        "Upload failed",
-      );
-      return { error: "Upload failed" };
-    }
-  }
+  return handleImageUpload(formData, userId, {
+    uploadDir: R2_UPLOAD_DIR ?? "uploads/",
+    sizeLimit: 30 * ONE_MIB,
+    sizeLimitError: "File size too large",
+    sizeLimitReason: "文件大小超出限制",
+    compressFailureReason: "压缩或上传失败",
+    uploadFailureReason: "上传失败",
+  });
 };
 
 export const uploadAvatar = async (
   formData: FormData,
-): Promise<{ error?: string; url?: string }> => {
-  // 不做权限校验，注册时可用，但记录日志
+): Promise<UploadResult> => {
   const userId = await getCurrentUserId();
 
-  const file = formData.get("file") as File;
-  if (!file) {
-    await logFileActivity(
-      userId,
-      "FILE_UPLOAD",
-      "FAILED",
-      "unknown",
-      { type: "avatar", reason: "没有找到文件" },
-      "No file found",
-    );
-    return { error: "No file found" };
-  }
-
-  const { isImage, isWebp } = await getImageInfo(file);
-  if (!isImage) {
-    await logFileActivity(
-      userId,
-      "FILE_UPLOAD",
-      "FAILED",
-      file.name,
-      {
-        type: "avatar",
-        fileName: file.name,
-        fileSize: file.size,
-        reason: "不是图片文件",
-      },
-      "Uploaded file is not an image",
-    );
-    return { error: "Uploaded file is not an image" };
-  }
-
-  const fileSize = file.size;
-  const sizeLimit = 1024 * 1024 * 1; // 1MB
-
-  if (fileSize > sizeLimit) {
-    await logFileActivity(
-      userId,
-      "FILE_UPLOAD",
-      "FAILED",
-      file.name,
-      {
-        type: "avatar",
-        fileName: file.name,
-        fileSize,
-        sizeLimit,
-        reason: "头像文件大小超出限制",
-      },
-      "File size too large (max 1MB)",
-    );
-    return { error: "File size too large (max 1MB)" };
-  }
-
-  if (!(isWebp || fileSize < 1024 * 1024)) {
-    try {
-      const compressedFile = await compressImage(file);
-      const uploadedUrl = await uploadToR2(
-        file,
-        compressedFile,
-        true,
-        "avatars/",
-      ); // 使用 WebP 格式
-
-      await logFileActivity(userId, "FILE_UPLOAD", "SUCCESS", file.name, {
-        type: "avatar",
-        fileName: file.name,
-        originalSize: fileSize,
-        compressedSize: compressedFile.length,
-        uploadUrl: uploadedUrl,
-        compressed: true,
-        format: "webp",
-      });
-
-      return { url: uploadedUrl };
-    } catch (error) {
-      await logFileActivity(
-        userId,
-        "FILE_UPLOAD",
-        "FAILED",
-        file.name,
-        {
-          type: "avatar",
-          fileName: file.name,
-          fileSize,
-          reason: "头像压缩或上传失败",
-        },
-        "Upload failed",
-      );
-      return { error: "Upload failed" };
-    }
-  } else {
-    try {
-      const uploadedUrl = await uploadToR2(
-        file,
-        Buffer.from(await file.arrayBuffer()),
-        false,
-        "avatars/",
-      );
-
-      await logFileActivity(userId, "FILE_UPLOAD", "SUCCESS", file.name, {
-        type: "avatar",
-        fileName: file.name,
-        fileSize,
-        uploadUrl: uploadedUrl,
-        compressed: false,
-        format: isWebp ? "webp" : "original",
-      });
-
-      return { url: uploadedUrl };
-    } catch (error) {
-      await logFileActivity(
-        userId,
-        "FILE_UPLOAD",
-        "FAILED",
-        file.name,
-        {
-          type: "avatar",
-          fileName: file.name,
-          fileSize,
-          reason: "头像上传失败",
-        },
-        "Upload failed",
-      );
-      return { error: "Upload failed" };
-    }
-  }
+  return handleImageUpload(formData, userId, {
+    uploadDir: "avatars/",
+    sizeLimit: ONE_MIB,
+    sizeLimitError: "File size too large (max 1MB)",
+    metadataType: "avatar",
+    sizeLimitReason: "头像文件大小超出限制",
+    compressFailureReason: "头像压缩或上传失败",
+    uploadFailureReason: "头像上传失败",
+  });
 };

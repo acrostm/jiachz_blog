@@ -249,7 +249,7 @@ export class ExchangeRateService {
         );
         if (rate !== null) {
           data.push({
-            date: date.toISOString().split("T")[0],
+            date: date.toISOString().slice(0, 10),
             rate: rate,
           });
         }
@@ -342,7 +342,7 @@ export class ExchangeRateService {
       if (i === 0) {
         // Today's rate should be the current rate
         data.push({
-          date: date.toISOString().split("T")[0],
+          date: date.toISOString().slice(0, 10),
           rate: Number(currentRate.toFixed(6)),
         });
       } else {
@@ -357,7 +357,7 @@ export class ExchangeRateService {
         const adjustedRate = newRate + (currentRate - newRate) * trendFactor;
 
         data.push({
-          date: date.toISOString().split("T")[0],
+          date: date.toISOString().slice(0, 10),
           rate: Number(adjustedRate.toFixed(6)),
         });
 

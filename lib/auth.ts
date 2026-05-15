@@ -46,8 +46,10 @@ export const { handlers, auth, signOut, signIn } = NextAuth({
           if (isBot && !isVerifiedBot) {
             throw new Error("Bot detected");
           }
-        } catch (e: any) {
-          if (e.message === "Bot detected") throw e;
+        } catch (error) {
+          if (error instanceof Error && error.message === "Bot detected") {
+            throw error;
+          }
         }
 
         const email = credentials?.email as string;

@@ -119,7 +119,7 @@ export async function POST(req: NextRequest) {
     }
     await safeLogActivity(userId, "PASSWORD_CHANGE", ActivityStatus.FAILED, {
       resourceType: ResourceType.USER,
-      resourceId: userId,
+      resourceId: userId ?? undefined,
       actionDetails: {
         action: "change-password",
         description: "用户修改密码失败",

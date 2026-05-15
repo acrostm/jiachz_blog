@@ -1,7 +1,8 @@
-/* eslint-disable */
-// @ts-nocheck
 import type { BytemdPlugin } from "bytemd";
+import type { Element, Root } from "hast";
 import { visit } from "unist-util-visit";
+
+import { appendClassName, isElement, isText } from "./hast";
 
 /**
  * Plugin to handle inline code display
@@ -11,38 +12,25 @@ import { visit } from "unist-util-visit";
 export const inlineCodePlugin = (): BytemdPlugin => {
   return {
     rehype: (process) =>
-      process.use(() => (tree) => {
-        visit(tree, "element", (node, _index, parent) => {
+      process.use(() => (tree: Root) => {
+        visit(tree, "element", (node: Element, _index, parent) => {
           // Handle inline code elements (not in pre blocks)
           if (
             node.tagName === "code" &&
-            !(parent?.type === "element" && parent.tagName === "pre")
+            !(isElement(parent) && parent.tagName === "pre")
           ) {
             // Add a class for styling
-            if (!node.properties) {
-              node.properties = {};
-            }
-            if (!node.properties.className) {
-              node.properties.className = [];
-            }
-            if (Array.isArray(node.properties.className)) {
-              node.properties.className.push("inline-code-enhanced");
-            }
+            appendClassName(node, "inline-code-enhanced");
 
             // Clean up the text content to remove backticks
-            if (node.children && node.children.length > 0) {
-              const textNode = node.children[0];
-              if (
-                textNode.type === "text" &&
-                typeof textNode.value === "string"
-              ) {
-                // Remove leading and trailing backticks if they exist
-                let cleanText = textNode.value;
-                if (cleanText.startsWith("`") && cleanText.endsWith("`")) {
-                  cleanText = cleanText.slice(1, -1);
-                }
-                textNode.value = cleanText;
+            const textNode = node.children[0];
+            if (isText(textNode)) {
+              // Remove leading and trailing backticks if they exist
+              let cleanText = textNode.value;
+              if (cleanText.startsWith("`") && cleanText.endsWith("`")) {
+                cleanText = cleanText.slice(1, -1);
               }
+              textNode.value = cleanText;
             }
           }
         });
@@ -55,7 +43,7 @@ export const inlineCodePlugin = (): BytemdPlugin => {
       const inlineCodes = markdownBody.querySelectorAll("code:not(pre code)");
       inlineCodes.forEach((code) => {
         // Ensure backticks are removed from display
-        let text = code.textContent || "";
+        const text = code.textContent ?? "";
         if (text.startsWith("`") && text.endsWith("`") && text.length > 2) {
           code.textContent = text.slice(1, -1);
         }

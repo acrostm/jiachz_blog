@@ -301,8 +301,7 @@ export const CreateBlogForm = () => {
       if (result.success) {
         router.push(PATHS.ADMIN_BLOG);
       }
-    } catch (error) {
-      console.error("Failed to create blog:", error);
+    } catch {
       toast.error("创建失败，请重试");
     } finally {
       setIsSubmitting(false);

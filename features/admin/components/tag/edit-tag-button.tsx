@@ -69,8 +69,8 @@ export const EditTagButton = ({ id, refreshAsync }: EditTagButtonProps) => {
       form.setValue("name", tag.name);
       form.setValue("slug", tag.slug);
       form.setValue("type", tag.type);
-      form.setValue("icon", tag.icon || "");
-      form.setValue("iconDark", tag.iconDark || "");
+      form.setValue("icon", tag.icon ?? "");
+      form.setValue("iconDark", tag.iconDark ?? "");
       form.setValue("id", tag.id);
       form.clearErrors();
     }

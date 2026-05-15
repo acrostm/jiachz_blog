@@ -94,6 +94,7 @@ export const Navbar = () => {
           <Link
             href={SOURCE_CODE_GITHUB_PAGE}
             target="_blank"
+            rel="noreferrer"
             title={SOURCE_CODE_GITHUB_PAGE}
             aria-label={SOURCE_CODE_GITHUB_PAGE}
           >

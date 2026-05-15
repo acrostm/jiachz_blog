@@ -1,15 +1,15 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-import { noPermission } from "@/features/user";
 import { activityLogger } from "@/lib/activity-logger";
+import { requireAdmin } from "@/lib/admin-auth";
+import { logger } from "@/lib/logger";
 
 // 管理员获取可疑活动列表
 export async function GET(request: NextRequest) {
   try {
     // 检查管理员权限
-    if (await noPermission()) {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    const forbidden = await requireAdmin();
+    if (forbidden) return forbidden;
 
     const { searchParams } = new URL(request.url);
     const limit = Math.min(parseInt(searchParams.get("limit") ?? "50"), 100);
@@ -55,8 +55,7 @@ export async function GET(request: NextRequest) {
       total: formattedData.length,
     });
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to fetch suspicious activities:", error);
+    logger.error("Failed to fetch suspicious activities:", error);
     return NextResponse.json(
       { error: "Failed to fetch suspicious activities" },
       { status: 500 },

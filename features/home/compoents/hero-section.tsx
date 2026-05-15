@@ -125,7 +125,7 @@ export const HeroSection = () => {
                     size="icon"
                     className="rounded-full border-[var(--future-line)] bg-white/[0.04] text-[var(--future-ink)] hover:bg-white/[0.08]"
                   >
-                    <Link href={el.link} target="_blank">
+                    <Link href={el.link} target="_blank" rel="noreferrer">
                       {el.icon}
                     </Link>
                   </Button>

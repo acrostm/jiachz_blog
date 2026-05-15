@@ -1,12 +1,5 @@
-import { LoginForm } from "@/components/login-form";
-
-// import { SignInPage } from "@/features/auth";
-import { AuthExperienceShell } from "@/features/auth";
+import { LoginPage as AuthLoginPage } from "@/features/auth";
 
 export default function LoginPage() {
-  return (
-    <AuthExperienceShell mode="sign-in">
-      <LoginForm />
-    </AuthExperienceShell>
-  );
+  return <AuthLoginPage />;
 }

@@ -26,6 +26,9 @@ export const HighlightMark = ({ text, className }: HighlightMarkProps) => {
   );
 };
 
+const escapeRegExp = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 export const Highlight = ({
   sourceString,
   searchWords,
@@ -41,22 +44,30 @@ export const Highlight = ({
     return "";
   }
 
-  // Chat GPT: 将正则表达式改为(${searchWords.join('|')})，这样可以将searchWords作为捕获组，从而在拆分后的数组中保留匹配到的searchWords
+  const normalizedWords = searchWords
+    .map((word) => word.trim())
+    .filter(Boolean);
+
+  if (!normalizedWords.length) {
+    return sourceString;
+  }
+
   const regex = new RegExp(
-    `(${searchWords.join("|")})`,
-    // gi 全局匹配且不区分大小写
-    caseSensitive ? "gi" : "g",
+    `(${normalizedWords.map(escapeRegExp).join("|")})`,
+    caseSensitive ? "g" : "gi",
   );
 
   // 使用正则表达式将sourceString根据searchWords拆分成数组
   const splitArray = sourceString.split(regex);
+  const matchSet = new Set(
+    normalizedWords.map((word) => (caseSensitive ? word : word.toLowerCase())),
+  );
 
   return (
     <div className={cn("inline-flex items-center", className)}>
       {splitArray.map((el, idx) => {
-        if (
-          searchWords.find((curr) => curr.toLowerCase() === el.toLowerCase())
-        ) {
+        const matchKey = caseSensitive ? el : el.toLowerCase();
+        if (matchSet.has(matchKey)) {
           return (
             <HighlightMark
               key={el + idx}

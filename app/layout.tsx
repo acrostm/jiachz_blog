@@ -5,7 +5,6 @@ import { type Metadata } from "next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { BotIdClient } from "botid/client";
 
 import { NODE_ENV } from "@/config";
 
@@ -39,13 +38,6 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <head>
-        <BotIdClient
-          protect={[
-            { path: "/api/auth/callback/credentials", method: "POST" },
-            { path: "/api/message-board", method: "POST" },
-            { path: "/api/auth/register", method: "POST" },
-          ]}
-        />
         <link rel="icon" type="image/svg+xml" href={ImageAssets.logoDark} />
         {/*TODO*/}
         {/* Google Search Console 验证 */}

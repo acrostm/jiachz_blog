@@ -8,11 +8,13 @@ import {
   type ActivityStatus,
   type ActivityType,
   DeviceType,
+  type Prisma,
   type UserActivityLog,
 } from "@prisma/client";
 import { UAParser } from "ua-parser-js";
 
 import { type GeolocationResult, geolocationService } from "./geolocation";
+import { logger } from "./logger";
 import { prisma } from "./prisma";
 import type {
   ActionDetails,
@@ -20,6 +22,27 @@ import type {
   NetworkDeviceInfo,
   SecurityAnalysis,
 } from "./types/activity-log";
+
+type SuspiciousActivityLog = Prisma.UserActivityLogGetPayload<{
+  include: {
+    user: {
+      select: {
+        email: true;
+        name: true;
+      };
+    };
+  };
+}>;
+
+const isUnsafeJsonChar = (char: string) => {
+  const code = char.charCodeAt(0);
+  return (
+    (code >= 0x00 && code <= 0x1f) ||
+    (code >= 0x7f && code <= 0x9f) ||
+    code === 0xfffe ||
+    code === 0xffff
+  );
+};
 
 export class ActivityLogger {
   /**
@@ -30,10 +53,9 @@ export class ActivityLogger {
       // 先转换为JSON字符串
       const jsonStr = JSON.stringify(obj);
       // 清理无效的UTF-8字符和控制字符
-      return jsonStr.replace(/[\u0000-\u001F\u007F-\u009F\uFFFE\uFFFF]/g, "");
+      return [...jsonStr].filter((char) => !isUnsafeJsonChar(char)).join("");
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.warn("Failed to stringify object, using fallback:", error);
+      logger.warn("Failed to stringify object, using fallback:", error);
       return JSON.stringify({ error: "Failed to serialize data" });
     }
   }
@@ -41,9 +63,9 @@ export class ActivityLogger {
   /**
    * 获取客户端IP地址
    */
-  private getClientIP(): string {
+  private async getClientIP(): Promise<string> {
     try {
-      const headersList = headers();
+      const headersList = await headers();
 
       const forwardedFor = headersList.get("x-forwarded-for");
       const realIP = headersList.get("x-real-ip");
@@ -77,7 +99,7 @@ export class ActivityLogger {
     const parser = new UAParser(userAgent);
     const result = parser.getResult();
 
-    let deviceType = DeviceType.UNKNOWN;
+    let deviceType: DeviceType = DeviceType.UNKNOWN;
     if (result.device.type === "mobile") {
       deviceType = DeviceType.MOBILE;
     } else if (result.device.type === "tablet") {
@@ -228,13 +250,13 @@ export class ActivityLogger {
     try {
       let userAgent = "Unknown";
       try {
-        const headersList = headers();
+        const headersList = await headers();
         userAgent = headersList.get("user-agent") ?? "Unknown";
       } catch {
         // headers() not available in this context
       }
 
-      const ip = this.getClientIP();
+      const ip = await this.getClientIP();
 
       // 获取地理位置信息
       const locationResult: GeolocationResult =
@@ -311,13 +333,12 @@ export class ActivityLogger {
 
       // 如果是可疑活动，记录警告日志
       if (securityAnalysis.isSuspicious) {
-        console.warn(
+        logger.warn(
           `Suspicious activity detected for user ${data.userId}: ${data.activityType} - ${securityAnalysis.suspiciousReasons.join(", ")} (Risk Score: ${securityAnalysis.riskScore})`,
         );
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error("Failed to log activity:", error);
+      logger.error("Failed to log activity:", error);
       // 不抛出错误，避免影响主要业务流程
     }
   }
@@ -329,7 +350,7 @@ export class ActivityLogger {
     userId: string,
     activityType: "REGISTER" | "LOGIN" | "LOGOUT" | "PASSWORD_CHANGE",
     status: ActivityStatus,
-    metadata?: Record<string, any>,
+    metadata?: Record<string, unknown>,
     sessionId?: string,
   ): Promise<void> {
     await this.logActivity({
@@ -409,7 +430,7 @@ export class ActivityLogger {
     resourceId: string,
     resourceTitle?: string,
     actionDetails?: ActionDetails,
-    metadata?: Record<string, any>,
+    metadata?: Record<string, unknown>,
   ): Promise<void> {
     await this.logActivity({
       userId,
@@ -418,7 +439,7 @@ export class ActivityLogger {
       resourceType,
       resourceId,
       resourceTitle,
-      actionDetails,
+      actionDetails: actionDetails ? { ...actionDetails } : undefined,
       metadata,
     });
   }
@@ -431,14 +452,14 @@ export class ActivityLogger {
     activityType: "ADMIN_ACCESS" | "USER_MANAGE" | "SYSTEM_CONFIG",
     status: ActivityStatus,
     actionDetails?: ActionDetails,
-    metadata?: Record<string, any>,
+    metadata?: Record<string, unknown>,
   ): Promise<void> {
     await this.logActivity({
       userId,
       activityType,
       activityStatus: status,
       resourceType: "SYSTEM",
-      actionDetails,
+      actionDetails: actionDetails ? { ...actionDetails } : undefined,
       metadata,
     });
   }
@@ -464,7 +485,7 @@ export class ActivityLogger {
   /**
    * 获取可疑活动
    */
-  async getSuspiciousActivities(limit = 100): Promise<UserActivityLog[]> {
+  async getSuspiciousActivities(limit = 100): Promise<SuspiciousActivityLog[]> {
     return await prisma.userActivityLog.findMany({
       where: { isSuspicious: true },
       orderBy: { timestamp: "desc" },

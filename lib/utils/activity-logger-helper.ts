@@ -9,6 +9,7 @@ import {
 
 import { activityLogger } from "@/lib/activity-logger";
 import { auth } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import type { ActionDetails } from "@/lib/types/activity-log";
 
 /**
@@ -41,8 +42,7 @@ export async function safeLogActivity(
   },
 ): Promise<void> {
   if (!userId) {
-    // eslint-disable-next-line no-console
-    console.warn(`Cannot log activity ${activityType}: no user ID provided`);
+    logger.warn(`Cannot log activity ${activityType}: no user ID provided`);
     return;
   }
 
@@ -54,14 +54,15 @@ export async function safeLogActivity(
       resourceType: options?.resourceType,
       resourceId: options?.resourceId,
       resourceTitle: options?.resourceTitle,
-      actionDetails: options?.actionDetails,
+      actionDetails: options?.actionDetails
+        ? { ...options.actionDetails }
+        : undefined,
       metadata: options?.metadata,
       errorMessage: options?.errorMessage,
       errorCode: options?.errorCode,
     });
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(`Failed to log activity ${activityType}:`, error);
+    logger.error(`Failed to log activity ${activityType}:`, error);
   }
 }
 

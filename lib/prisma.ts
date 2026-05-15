@@ -11,10 +11,10 @@ import { DATABASE_URL, NODE_ENV, POSTGRES_PRISMA_URL } from "@/config";
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
 // Prioritize POSTGRES_PRISMA_URL (Vercel pooled connection) over DATABASE_URL
-const datasourceUrl = POSTGRES_PRISMA_URL || DATABASE_URL;
+const datasourceUrl = POSTGRES_PRISMA_URL ?? DATABASE_URL;
 
 export const prisma =
-  globalForPrisma.prisma ||
+  globalForPrisma.prisma ??
   new PrismaClient({
     datasourceUrl,
     log:

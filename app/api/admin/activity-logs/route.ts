@@ -1,36 +1,85 @@
 import { type NextRequest, NextResponse } from "next/server";
 
 import {
-  type ActivityStatus,
-  type ActivityType,
-  type ResourceType,
+  ActivityStatus,
+  ActivityType,
+  type Prisma,
+  ResourceType,
 } from "@prisma/client";
 
+import { requireAdmin } from "@/lib/admin-auth";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import type {
   ActivityLogQueryParams,
   ActivityLogResponse,
 } from "@/lib/types/activity-log";
 
+const parseInteger = (value: string | null, fallback: number) => {
+  const parsed = Number.parseInt(value ?? "", 10);
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const parsePositiveInt = (value: string | null, fallback: number) => {
+  const parsed = parseInteger(value, fallback);
+  return parsed > 0 ? parsed : fallback;
+};
+
+const parseBoundedInt = (
+  value: string | null,
+  fallback: number,
+  min: number,
+  max: number,
+) => Math.min(Math.max(parseInteger(value, fallback), min), max);
+
+const parseEnumParam = <T extends Record<string, string>>(
+  enumObject: T,
+  value: string | null,
+) => {
+  if (!value || value === "all") {
+    return undefined;
+  }
+
+  const values = Object.values(enumObject) as Array<T[keyof T]>;
+  return values.includes(value as T[keyof T])
+    ? (value as T[keyof T])
+    : undefined;
+};
+
+const parseDateParam = (value?: string) => {
+  if (!value) {
+    return undefined;
+  }
+
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? undefined : date;
+};
+
 // 管理员获取活动日志列表
 export async function GET(request: NextRequest) {
   try {
+    const forbidden = await requireAdmin();
+    if (forbidden) return forbidden;
+
     const { searchParams } = new URL(request.url);
 
     // 解析查询参数
     const params: ActivityLogQueryParams = {
-      page: Math.max(1, parseInt(searchParams.get("page") ?? "1") || 1),
-      pageSize: Math.min(
-        Math.max(1, parseInt(searchParams.get("pageSize") ?? "20") || 20),
-        100,
-      ),
+      page: parsePositiveInt(searchParams.get("page"), 1),
+      pageSize: parseBoundedInt(searchParams.get("pageSize"), 20, 1, 100),
       userId: searchParams.get("userId") ?? undefined,
-      activityType:
-        (searchParams.get("activityType") as ActivityType) || undefined,
-      activityStatus:
-        (searchParams.get("activityStatus") as ActivityStatus) || undefined,
-      resourceType:
-        (searchParams.get("resourceType") as ResourceType) || undefined,
+      activityType: parseEnumParam(
+        ActivityType,
+        searchParams.get("activityType"),
+      ),
+      activityStatus: parseEnumParam(
+        ActivityStatus,
+        searchParams.get("activityStatus"),
+      ),
+      resourceType: parseEnumParam(
+        ResourceType,
+        searchParams.get("resourceType"),
+      ),
       isSuspicious:
         searchParams.get("isSuspicious") === "true"
           ? true
@@ -41,38 +90,15 @@ export async function GET(request: NextRequest) {
       endDate: searchParams.get("endDate") ?? undefined,
       search: searchParams.get("search") ?? undefined,
       riskScoreMin: searchParams.get("riskScoreMin")
-        ? parseInt(searchParams.get("riskScoreMin")!)
+        ? parseBoundedInt(searchParams.get("riskScoreMin"), 0, 0, 100)
         : undefined,
       riskScoreMax: searchParams.get("riskScoreMax")
-        ? parseInt(searchParams.get("riskScoreMax")!)
+        ? parseBoundedInt(searchParams.get("riskScoreMax"), 100, 0, 100)
         : undefined,
     };
 
     // 构建查询条件
-    const where: {
-      userId?: string;
-      activityType?: string;
-      activityStatus?: string;
-      resourceType?: string;
-      isSuspicious?: boolean;
-      timestamp?: {
-        gte?: Date;
-        lte?: Date;
-      };
-      riskScore?: {
-        gte?: number;
-        lte?: number;
-      };
-      OR?: Array<{
-        user?: {
-          name?: { contains: string; mode: "insensitive" };
-          email?: { contains: string; mode: "insensitive" };
-        };
-        resourceTitle?: { contains: string; mode: "insensitive" };
-        ipAddress?: { contains: string; mode: "insensitive" };
-        location?: { contains: string; mode: "insensitive" };
-      }>;
-    } = {};
+    const where: Prisma.UserActivityLogWhereInput = {};
 
     if (params.userId) {
       where.userId = params.userId;
@@ -97,11 +123,13 @@ export async function GET(request: NextRequest) {
     // 时间范围过滤
     if (params.startDate || params.endDate) {
       where.timestamp = {};
-      if (params.startDate) {
-        where.timestamp.gte = new Date(params.startDate);
+      const startDate = parseDateParam(params.startDate);
+      const endDate = parseDateParam(params.endDate);
+      if (startDate) {
+        where.timestamp.gte = startDate;
       }
-      if (params.endDate) {
-        where.timestamp.lte = new Date(params.endDate);
+      if (endDate) {
+        where.timestamp.lte = endDate;
       }
     }
 
@@ -173,8 +201,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(response);
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to fetch activity logs:", error);
+    logger.error("Failed to fetch activity logs:", error);
     return NextResponse.json(
       { error: "Failed to fetch activity logs" },
       { status: 500 },

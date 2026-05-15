@@ -120,10 +120,7 @@ export default function SecurityMonitorPage() {
     <AdminContentLayout
       breadcrumb={
         <PageBreadcrumb
-          breadcrumbList={[
-            PATHS.ADMIN_HOME,
-            { label: "安全监控", href: "/admin/security" },
-          ]}
+          breadcrumbList={[PATHS.ADMIN_HOME, PATHS.ADMIN_SECURITY]}
         />
       }
     >

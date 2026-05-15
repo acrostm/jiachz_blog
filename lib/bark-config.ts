@@ -1,3 +1,4 @@
+import { logger } from "./logger";
 import { prisma } from "./prisma";
 
 export interface BarkConfigItem {
@@ -82,7 +83,7 @@ export async function readBarkConfig(): Promise<BarkConfigFile> {
 
     return config;
   } catch (error) {
-    console.error("Failed to read bark config from database:", error);
+    logger.error("Failed to read bark config from database:", error);
     throw new Error("Failed to read bark configuration");
   }
 }
@@ -111,7 +112,7 @@ export async function writeBarkConfig(config: BarkConfigFile): Promise<void> {
     configCache = null;
     lastReadTime = 0;
   } catch (error) {
-    console.error("Failed to write bark config:", error);
+    logger.error("Failed to write bark config:", error);
     throw new Error("Failed to save bark configuration");
   }
 }

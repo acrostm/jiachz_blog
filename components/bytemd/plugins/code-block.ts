@@ -1,14 +1,19 @@
-/* eslint-disable */
-// @ts-nocheck
 import type { BytemdPlugin } from "bytemd";
-import { fromHtmlIsomorphic } from "hast-util-from-html-isomorphic";
+import type { Element, Root } from "hast";
 import { visit } from "unist-util-visit";
 
 import { copyToClipboard, isBrowser } from "@/lib/utils";
 
+import {
+  cloneHastNode,
+  createElementFromHtml,
+  getClassNames,
+  isElement,
+} from "./hast";
+
 const copyIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
 
-const copyBtnNode = fromHtmlIsomorphic(`
+const copyButtonNode = createElementFromHtml(`
 <button type="button" class="copy-code-button" title="复制代码" aria-label="复制代码">
 ${copyIcon}
 </button>
@@ -24,20 +29,23 @@ const clipboardCheckIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="1em" 
 export const codeBlockPlugin = (): BytemdPlugin => {
   return {
     rehype: (process) =>
-      process.use(() => (tree) => {
-        visit(tree, "element", (node) => {
+      process.use(() => (tree: Root) => {
+        visit(tree, "element", (node: Element) => {
           if (node.tagName === "pre") {
             // 添加复制按钮
-            node.children.push(copyBtnNode);
+            node.children.push(cloneHastNode(copyButtonNode));
 
             // 查找pre元素中的code子元素来提取语言信息
             const codeElement = node.children.find(
-              (child) => child.type === "element" && child.tagName === "code",
+              (child): child is Element =>
+                isElement(child) && child.tagName === "code",
             );
 
             if (codeElement) {
-              const languageClass = codeElement.properties?.className?.find(
-                (cls) => cls.startsWith("language-") || cls.startsWith("lang-"),
+              const languageClass = getClassNames(codeElement.properties).find(
+                (className) =>
+                  className.startsWith("language-") ||
+                  className.startsWith("lang-"),
               );
               const language = languageClass
                 ?.replace(/^lang(uage)?-/, "")
@@ -45,12 +53,8 @@ export const codeBlockPlugin = (): BytemdPlugin => {
 
               if (language) {
                 // 确保properties对象存在
-                if (!node.properties) {
-                  node.properties = {};
-                }
-                if (!node.properties["data-language"]) {
-                  node.properties["data-language"] = language.toUpperCase();
-                }
+                node.properties ??= {};
+                node.properties["data-language"] ??= language.toUpperCase();
               }
             }
           }
@@ -65,10 +69,14 @@ export const codeBlockPlugin = (): BytemdPlugin => {
 
       const elements = markdownBody.querySelectorAll(".copy-code-button");
       for (const element of elements) {
-        if ((element as HTMLElement).dataset.copyBound === "true") {
+        if (!(element instanceof HTMLElement)) {
           continue;
         }
-        (element as HTMLElement).dataset.copyBound = "true";
+
+        if (element.dataset.copyBound === "true") {
+          continue;
+        }
+        element.dataset.copyBound = "true";
 
         // 点击按钮复制代码到粘贴板
         element.addEventListener("click", () => {
@@ -87,13 +95,11 @@ export const codeBlockPlugin = (): BytemdPlugin => {
             const tmp = element.innerHTML;
             element.innerHTML = clipboardCheckIcon;
             element.setAttribute("aria-label", "代码已复制");
-            let timer = 0;
 
-            timer = window.setTimeout(() => {
+            const timer = window.setTimeout(() => {
               element.innerHTML = tmp;
               element.setAttribute("aria-label", "复制代码");
               window.clearTimeout(timer);
-              timer = 0;
             }, 3 * 1000);
           })();
         });

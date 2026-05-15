@@ -1,5 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 
+import { requireAdmin } from "@/lib/admin-auth";
+import { logger } from "@/lib/logger";
 import { barkNotification } from "@/lib/notification";
 
 /**
@@ -7,6 +9,9 @@ import { barkNotification } from "@/lib/notification";
  */
 export async function POST(request: NextRequest) {
   try {
+    const forbidden = await requireAdmin();
+    if (forbidden) return forbidden;
+
     const body = (await request.json()) as {
       title?: string;
       body?: string;
@@ -40,7 +45,7 @@ export async function POST(request: NextRequest) {
       );
     }
   } catch (error) {
-    console.error("Failed to send test notification:", error);
+    logger.error("Failed to send test notification:", error);
     return NextResponse.json(
       {
         success: false,

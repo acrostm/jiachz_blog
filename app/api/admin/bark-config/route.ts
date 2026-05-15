@@ -1,11 +1,14 @@
 import { type NextRequest, NextResponse } from "next/server";
 
+import { requireAdmin } from "@/lib/admin-auth";
 import {
   addBarkConfig,
   deleteBarkConfig,
   readBarkConfig,
   updateBarkConfig,
 } from "@/lib/bark-config";
+import { logger } from "@/lib/logger";
+import { isSafePublicHttpUrl } from "@/lib/url-safety";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,10 +18,13 @@ export const dynamic = "force-dynamic";
  */
 export async function GET() {
   try {
+    const forbidden = await requireAdmin();
+    if (forbidden) return forbidden;
+
     const config = await readBarkConfig();
     return NextResponse.json(config);
   } catch (error) {
-    console.error("Failed to get bark config:", error);
+    logger.error("Failed to get bark config:", error);
     return NextResponse.json(
       { error: "Failed to get bark configuration" },
       { status: 500 },
@@ -31,6 +37,9 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
+    const forbidden = await requireAdmin();
+    if (forbidden) return forbidden;
+
     const body = (await request.json()) as {
       name: string;
       url: string;
@@ -50,6 +59,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!isSafePublicHttpUrl(body.url)) {
+      return NextResponse.json(
+        { error: "URL must be a public http(s) endpoint" },
+        { status: 400 },
+      );
+    }
+
     const newConfig = await addBarkConfig({
       name: body.name,
       url: body.url,
@@ -63,7 +79,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(newConfig, { status: 201 });
   } catch (error) {
-    console.error("Failed to create bark config:", error);
+    logger.error("Failed to create bark config:", error);
     return NextResponse.json(
       { error: "Failed to create bark configuration" },
       { status: 500 },
@@ -76,6 +92,9 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
+    const forbidden = await requireAdmin();
+    if (forbidden) return forbidden;
+
     const body = (await request.json()) as {
       id: string;
       name?: string;
@@ -91,6 +110,13 @@ export async function PUT(request: NextRequest) {
     // 验证必填字段
     if (!body.id) {
       return NextResponse.json({ error: "ID is required" }, { status: 400 });
+    }
+
+    if (body.url && !isSafePublicHttpUrl(body.url)) {
+      return NextResponse.json(
+        { error: "URL must be a public http(s) endpoint" },
+        { status: 400 },
+      );
     }
 
     const updatedConfig = await updateBarkConfig(body.id, {
@@ -113,7 +139,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json(updatedConfig);
   } catch (error) {
-    console.error("Failed to update bark config:", error);
+    logger.error("Failed to update bark config:", error);
     return NextResponse.json(
       { error: "Failed to update bark configuration" },
       { status: 500 },
@@ -126,6 +152,9 @@ export async function PUT(request: NextRequest) {
  */
 export async function DELETE(request: NextRequest) {
   try {
+    const forbidden = await requireAdmin();
+    if (forbidden) return forbidden;
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
 
@@ -144,7 +173,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Failed to delete bark config:", error);
+    logger.error("Failed to delete bark config:", error);
     return NextResponse.json(
       { error: "Failed to delete bark configuration" },
       { status: 500 },

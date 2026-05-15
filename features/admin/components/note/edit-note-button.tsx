@@ -187,8 +187,7 @@ export const EditNoteButton = ({ id, refreshAsync }: EditNoteButtonProps) => {
       await updateNoteQuery.runAsync(values);
       setOpen(false);
       await refreshAsync();
-    } catch (error) {
-      console.error("Failed to update note:", error);
+    } catch {
       toast.error("更新失败，请重试");
     } finally {
       setIsSubmitting(false);

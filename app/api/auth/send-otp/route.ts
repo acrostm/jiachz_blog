@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
     }
     await safeLogActivity(userId, "SEND_OTP", ActivityStatus.FAILED, {
       resourceType: ResourceType.USER,
-      resourceId: userId,
+      resourceId: userId ?? undefined,
       actionDetails: {
         action: "send-otp",
         description: "发送验证码失败",

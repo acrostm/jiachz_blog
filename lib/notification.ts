@@ -3,6 +3,8 @@
  * Supports various notification parameters and types
  */
 import { type BarkConfigItem, getEnabledBarkConfigs } from "./bark-config";
+import { logger } from "./logger";
+import { isSafePublicHttpUrl } from "./url-safety";
 
 export interface BarkNotificationOptions {
   title: string;
@@ -143,6 +145,10 @@ class BarkNotification {
     options: BarkNotificationOptions,
   ): Promise<boolean> {
     try {
+      if (!isSafePublicHttpUrl(config.url)) {
+        return false;
+      }
+
       const payload = {
         title: options.title,
         body: options.body,
@@ -166,7 +172,7 @@ class BarkNotification {
 
       if (!response.ok) {
         const responseText = await response.text().catch(() => "");
-        console.error(
+        logger.error(
           `Failed to send notification to ${config.name}: ${response.status} ${response.statusText}`,
           formatBarkErrorResponse(response.status, responseText),
         );
@@ -184,7 +190,7 @@ class BarkNotification {
             const fallbackResponseText = await fallbackResponse
               .text()
               .catch(() => "");
-            console.error(
+            logger.error(
               `Failed to send fallback notification to ${config.name}: ${fallbackResponse.status} ${fallbackResponse.statusText}`,
               formatBarkErrorResponse(
                 fallbackResponse.status,
@@ -199,7 +205,7 @@ class BarkNotification {
 
       return response.ok;
     } catch (error) {
-      console.error(`Failed to send notification to ${config.name}:`, error);
+      logger.error(`Failed to send notification to ${config.name}:`, error);
       return false;
     }
   }
@@ -248,7 +254,7 @@ class BarkNotification {
       const configs = await getEnabledBarkConfigs();
 
       if (configs.length === 0) {
-        console.warn("No enabled bark configs found");
+        logger.warn("No enabled bark configs found");
         return false;
       }
 
@@ -260,7 +266,7 @@ class BarkNotification {
       // 只要有一个成功就返回true
       return results.some((result) => result);
     } catch (error) {
-      console.error("Failed to send notification:", error);
+      logger.error("Failed to send notification:", error);
       return false;
     }
   }

@@ -311,8 +311,7 @@ export const EditBlogForm = () => {
         author: session?.user?.name ?? "",
       });
       router.push(PATHS.ADMIN_BLOG);
-    } catch (error) {
-      console.error("Failed to update blog:", error);
+    } catch {
       toast.error("更新失败，请重试");
     } finally {
       setIsSubmitting(false);

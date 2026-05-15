@@ -2,10 +2,11 @@ import { type NextRequest, NextResponse } from "next/server";
 
 import { checkBotId } from "botid/server";
 
+import { requireAdmin } from "@/lib/admin-auth";
 import { auth } from "@/lib/auth";
+import { logger } from "@/lib/logger";
 import { notifyNewMessage } from "@/lib/notification";
 import { prisma } from "@/lib/prisma";
-import { isAdmin } from "@/lib/utils";
 import { logMessageActivity } from "@/lib/utils/activity-logger-helper";
 
 // 获取客户端 IP
@@ -136,8 +137,7 @@ export async function POST(req: NextRequest) {
     try {
       await notifyNewMessage(author, content, currentTime, ip);
     } catch (error) {
-      // eslint-disable-next-line no-console
-      console.error("Failed to send new message Bark notification:", error);
+      logger.error("Failed to send new message Bark notification:", error);
     }
 
     // 记录留言发送活动日志
@@ -148,8 +148,7 @@ export async function POST(req: NextRequest) {
         ip,
         userAgent,
       }).catch((error) => {
-        // eslint-disable-next-line no-console
-        console.error("Failed to log message activity:", error);
+        logger.error("Failed to log message activity:", error);
       });
     }
 
@@ -166,10 +165,10 @@ export async function POST(req: NextRequest) {
 
 export async function DELETE(req: NextRequest) {
   try {
+    const forbidden = await requireAdmin();
+    if (forbidden) return forbidden;
+
     const session = await auth();
-    if (!session?.user?.email || !isAdmin(session.user.email)) {
-      return NextResponse.json({ error: "无权限" }, { status: 403 });
-    }
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
     if (!id) return NextResponse.json({ error: "缺少 id" }, { status: 400 });
@@ -195,7 +194,7 @@ export async function DELETE(req: NextRequest) {
     await prisma.messageBoard.delete({ where: { id } });
 
     // 记录留言删除活动日志
-    if (session.user.id) {
+    if (session?.user?.id) {
       await logMessageActivity(
         session.user.id,
         "MESSAGE_DELETE",
@@ -205,7 +204,7 @@ export async function DELETE(req: NextRequest) {
           deletedMessageInfo: messageToDelete
             ? {
                 originalAuthorId: messageToDelete.userId,
-                messageLength: messageToDelete.content?.length || 0,
+                messageLength: messageToDelete.content?.length ?? 0,
                 originalIp: messageToDelete.ip,
                 originalCreatedAt: messageToDelete.createdAt?.toISOString(),
               }
@@ -213,8 +212,7 @@ export async function DELETE(req: NextRequest) {
           adminAction: true,
         },
       ).catch((error) => {
-        // eslint-disable-next-line no-console
-        console.error("Failed to log message activity:", error);
+        logger.error("Failed to log message activity:", error);
       });
     }
 
@@ -232,8 +230,7 @@ export async function DELETE(req: NextRequest) {
           {},
           String(e),
         ).catch((error) => {
-          // eslint-disable-next-line no-console
-          console.error("Failed to log message activity:", error);
+          logger.error("Failed to log message activity:", error);
         });
       }
     }

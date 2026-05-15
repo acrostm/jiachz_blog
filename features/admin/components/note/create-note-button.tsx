@@ -185,8 +185,7 @@ export const CreateNoteButton = ({ refreshAsync }: CreateNoteButtonProps) => {
       await createNoteQuery.runAsync(values);
       setOpen(false);
       await refreshAsync();
-    } catch (error) {
-      console.error("Failed to create note:", error);
+    } catch {
       toast.error("创建失败，请重试");
     } finally {
       setIsSubmitting(false);

@@ -78,7 +78,7 @@ const fetchActivityLogs = async (
 
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined && value !== "" && value !== "all") {
-      searchParams.append(key, value.toString());
+      searchParams.append(key, String(value));
     }
   });
 
@@ -88,7 +88,7 @@ const fetchActivityLogs = async (
   if (!response.ok) {
     throw new Error("Failed to fetch activity logs");
   }
-  return response.json();
+  return (await response.json()) as ActivityLogResponse;
 };
 
 const getDeviceIcon = (deviceType: string) => {
@@ -156,13 +156,134 @@ const getStatusBadge = (status: string) => {
   );
 };
 
+type JsonObject = Record<string, unknown>;
+
+const parseJsonObject = (value?: string | null): JsonObject | null => {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    const parsed: unknown = JSON.parse(value);
+    return typeof parsed === "object" &&
+      parsed !== null &&
+      !Array.isArray(parsed)
+      ? (parsed as JsonObject)
+      : null;
+  } catch {
+    return null;
+  }
+};
+
+const parseJsonValue = (value?: string | null): unknown => {
+  if (!value) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(value) as unknown;
+  } catch {
+    return value;
+  }
+};
+
+const getStringValue = (
+  obj: JsonObject | null,
+  key: string,
+): string | undefined => {
+  const value = obj?.[key];
+  return typeof value === "string" ? value : undefined;
+};
+
+const getNumberValue = (
+  obj: JsonObject | null,
+  key: string,
+): number | undefined => {
+  const value = obj?.[key];
+  return typeof value === "number" ? value : undefined;
+};
+
+const getBooleanValue = (
+  obj: JsonObject | null,
+  key: string,
+): boolean | undefined => {
+  const value = obj?.[key];
+  return typeof value === "boolean" ? value : undefined;
+};
+
+const getObjectValue = (
+  obj: JsonObject | null,
+  key: string,
+): JsonObject | undefined => {
+  const value = obj?.[key];
+  return typeof value === "object" && value !== null && !Array.isArray(value)
+    ? (value as JsonObject)
+    : undefined;
+};
+
+const getStringArrayValue = (obj: JsonObject | null, key: string): string[] => {
+  const value = obj?.[key];
+  return Array.isArray(value)
+    ? value.filter((item): item is string => typeof item === "string")
+    : [];
+};
+
+const formatSuspiciousReasons = (value?: string | null): string => {
+  const parsed = parseJsonValue(value);
+  return Array.isArray(parsed) && parsed.length > 0
+    ? parsed.map(String).join("、")
+    : "未知原因";
+};
+
+const JsonDetails = ({ title, raw }: { title: string; raw: string }) => {
+  const parsed = parseJsonValue(raw);
+  const isRawString = typeof parsed === "string";
+
+  return (
+    <div>
+      <h4 className="mb-2 font-medium">
+        {isRawString ? `${title} (原始数据)` : title}
+      </h4>
+      <pre className="overflow-x-auto whitespace-pre-wrap rounded border bg-muted p-3 text-sm">
+        {isRawString ? parsed : JSON.stringify(parsed, null, 2)}
+      </pre>
+    </div>
+  );
+};
+
+type ActivityLogFilters = {
+  activityType: string;
+  activityStatus: string;
+  resourceType: string;
+  isSuspicious: "all" | "true" | "false";
+  search: string;
+};
+
+const toActivityLogQueryParams = (
+  params: ActivityLogQueryParams,
+  filters: ActivityLogFilters,
+): ActivityLogQueryParams => ({
+  ...params,
+  activityType: filters.activityType as ActivityLogQueryParams["activityType"],
+  activityStatus:
+    filters.activityStatus as ActivityLogQueryParams["activityStatus"],
+  resourceType: filters.resourceType as ActivityLogQueryParams["resourceType"],
+  isSuspicious:
+    filters.isSuspicious === "true"
+      ? true
+      : filters.isSuspicious === "false"
+        ? false
+        : "all",
+  search: filters.search,
+});
+
 export const ActivityLogsPage = () => {
   const [params, setParams] = useSetState<ActivityLogQueryParams>({
     page: 1,
     pageSize: 20,
   });
 
-  const [filters, setFilters] = useSetState({
+  const [filters, setFilters] = useSetState<ActivityLogFilters>({
     activityType: "all",
     activityStatus: "all",
     resourceType: "all",
@@ -171,15 +292,15 @@ export const ActivityLogsPage = () => {
   });
 
   const { data, loading, refresh } = useRequest(
-    () => fetchActivityLogs({ ...params, ...filters }),
+    () => fetchActivityLogs(toActivityLogQueryParams(params, filters)),
     {
       refreshDeps: [params, filters],
       debounceWait: 300,
     },
   );
 
-  const activityLogs = data?.data || [];
-  const total = data?.total || 0;
+  const activityLogs = data?.data ?? [];
+  const total = data?.total ?? 0;
 
   // 定义表格列
   const columns: ColumnDef<UserActivityLog>[] = [
@@ -192,7 +313,7 @@ export const ActivityLogsPage = () => {
           <div className="flex items-center gap-2">
             <User className="size-4 text-muted-foreground" />
             <div>
-              <div className="font-medium">{log.user?.name || "未知用户"}</div>
+              <div className="font-medium">{log.user?.name ?? "未知用户"}</div>
               <div className="text-xs text-muted-foreground">
                 {log.user?.email}
               </div>
@@ -237,26 +358,12 @@ export const ActivityLogsPage = () => {
       header: "资源/详情",
       cell: ({ row }) => {
         const log = row.original;
-
-        // 解析操作详情
-        let actionDetails = null;
-        try {
-          if (log.actionDetails) {
-            actionDetails = JSON.parse(log.actionDetails);
-          }
-        } catch {
-          // 忽略解析错误
-        }
-
-        // 解析元数据
-        let metadata = null;
-        try {
-          if (log.metadata) {
-            metadata = JSON.parse(log.metadata);
-          }
-        } catch {
-          // 忽略解析错误
-        }
+        const actionDetails = parseJsonObject(log.actionDetails);
+        const metadata = parseJsonObject(log.metadata);
+        const loginMethod = getStringValue(metadata, "loginMethod");
+        const changes = getStringArrayValue(actionDetails, "changes");
+        const action = getStringValue(actionDetails, "action");
+        const newValue = getObjectValue(actionDetails, "newValue");
 
         return (
           <div className="space-y-1">
@@ -268,29 +375,29 @@ export const ActivityLogsPage = () => {
             )}
 
             {/* 登录方式（对于登录操作） */}
-            {log.activityType === "LOGIN" && metadata?.loginMethod && (
+            {log.activityType === "LOGIN" && loginMethod && (
               <Badge variant="outline" className="text-xs">
-                {metadata.loginMethod === "CREDENTIALS"
+                {loginMethod === "CREDENTIALS"
                   ? "密码登录"
-                  : metadata.loginMethod === "OAUTH_GITHUB"
+                  : loginMethod === "OAUTH_GITHUB"
                     ? "GitHub"
-                    : metadata.loginMethod === "OAUTH_GOOGLE"
+                    : loginMethod === "OAUTH_GOOGLE"
                       ? "Google"
-                      : metadata.loginMethod}
+                      : loginMethod}
               </Badge>
             )}
 
             {/* 变更摘要（对于更新操作） */}
-            {actionDetails?.changes && actionDetails.changes.length > 0 && (
+            {changes.length > 0 && (
               <div className="text-xs text-muted-foreground">
-                修改: {actionDetails.changes.join("、")}
+                修改: {changes.join("、")}
               </div>
             )}
 
             {/* 新建项目数量（对于创建操作） */}
-            {actionDetails?.action === "create" && actionDetails?.newValue && (
+            {action === "create" && newValue && (
               <div className="text-xs text-muted-foreground">
-                {Object.entries(actionDetails.newValue)
+                {Object.entries(newValue)
                   .map(([key, value]) => {
                     if (key === "tags" && typeof value === "number") {
                       return `${value}个标签`;
@@ -311,7 +418,7 @@ export const ActivityLogsPage = () => {
             )}
 
             {/* 详细操作信息（点击查看） */}
-            {(log.actionDetails || log.metadata) && (
+            {Boolean(log.actionDetails ?? log.metadata) && (
               <Dialog>
                 <DialogTrigger asChild>
                   <Badge
@@ -338,70 +445,26 @@ export const ActivityLogsPage = () => {
                           操作状态: {ACTIVITY_STATUS_LABELS[log.activityStatus]}
                         </div>
                         <div>时间: {formatRelativeTime(log.timestamp)}</div>
-                        <div>用户: {log.user?.name || "未知用户"}</div>
+                        <div>用户: {log.user?.name ?? "未知用户"}</div>
                       </div>
                     </div>
 
                     {/* 操作详情 */}
-                    {log.actionDetails &&
-                      (() => {
-                        try {
-                          const details = JSON.parse(log.actionDetails);
-                          return (
-                            <div>
-                              <h4 className="mb-2 font-medium">操作详情</h4>
-                              <pre className="overflow-x-auto whitespace-pre-wrap rounded border bg-muted p-3 text-sm">
-                                {JSON.stringify(details, null, 2)}
-                              </pre>
-                            </div>
-                          );
-                        } catch {
-                          return (
-                            <div>
-                              <h4 className="mb-2 font-medium">
-                                操作详情 (原始数据)
-                              </h4>
-                              <pre className="overflow-x-auto whitespace-pre-wrap rounded border bg-muted p-3 text-sm">
-                                {log.actionDetails}
-                              </pre>
-                            </div>
-                          );
-                        }
-                      })()}
+                    {log.actionDetails && (
+                      <JsonDetails title="操作详情" raw={log.actionDetails} />
+                    )}
 
                     {/* 元数据 */}
-                    {log.metadata &&
-                      (() => {
-                        try {
-                          const metadata = JSON.parse(log.metadata);
-                          return (
-                            <div>
-                              <h4 className="mb-2 font-medium">元数据</h4>
-                              <pre className="overflow-x-auto whitespace-pre-wrap rounded border bg-muted p-3 text-sm">
-                                {JSON.stringify(metadata, null, 2)}
-                              </pre>
-                            </div>
-                          );
-                        } catch {
-                          return (
-                            <div>
-                              <h4 className="mb-2 font-medium">
-                                元数据 (原始数据)
-                              </h4>
-                              <pre className="overflow-x-auto whitespace-pre-wrap rounded border bg-muted p-3 text-sm">
-                                {log.metadata}
-                              </pre>
-                            </div>
-                          );
-                        }
-                      })()}
+                    {log.metadata && (
+                      <JsonDetails title="元数据" raw={log.metadata} />
+                    )}
 
                     {/* 设备和网络信息 */}
                     <div>
                       <h4 className="mb-2 font-medium">设备和网络信息</h4>
                       <div className="grid grid-cols-2 gap-2 text-sm">
                         <div>IP地址: {log.ipAddress}</div>
-                        <div>位置: {log.location || "未知"}</div>
+                        <div>位置: {log.location ?? "未知"}</div>
                         <div>设备类型: {log.deviceType}</div>
                         <div>操作系统: {log.operatingSystem}</div>
                         <div>
@@ -419,9 +482,7 @@ export const ActivityLogsPage = () => {
                           {log.isSuspicious && (
                             <div className="text-red-600">
                               风险评分: {log.riskScore} -
-                              {log.suspiciousReasons
-                                ? JSON.parse(log.suspiciousReasons).join("、")
-                                : "未知原因"}
+                              {formatSuspiciousReasons(log.suspiciousReasons)}
                             </div>
                           )}
                           {log.errorMessage && (
@@ -509,9 +570,7 @@ export const ActivityLogsPage = () => {
                       <div className="max-w-xs">
                         <p className="font-medium">可疑原因:</p>
                         <p className="text-sm">
-                          {log.suspiciousReasons
-                            ? JSON.parse(log.suspiciousReasons).join("、")
-                            : "未知原因"}
+                          {formatSuspiciousReasons(log.suspiciousReasons)}
                         </p>
                       </div>
                     </TooltipContent>
@@ -561,16 +620,12 @@ export const ActivityLogsPage = () => {
       header: "相关信息",
       cell: ({ row }) => {
         const log = row.original;
-
-        // 解析元数据获取额外信息
-        let metadata = null;
-        try {
-          if (log.metadata) {
-            metadata = JSON.parse(log.metadata);
-          }
-        } catch {
-          // 忽略解析错误
-        }
+        const metadata = parseJsonObject(log.metadata);
+        const sessionDuration = getNumberValue(metadata, "sessionDuration");
+        const published = getBooleanValue(metadata, "published");
+        const tags = metadata?.tags;
+        const tagCount = Array.isArray(tags) ? tags.length : undefined;
+        const fileSize = getNumberValue(metadata, "fileSize");
 
         return (
           <div className="space-y-1">
@@ -585,39 +640,37 @@ export const ActivityLogsPage = () => {
             )}
 
             {/* 对于登录操作，显示会话持续时间 */}
-            {log.activityType === "LOGIN" && metadata?.sessionDuration && (
+            {log.activityType === "LOGIN" && sessionDuration !== undefined ? (
               <div className="text-xs text-muted-foreground">
-                会话时长: {Math.round(metadata.sessionDuration / 60)}分钟
+                会话时长: {Math.round(sessionDuration / 60)}分钟
               </div>
-            )}
+            ) : null}
 
             {/* 对于博客操作，显示是否发布 */}
-            {log.activityType.startsWith("BLOG_") &&
-              metadata?.published !== undefined && (
-                <Badge
-                  variant={metadata.published ? "default" : "secondary"}
-                  className="text-xs"
-                >
-                  {metadata.published ? "已发布" : "草稿"}
-                </Badge>
-              )}
+            {log.activityType.startsWith("BLOG_") && published !== undefined ? (
+              <Badge
+                variant={published ? "default" : "secondary"}
+                className="text-xs"
+              >
+                {published ? "已发布" : "草稿"}
+              </Badge>
+            ) : null}
 
             {/* 对于标签操作，显示标签数量 */}
             {(log.activityType.startsWith("BLOG_") ||
               log.activityType.startsWith("NOTE_")) &&
-              metadata?.tags && (
-                <div className="text-xs text-muted-foreground">
-                  标签:{" "}
-                  {Array.isArray(metadata.tags) ? metadata.tags.length : 0}个
-                </div>
-              )}
+            tagCount !== undefined ? (
+              <div className="text-xs text-muted-foreground">
+                标签: {tagCount}个
+              </div>
+            ) : null}
 
             {/* 对于文件操作，显示文件大小 */}
-            {log.activityType.startsWith("FILE_") && metadata?.fileSize && (
+            {log.activityType.startsWith("FILE_") && fileSize !== undefined ? (
               <div className="text-xs text-muted-foreground">
-                大小: {(metadata.fileSize / 1024).toFixed(1)}KB
+                大小: {(fileSize / 1024).toFixed(1)}KB
               </div>
-            )}
+            ) : null}
 
             {/* 如果都没有，显示风险评分（如果有风险） */}
             {!log.sessionId && !metadata && log.riskScore > 0 && (
@@ -657,10 +710,7 @@ export const ActivityLogsPage = () => {
     <AdminContentLayout
       breadcrumb={
         <PageBreadcrumb
-          breadcrumbList={[
-            PATHS.ADMIN_HOME,
-            { label: "操作日志", href: "/admin/activity-logs" },
-          ]}
+          breadcrumbList={[PATHS.ADMIN_HOME, PATHS.ADMIN_ACTIVITY_LOGS]}
         />
       }
     >
@@ -794,7 +844,11 @@ export const ActivityLogsPage = () => {
                 <label className="text-sm font-medium">安全状态</label>
                 <Select
                   value={filters.isSuspicious}
-                  onValueChange={(value) => setFilters({ isSuspicious: value })}
+                  onValueChange={(value) =>
+                    setFilters({
+                      isSuspicious: value as ActivityLogFilters["isSuspicious"],
+                    })
+                  }
                 >
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="选择状态" />
@@ -817,15 +871,27 @@ export const ActivityLogsPage = () => {
           loading={loading}
           total={total}
           params={{
-            pageIndex: params.page || 1,
-            pageSize: params.pageSize || 20,
+            pageIndex: params.page ?? 1,
+            pageSize: params.pageSize ?? 20,
           }}
-          updateParams={(newParams) =>
+          updateParams={(newParams) => {
+            if (!newParams || typeof newParams === "function") {
+              return;
+            }
+
+            const paginationParams = newParams as Partial<{
+              pageIndex: number;
+              pageSize: number;
+            }>;
+
             setParams({
-              page: Math.max(1, newParams.pageIndex),
-              pageSize: Math.max(1, newParams.pageSize),
-            })
-          }
+              page: Math.max(1, paginationParams.pageIndex ?? params.page ?? 1),
+              pageSize: Math.max(
+                1,
+                paginationParams.pageSize ?? params.pageSize ?? 20,
+              ),
+            });
+          }}
           noResult={
             <div className="py-8 text-center">
               <Activity className="mx-auto mb-4 size-12 text-muted-foreground" />

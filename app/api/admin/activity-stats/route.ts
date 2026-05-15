@@ -1,16 +1,25 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-import { type ActivityType } from "@prisma/client";
+import { type ActivityType, Prisma } from "@prisma/client";
 
+import { requireAdmin } from "@/lib/admin-auth";
+import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import type { ActivityStats } from "@/lib/types/activity-log";
 
 // 管理员获取活动统计数据
 export async function GET(request: NextRequest) {
   try {
+    const forbidden = await requireAdmin();
+    if (forbidden) return forbidden;
+
     const { searchParams } = new URL(request.url);
     const userId = searchParams.get("userId");
-    const days = parseInt(searchParams.get("days") ?? "7"); // 默认查询最近7天
+    const parsedDays = Number.parseInt(searchParams.get("days") ?? "7", 10);
+    const days = Math.min(
+      Math.max(Number.isFinite(parsedDays) ? parsedDays : 7, 1),
+      90,
+    );
 
     const now = new Date();
     const startDate = new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
@@ -74,7 +83,7 @@ export async function GET(request: NextRequest) {
           COUNT(*)::integer as count
         FROM "UserActivityLog"
         WHERE timestamp >= ${new Date(now.getTime() - 24 * 60 * 60 * 1000)}
-          ${userId ? prisma.$queryRaw`AND "userId" = ${userId}` : prisma.$queryRaw``}
+          ${userId ? Prisma.sql`AND "userId" = ${userId}` : Prisma.empty}
         GROUP BY EXTRACT(HOUR FROM timestamp)
         ORDER BY hour
       `,
@@ -144,8 +153,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(stats);
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error("Failed to fetch activity stats:", error);
+    logger.error("Failed to fetch activity stats:", error);
     return NextResponse.json(
       { error: "Failed to fetch activity stats" },
       { status: 500 },

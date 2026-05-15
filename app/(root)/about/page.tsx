@@ -253,7 +253,7 @@ export default function Page() {
             {socialMediaList.map((el) => (
               <li key={el.link}>
                 <Button asChild variant="outline" size="icon">
-                  <Link href={el.link} target="_blank">
+                  <Link href={el.link} target="_blank" rel="noreferrer">
                     {el.icon}
                   </Link>
                 </Button>

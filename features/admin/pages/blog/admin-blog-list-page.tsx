@@ -273,6 +273,7 @@ export const AdminBlogListPage = () => {
               )}
               href={`${PATHS.SITE_BLOG}/${row.original.slug}`}
               target="_blank"
+              rel="noreferrer"
             >
               <Eye className="size-4" />
             </Link>

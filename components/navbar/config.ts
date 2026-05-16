@@ -16,6 +16,11 @@ export const navItems: Array<{
     external: false,
   },
   {
+    label: PATHS_MAP[PATHS.SITE_NEWS],
+    link: PATHS.SITE_NEWS,
+    external: false,
+  },
+  {
     label: PATHS_MAP[PATHS.SITE_MESSAGES],
     link: PATHS.SITE_MESSAGES,
     external: false,

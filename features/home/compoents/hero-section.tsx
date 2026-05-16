@@ -6,7 +6,14 @@ import Link from "next/link";
 
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
-import { ArrowUpRight, Braces, Cpu, Newspaper, Sparkles } from "lucide-react";
+import {
+  ArrowUpRight,
+  Braces,
+  Cpu,
+  Newspaper,
+  Rss,
+  Sparkles,
+} from "lucide-react";
 
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
@@ -104,6 +111,16 @@ export const HeroSection = () => {
             <ArrowUpRight className="ml-2 size-4" />
           </Link>
           <Link
+            href={PATHS.SITE_NEWS}
+            className={cn(
+              buttonVariants({ variant: "outline" }),
+              "h-12 rounded-full border-[var(--future-line)] bg-white/[0.06] px-6 text-[var(--future-ink)] hover:border-[var(--future-accent)] hover:bg-white/[0.12]",
+            )}
+          >
+            <Rss className="mr-2 size-4 text-[var(--future-accent)]" />
+            查看今日信号
+          </Link>
+          <Link
             href={PATHS.SITE_ABOUT}
             className={cn(
               buttonVariants({ variant: "outline" }),
@@ -148,7 +165,7 @@ export const HeroSection = () => {
           <div className="flex items-center justify-between">
             <div className="future-label">Live Stack</div>
             <div className="font-mono text-sm text-[var(--future-muted)]">
-              01 / 04
+              01 / 05
             </div>
           </div>
 
@@ -157,26 +174,49 @@ export const HeroSection = () => {
               { icon: Cpu, label: "Backend Systems", value: "Java / Spring" },
               { icon: Braces, label: "Frontend Craft", value: "React / Next" },
               { icon: Sparkles, label: "AI Workflow", value: "Agentic Dev" },
+              {
+                icon: Rss,
+                label: "News Signal",
+                value: "Hot Feeds / Saved Reads",
+                href: PATHS.SITE_NEWS,
+              },
               { icon: Newspaper, label: "Writing", value: "Notes / Essays" },
             ].map((item) => {
               const Icon = item.icon;
+              const href = "href" in item ? item.href : undefined;
+              const content = (
+                <div className="flex items-center gap-3">
+                  <span className="grid size-10 place-items-center rounded-full border border-white/10 bg-white/[0.06] text-[var(--future-accent)]">
+                    <Icon className="size-4" />
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-mono text-xs uppercase tracking-[0.22em] text-[var(--future-muted)]">
+                      {item.label}
+                    </p>
+                    <p className="mt-1 truncate text-lg font-semibold">
+                      {item.value}
+                    </p>
+                  </div>
+                  {href && (
+                    <ArrowUpRight className="size-4 text-[var(--future-muted)] transition-colors group-hover:text-[var(--future-accent)]" />
+                  )}
+                </div>
+              );
 
-              return (
+              return href ? (
+                <Link
+                  key={item.label}
+                  href={href}
+                  className="group rounded-2xl border border-white/10 bg-black/20 p-4 shadow-inner backdrop-blur transition-[border-color,background-color,transform] hover:-translate-y-0.5 hover:border-[var(--future-accent)] hover:bg-black/25"
+                >
+                  {content}
+                </Link>
+              ) : (
                 <div
                   key={item.label}
                   className="rounded-2xl border border-white/10 bg-black/20 p-4 shadow-inner backdrop-blur"
                 >
-                  <div className="flex items-center gap-3">
-                    <span className="grid size-10 place-items-center rounded-full border border-white/10 bg-white/[0.06] text-[var(--future-accent)]">
-                      <Icon className="size-4" />
-                    </span>
-                    <div>
-                      <p className="font-mono text-xs uppercase tracking-[0.22em] text-[var(--future-muted)]">
-                        {item.label}
-                      </p>
-                      <p className="mt-1 text-lg font-semibold">{item.value}</p>
-                    </div>
-                  </div>
+                  {content}
                 </div>
               );
             })}

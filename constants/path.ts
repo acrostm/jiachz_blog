@@ -4,6 +4,7 @@ export const PATHS = {
   /** ************* SITE ****************** */
   SITE_HOME: "/",
   SITE_BLOG: "/blog",
+  SITE_NEWS: "/news",
   SITE_ABOUT: "/about",
   SITE_COMING: "/coming-soon",
   SITE_MESSAGES: "/messages",
@@ -36,6 +37,7 @@ export const PATHS_MAP: Record<string, string> = {
   /** ************* SITE ****************** */
   [PATHS.SITE_HOME]: "首页",
   [PATHS.SITE_BLOG]: "博客",
+  [PATHS.SITE_NEWS]: "News",
   [PATHS.SITE_COMING]: "即将上线",
   [PATHS.SITE_MESSAGES]: "留言",
   [PATHS.SITE_PROFILE]: "个人资料",
@@ -65,6 +67,7 @@ export const PATH_DESCRIPTION_MAP: Record<string, string> = {
   /** ************* SITE ****************** */
   [PATHS.SITE_HOME]: "首页",
   [PATHS.SITE_BLOG]: "这里记录了我的想法、文章",
+  [PATHS.SITE_NEWS]: "聚合实时热榜、技术社区和开源趋势",
   [PATHS.SITE_COMING]: "功能正在准备中",
   [PATHS.AUTH_SIGN_UP]: "注册一个账号，加入我们",
   [PATHS.SITE_ABOUT]: `你有一份关于${NICKNAME}的简介`,

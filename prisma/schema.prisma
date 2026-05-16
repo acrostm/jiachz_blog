@@ -13,8 +13,8 @@ generator client {
 
 // 使用 postgresql 作为数据库
 datasource db {
-  provider  = "postgresql"
-  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  provider = "postgresql"
+  url      = env("POSTGRES_PRISMA_URL") // uses connection pooling
   // directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
@@ -46,18 +46,20 @@ model Session {
 }
 
 model User {
-  id            String         @id @default(cuid())
-  name          String?
-  password      String?
-  email         String?        @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
-  activityLogs  UserActivityLog[]
-  createdAt     DateTime       @default(now())
-  lastLoginAt   DateTime?
-  lastLoginIp   String?
+  id                String              @id @default(cuid())
+  name              String?
+  password          String?
+  email             String?             @unique
+  emailVerified     DateTime?
+  image             String?
+  accounts          Account[]
+  sessions          Session[]
+  activityLogs      UserActivityLog[]
+  newsPreference    NewsUserPreference?
+  newsSavedItems    NewsSavedItem[]
+  createdAt         DateTime            @default(now())
+  lastLoginAt       DateTime?
+  lastLoginIp       String?
   lastLoginLocation String?
 }
 
@@ -78,35 +80,35 @@ enum ActivityType {
   LOGOUT
   PASSWORD_CHANGE
   SEND_OTP
-  
+
   // 博客相关
   BLOG_CREATE
   BLOG_UPDATE
   BLOG_DELETE
   BLOG_PUBLISH
   BLOG_UNPUBLISH
-  
+
   // 笔记相关
   NOTE_CREATE
   NOTE_UPDATE
   NOTE_DELETE
   NOTE_PUBLISH
   NOTE_UNPUBLISH
-  
+
   // 留言板相关
   MESSAGE_SEND
   MESSAGE_DELETE
-  
+
   // 标签相关
   TAG_CREATE
   TAG_UPDATE
   TAG_DELETE
-  
+
   // 管理相关
   ADMIN_ACCESS
   USER_MANAGE
   SYSTEM_CONFIG
-  
+
   // 文件相关
   FILE_UPLOAD
   FILE_DELETE
@@ -135,56 +137,56 @@ enum ResourceType {
 
 // 用户活动日志模型 - 扩展的通用操作日志
 model UserActivityLog {
-  id            String      @id @default(cuid())
-  userId        String
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   // 活动基础信息
-  activityType    ActivityType
-  activityStatus  ActivityStatus
-  timestamp       DateTime    @default(now())
-  
+  activityType   ActivityType
+  activityStatus ActivityStatus
+  timestamp      DateTime       @default(now())
+
   // 资源信息
-  resourceType    ResourceType?
-  resourceId      String?
-  resourceTitle   String?     // 资源标题，如博客标题、笔记标题等
-  
+  resourceType  ResourceType?
+  resourceId    String?
+  resourceTitle String? // 资源标题，如博客标题、笔记标题等
+
   // 操作详情 (JSON格式存储特定操作的详细信息)
-  actionDetails   String?     @db.Text // JSON: {action: "create", previousValue: {...}, newValue: {...}}
-  
+  actionDetails String? @db.Text // JSON: {action: "create", previousValue: {...}, newValue: {...}}
+
   // 网络和设备信息
-  ipAddress       String
-  userAgent       String      @db.Text
-  location        String?     // 格式化位置信息
-  country         String?
-  region          String?
-  city            String?
-  countryCode     String?
-  
+  ipAddress   String
+  userAgent   String  @db.Text
+  location    String? // 格式化位置信息
+  country     String?
+  region      String?
+  city        String?
+  countryCode String?
+
   // 设备信息
-  browserName     String?
-  browserVersion  String?
-  operatingSystem String?
-  deviceType      DeviceType  @default(UNKNOWN)
+  browserName       String?
+  browserVersion    String?
+  operatingSystem   String?
+  deviceType        DeviceType @default(UNKNOWN)
   deviceFingerprint String?
-  
+
   // 安全分析
-  isSuspicious    Boolean     @default(false)
-  suspiciousReasons String?   @db.Text // JSON array
-  riskScore       Int         @default(0) // 0-100
-  
+  isSuspicious      Boolean @default(false)
+  suspiciousReasons String? @db.Text // JSON array
+  riskScore         Int     @default(0) // 0-100
+
   // 会话信息
-  sessionId       String?
-  
+  sessionId String?
+
   // 额外元数据 (JSON格式存储特定操作的扩展信息)
-  metadata        String?     @db.Text // JSON: 灵活存储各种操作特定的数据
-  
+  metadata String? @db.Text // JSON: 灵活存储各种操作特定的数据
+
   // 错误信息
-  errorMessage    String?     @db.Text
-  errorCode       String?
-  
-  createdAt       DateTime    @default(now())
-  
+  errorMessage String? @db.Text
+  errorCode    String?
+
+  createdAt DateTime @default(now())
+
   // 索引优化
   @@index([userId])
   @@index([activityType])
@@ -230,17 +232,17 @@ model Tag {
 }
 
 model Blog {
-  title       String  @unique
-  slug        String  @unique
-  description String
-  body        String  @db.Text
-  cover       String?
-  author      String?
-  published   Boolean @default(false)
-  tags        Tag[]
-  creatorIp   String?
+  title           String  @unique
+  slug            String  @unique
+  description     String
+  body            String  @db.Text
+  cover           String?
+  author          String?
+  published       Boolean @default(false)
+  tags            Tag[]
+  creatorIp       String?
   creatorLocation String?
-  views       Int     @default(0)
+  views           Int     @default(0)
 
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -286,4 +288,45 @@ model MessageBoard {
   createdAt DateTime @default(now())
   isLogin   Boolean
   userId    String?
+}
+
+model NewsSourceCache {
+  sourceId  String   @id
+  data      Json
+  status    String   @default("success")
+  error     String?  @db.Text
+  fetchedAt DateTime @default(now())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model NewsUserPreference {
+  userId        String   @id
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceOrder   String[] @default([])
+  hiddenSources String[] @default([])
+  defaultColumn String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model NewsSavedItem {
+  id          String    @id @default(cuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sourceId    String
+  itemId      String
+  title       String
+  url         String    @db.Text
+  mobileUrl   String?   @db.Text
+  excerpt     String?   @db.Text
+  info        String?
+  publishedAt DateTime?
+  payload     Json?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([userId, sourceId, itemId])
+  @@index([userId, createdAt])
+  @@index([sourceId])
 }

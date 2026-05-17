@@ -145,6 +145,8 @@ export default [
       "pnpm-lock.yaml",
       "scripts/*.mjs",
       ".next/**",
+      "**/*[0-9].ts",
+      "**/*[0-9].tsx",
       "eslint.config.mjs",
       "*.config.cjs",
       "*.config.ts",

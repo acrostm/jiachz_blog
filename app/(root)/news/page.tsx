@@ -4,11 +4,11 @@ import { NewsPage, getNewsDirectory } from "@/features/news";
 
 export const metadata: Metadata = {
   title: "News",
-  description: "聚合实时热榜、技术社区和开源趋势",
+  description: "关注、最热和实时新闻源聚合",
 };
 
 export default function Page() {
   const directory = getNewsDirectory();
 
-  return <NewsPage columns={directory.columns} sources={directory.sources} />;
+  return <NewsPage sources={directory.sources} />;
 }

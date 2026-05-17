@@ -1,15 +1,16 @@
-export type NewsColumnId = "china" | "tech" | "world" | "finance";
-
 export type NewsSourceType = "hottest" | "realtime";
 
 export type NewsSourceColor =
   | "blue"
   | "cyan"
+  | "emerald"
   | "gray"
   | "green"
+  | "indigo"
   | "orange"
   | "red"
-  | "slate";
+  | "slate"
+  | "teal";
 
 export type NewsSource = {
   id: string;
@@ -17,16 +18,9 @@ export type NewsSource = {
   title?: string;
   description?: string;
   type: NewsSourceType;
-  column: NewsColumnId;
   color: NewsSourceColor;
   home: string;
   intervalMs: number;
-};
-
-export type NewsColumn = {
-  id: NewsColumnId;
-  name: string;
-  description: string;
 };
 
 export type NewsItem = {
@@ -41,6 +35,10 @@ export type NewsItem = {
     info?: false | string;
     diff?: number;
     icon?: false | string | { url: string; scale: number };
+    badges?: Array<{
+      label: string;
+      tone?: "default" | "exclusive" | "hot" | "live" | "new";
+    }>;
   };
 };
 
@@ -57,7 +55,7 @@ export type NewsItemsResponse = {
 export type NewsPreference = {
   sourceOrder: string[];
   hiddenSources: string[];
-  defaultColumn: NewsColumnId | null;
+  defaultColumn: string | null;
 };
 
 export type SavedNewsItem = {

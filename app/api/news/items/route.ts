@@ -11,12 +11,17 @@ export const GET = async (request: Request) => {
   const sourceId = url.searchParams.get("source") ?? "";
   const latest = url.searchParams.get("latest") === "true";
   const session = await auth();
+  const viewerId = session?.user?.id;
+
+  if (!viewerId) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
 
   try {
     const data = await getNewsItems({
       sourceId,
       latest,
-      viewerId: session?.user?.id,
+      viewerId,
     });
 
     return NextResponse.json(data);

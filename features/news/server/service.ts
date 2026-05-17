@@ -3,10 +3,9 @@ import type { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 import { newsFetchers } from "./fetchers";
-import { newsColumns, newsSourceIds, newsSourceMap } from "./sources";
+import { newsSourceIds, newsSourceMap } from "./sources";
 
 import type {
-  NewsColumnId,
   NewsItem,
   NewsItemsResponse,
   NewsPreference,
@@ -45,8 +44,48 @@ const getString = (value: unknown) => {
   return "";
 };
 
+type NewsItemBadgeTone = NonNullable<
+  NonNullable<NewsItem["extra"]>["badges"]
+>[number]["tone"];
+
+const parseCachedBadgeTone = (value: unknown): NewsItemBadgeTone => {
+  if (
+    value === "default" ||
+    value === "exclusive" ||
+    value === "hot" ||
+    value === "live" ||
+    value === "new"
+  ) {
+    return value;
+  }
+
+  return undefined;
+};
+
 const parseCachedExtra = (value: unknown): NewsItem["extra"] => {
   if (!isRecord(value)) return undefined;
+
+  const icon =
+    typeof value.icon === "string" || value.icon === false
+      ? value.icon
+      : isRecord(value.icon) &&
+          typeof value.icon.url === "string" &&
+          typeof value.icon.scale === "number"
+        ? { url: value.icon.url, scale: value.icon.scale }
+        : undefined;
+  const badges = Array.isArray(value.badges)
+    ? value.badges.flatMap((badge) => {
+        if (!isRecord(badge) || typeof badge.label !== "string") return [];
+        const tone = parseCachedBadgeTone(badge.tone);
+
+        return [
+          {
+            label: badge.label,
+            ...(tone ? { tone } : {}),
+          },
+        ];
+      })
+    : undefined;
 
   return {
     hover: typeof value.hover === "string" ? value.hover : undefined,
@@ -61,6 +100,8 @@ const parseCachedExtra = (value: unknown): NewsItem["extra"] => {
           ? false
           : undefined,
     diff: typeof value.diff === "number" ? value.diff : undefined,
+    icon,
+    badges,
   };
 };
 
@@ -106,13 +147,12 @@ const sourceResponseFromCache = (
 export const getDefaultNewsPreference = (): NewsPreference => ({
   sourceOrder: newsSourceIds,
   hiddenSources: [],
-  defaultColumn: "china",
+  defaultColumn: null,
 });
 
 export const sanitizePreference = (
   preference: Partial<NewsPreference>,
 ): NewsPreference => {
-  const validColumns = new Set(newsColumns.map((column) => column.id));
   const validSourceIds = new Set(newsSourceIds);
 
   const sourceOrder = Array.from(
@@ -130,18 +170,13 @@ export const sanitizePreference = (
     ),
   );
 
-  const defaultColumn =
-    preference.defaultColumn && validColumns.has(preference.defaultColumn)
-      ? preference.defaultColumn
-      : "china";
-
   return {
     sourceOrder: [
       ...sourceOrder,
       ...newsSourceIds.filter((sourceId) => !sourceOrder.includes(sourceId)),
     ],
     hiddenSources,
-    defaultColumn,
+    defaultColumn: null,
   };
 };
 
@@ -157,7 +192,7 @@ export const getNewsPreference = async (
   return sanitizePreference({
     sourceOrder: preference.sourceOrder,
     hiddenSources: preference.hiddenSources,
-    defaultColumn: preference.defaultColumn as NewsColumnId | null,
+    defaultColumn: preference.defaultColumn,
   });
 };
 

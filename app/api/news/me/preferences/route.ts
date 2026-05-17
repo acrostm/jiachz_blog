@@ -14,10 +14,7 @@ export const dynamic = "force-dynamic";
 const preferenceSchema = z.object({
   sourceOrder: z.array(z.string()).optional(),
   hiddenSources: z.array(z.string()).optional(),
-  defaultColumn: z
-    .enum(["china", "tech", "world", "finance"])
-    .nullable()
-    .optional(),
+  defaultColumn: z.string().nullable().optional(),
 });
 
 const requireUserId = async () => {

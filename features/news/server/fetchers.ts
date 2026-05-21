@@ -1251,37 +1251,123 @@ const getSolidot = async () => {
   return parseRssItems(xml, "https://www.solidot.org");
 };
 
+const STEAM_APP_NAMES: Record<number, string> = {
+  730: "Counter-Strike 2",
+  570: "Dota 2",
+  578080: "PUBG: BATTLEGROUNDS",
+  1172470: "Apex Legends",
+  230410: "Warframe",
+  271590: "Grand Theft Auto V",
+  105600: "Terraria",
+  440: "Team Fortress 2",
+  252490: "Rust",
+  359550: "彩虹六号：围攻",
+  1623730: "幻兽帕鲁",
+  2483190: "绝地潜兵2",
+  1086940: "博德之门3",
+  1938090: "使命召唤",
+  227300: "欧洲卡车模拟2",
+  1245620: "艾尔登法环",
+  582010: "怪物猎人：世界",
+  1446780: "怪物猎人：崛起",
+  39210: "最终幻想14",
+  291550: "神之浩劫",
+  236390: "战争雷霆",
+  250900: "以撒的结合：胎衣",
+  1811260: "EA Sports FC 24",
+  204840: "盖瑞模组",
+  381210: "黎明杀机",
+  28280: "黑色沙漠",
+  238960: "流放之路",
+  1091500: "赛博朋克 2077",
+  1238810: "战地5",
+  1238840: "战地1",
+  1151340: "辐射76",
+  431960: "Wallpaper Engine",
+  1659040: "瓦尔海姆",
+  648800: "木筏求生",
+  813780: "帝国时代2：决定版",
+  1326470: "森林之子",
+  254700: "生化危机4：重制版",
+  1551360: "地平线5",
+  1476090: "赛车计划3",
+  221100: "DayZ",
+  242760: "森林",
+  218620: "收获日2",
+  1049590: "红怪",
+  1145360: "哈迪斯",
+  264710: "文明6",
+  228980: "Steamworks 基础分发",
+  400: "门户",
+  306130: "上古卷轴Online",
+  1281930: "tModLoader",
+};
+
+const steamNameCache = new Map<number, string>();
+
+const resolveSteamGameName = async (appid: number): Promise<string> => {
+  if (STEAM_APP_NAMES[appid]) {
+    return STEAM_APP_NAMES[appid];
+  }
+  if (steamNameCache.has(appid)) {
+    return steamNameCache.get(appid)!;
+  }
+
+  try {
+    const data = await fetchJson<any>(
+      `https://store.steampowered.com/api/appdetails?appids=${appid}&filters=basic&l=zh-cn`,
+    );
+    const name = data?.[appid]?.data?.name;
+    if (name) {
+      steamNameCache.set(appid, name);
+      return name;
+    }
+  } catch {
+    // Ignore and fallback
+  }
+
+  return `Steam 游戏 ${appid}`;
+};
+
+type SteamChartsResponse = {
+  response?: {
+    ranks?: Array<{
+      appid: number;
+      concurrent_in_game: number;
+      peak_in_game: number;
+    }>;
+  };
+};
+
 const getSteam = async () => {
-  const html = await fetchText("https://store.steampowered.com/stats/");
-  const rows = html.match(/<tr[^>]*player_count_row[\s\S]*?<\/tr>/gi) ?? [];
+  try {
+    const data = await fetchJson<SteamChartsResponse>(
+      "https://api.steampowered.com/ISteamChartsService/GetGamesByConcurrentPlayers/v1/",
+    );
+    const ranks = data?.response?.ranks ?? [];
+    
+    const items = await Promise.all(
+      ranks.slice(0, 30).map(async (item) => {
+        const appid = item.appid;
+        const name = await resolveSteamGameName(appid);
+        
+        return {
+          id: String(appid),
+          title: name,
+          url: `https://store.steampowered.com/app/${appid}`,
+          pubDate: Date.now(),
+          extra: {
+            info: `${item.concurrent_in_game.toLocaleString()} 在线`,
+          },
+        };
+      }),
+    );
 
-  return normalizeItems(
-    rows.map((row) => {
-      const href = /<a[^>]*class="[^"]*gameLink[^"]*"[^>]*href="([^"]+)"/i.exec(
-        row,
-      )?.[1];
-      const title = stripTags(
-        /<a[^>]*class="[^"]*gameLink[^"]*"[^>]*>([\s\S]*?)<\/a>/i.exec(
-          row,
-        )?.[1] ?? "",
-      );
-      const currentPlayers = stripTags(
-        /<span[^>]*class="[^"]*currentServers[^"]*"[^>]*>([\s\S]*?)<\/span>/i.exec(
-          row,
-        )?.[1] ?? "",
-      );
-
-      return {
-        id: href ?? title,
-        title,
-        url: toAbsoluteUrl("https://store.steampowered.com", href) ?? "",
-        pubDate: Date.now(),
-        extra: {
-          info: currentPlayers,
-        },
-      };
-    }),
-  );
+    return normalizeItems(items);
+  } catch (error) {
+    console.error("Failed to fetch steam news:", error);
+    return [];
+  }
 };
 
 const getZaobao = async () => {

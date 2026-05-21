@@ -595,7 +595,12 @@ export const NewsPage = ({ sources }: NewsPageProps) => {
 
     const missingSources = displayedSources.filter((source) => {
       const state = feedStates[source.id];
-      return !state?.items.length && !state?.isFetching && !state?.error;
+      return (
+        !state?.items.length &&
+        !state?.isFetching &&
+        !state?.error &&
+        !state?.status
+      );
     });
 
     if (!missingSources.length) return;

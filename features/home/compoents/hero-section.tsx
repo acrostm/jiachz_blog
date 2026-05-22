@@ -10,6 +10,7 @@ import {
   ArrowUpRight,
   Braces,
   Cpu,
+  Gamepad2,
   Newspaper,
   Rss,
   Sparkles,
@@ -165,7 +166,7 @@ export const HeroSection = () => {
           <div className="flex items-center justify-between">
             <div className="future-label">Live Stack</div>
             <div className="font-mono text-sm text-[var(--future-muted)]">
-              01 / 05
+              01 / 06
             </div>
           </div>
 
@@ -179,6 +180,12 @@ export const HeroSection = () => {
                 label: "News Signal",
                 value: "Hot Feeds / Saved Reads",
                 href: PATHS.SITE_NEWS,
+              },
+              {
+                icon: Gamepad2,
+                label: "Steam Prices",
+                value: "Regional Price Radar",
+                href: PATHS.SITE_STEAM_PRICES,
               },
               { icon: Newspaper, label: "Writing", value: "Notes / Essays" },
             ].map((item) => {

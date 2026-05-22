@@ -21,6 +21,11 @@ export const navItems: Array<{
     external: false,
   },
   {
+    label: PATHS_MAP[PATHS.SITE_STEAM_PRICES],
+    link: PATHS.SITE_STEAM_PRICES,
+    external: false,
+  },
+  {
     label: PATHS_MAP[PATHS.SITE_MESSAGES],
     link: PATHS.SITE_MESSAGES,
     external: false,

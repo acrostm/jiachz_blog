@@ -1,6 +1,8 @@
 import { z } from "zod";
 
-import { REGEX } from "@/constants";
+import { PUBLISHED_ENUM, REGEX } from "@/constants";
+
+import { type getDailyReports } from "../actions";
 
 const DATE_ONLY_REGEX = /^\d{4}-\d{2}-\d{2}$/;
 const REPORT_TYPE_REGEX = /^[a-z0-9][a-z0-9-]{0,79}$/;
@@ -55,4 +57,34 @@ export const ingestDailyReportSchema = z.object({
   published: z.boolean().default(true),
 });
 
+export const updateDailyReportSchema = ingestDailyReportSchema
+  .partial()
+  .extend({
+    id: z.string().min(1),
+    tags: z.string().array().optional(),
+  });
+
+export const getDailyReportsSchema = z.object({
+  title: z.string().optional(),
+  reportType: z.string().optional(),
+  date: z.string().optional(),
+  published: z
+    .enum([
+      PUBLISHED_ENUM.ALL,
+      PUBLISHED_ENUM.PUBLISHED,
+      PUBLISHED_ENUM.NO_PUBLISHED,
+    ])
+    .optional(),
+  tags: z.string().array().optional(),
+  pageIndex: z.number(),
+  pageSize: z.number(),
+  orderBy: z.enum(["date", "createdAt", "updatedAt"]).optional(),
+  order: z.enum(["asc", "desc"]).optional(),
+});
+
 export type IngestDailyReportDTO = z.infer<typeof ingestDailyReportSchema>;
+export type UpdateDailyReportDTO = z.infer<typeof updateDailyReportSchema>;
+export type GetDailyReportsDTO = z.infer<typeof getDailyReportsSchema>;
+export type DailyReport = Awaited<
+  ReturnType<typeof getDailyReports>
+>["reports"][number];

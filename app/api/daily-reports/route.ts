@@ -34,25 +34,20 @@ const parseLimit = (value: string | null) => {
   return Math.min(limit, MAX_LIMIT);
 };
 
-const parsePublished = (value: string | null) => {
-  if (value === "false") return false;
-  if (value === "all") return undefined;
-
-  return true;
-};
-
 export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const reportType = url.searchParams.get("reportType") ?? undefined;
   const date = url.searchParams.get("date") ?? undefined;
-  const published = parsePublished(url.searchParams.get("published"));
 
   if (reportType && date) {
     const report = await prisma.dailyReport.findFirst({
       where: {
         reportType,
         date,
-        ...(published === undefined ? {} : { published }),
+        published: true,
+      },
+      include: {
+        tags: true,
       },
     });
 
@@ -74,7 +69,10 @@ export async function GET(request: NextRequest) {
     where: {
       ...(reportType ? { reportType } : {}),
       ...(date ? { date } : {}),
-      ...(published === undefined ? {} : { published }),
+      published: true,
+    },
+    include: {
+      tags: true,
     },
     orderBy: [{ date: "desc" }, { createdAt: "desc" }],
     take: parseLimit(url.searchParams.get("limit")),

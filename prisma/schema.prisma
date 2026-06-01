@@ -215,16 +215,19 @@ enum TagTypeEnum {
   BLOG
   // 仅用于笔记
   NOTE
+  // 仅用于日报
+  DAILY_REPORT
 }
 
 model Tag {
-  name     String      @unique
-  slug     String      @unique
-  blogs    Blog[]
-  notes    Note[]
-  type     TagTypeEnum @default(ALL)
-  icon     String?     @db.Text
-  iconDark String?     @db.Text
+  name         String        @unique
+  slug         String        @unique
+  blogs        Blog[]
+  notes        Note[]
+  dailyReports DailyReport[]
+  type         TagTypeEnum   @default(ALL)
+  icon         String?       @db.Text
+  iconDark     String?       @db.Text
 
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -259,6 +262,7 @@ model DailyReport {
   body        String    @db.Text
   sources     Json      @default("[]")
   metadata    Json?
+  tags        Tag[]
   generatedAt DateTime?
   published   Boolean   @default(true)
   createdAt   DateTime  @default(now())

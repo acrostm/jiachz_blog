@@ -11,7 +11,12 @@ export const createTagSchema = z.object({
     .string()
     .regex(REGEX.SLUG, { message: "只允许输入数字、小写字母和中横线" })
     .min(1, { message: "长度不能少于1个字符" }),
-  type: z.enum([TagTypeEnum.ALL, TagTypeEnum.BLOG, TagTypeEnum.NOTE]),
+  type: z.enum([
+    TagTypeEnum.ALL,
+    TagTypeEnum.BLOG,
+    TagTypeEnum.NOTE,
+    TagTypeEnum.DAILY_REPORT,
+  ]),
   icon: z.string().optional(),
   iconDark: z.string().optional(),
 });
@@ -24,7 +29,12 @@ export const getTagsSchema = z.object({
   name: z.string().optional(),
   slug: z.string().optional(),
   type: z
-    .enum([TagTypeEnum.ALL, TagTypeEnum.BLOG, TagTypeEnum.NOTE])
+    .enum([
+      TagTypeEnum.ALL,
+      TagTypeEnum.BLOG,
+      TagTypeEnum.NOTE,
+      TagTypeEnum.DAILY_REPORT,
+    ])
     .optional(),
   pageIndex: z.number(),
   pageSize: z.number(),

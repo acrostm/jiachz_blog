@@ -17,6 +17,7 @@
     "cz": "git cz",
     "db:gen": "prisma generate",
     "db:dev": "prisma migrate dev",
+    "db:migrate": "node --env-file=.env.local ./node_modules/prisma/build/index.js migrate deploy",
     "db:studio": "prisma studio",
     "db:push": "prisma db push"
   },

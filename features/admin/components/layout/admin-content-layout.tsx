@@ -5,7 +5,14 @@ import React from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 
-import { Book, Home, PanelLeft, ScrollIcon, Tags } from "lucide-react";
+import {
+  Book,
+  Home,
+  Newspaper,
+  PanelLeft,
+  ScrollIcon,
+  Tags,
+} from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -52,6 +59,11 @@ export const adminNavItems: Array<{
     label: PATHS_MAP[PATHS.ADMIN_BLOG],
     link: PATHS.ADMIN_BLOG,
     icon: <Book className="size-4" />,
+  },
+  {
+    label: PATHS_MAP[PATHS.ADMIN_DAILY_REPORTS],
+    link: PATHS.ADMIN_DAILY_REPORTS,
+    icon: <Newspaper className="size-4" />,
   },
   {
     label: PATHS_MAP[PATHS.ADMIN_NOTE],

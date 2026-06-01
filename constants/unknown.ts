@@ -5,12 +5,18 @@ export const PLACEHOLDER_TEXT = "N/A";
 
 export const ADMIN_EMAILS = process.env.NEXT_PUBLIC_ADMIN_EMAILS?.split(",");
 
-export const TAG_TYPES = [TagTypeEnum.ALL, TagTypeEnum.BLOG, TagTypeEnum.NOTE];
+export const TAG_TYPES = [
+  TagTypeEnum.ALL,
+  TagTypeEnum.BLOG,
+  TagTypeEnum.NOTE,
+  TagTypeEnum.DAILY_REPORT,
+];
 
 export const TAG_TYPE_MAP = {
   [TagTypeEnum.ALL]: "通用",
   [TagTypeEnum.BLOG]: "博客",
   [TagTypeEnum.NOTE]: "笔记",
+  [TagTypeEnum.DAILY_REPORT]: "日报",
 };
 
 export enum PUBLISHED_ENUM {

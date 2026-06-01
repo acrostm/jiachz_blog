@@ -44,15 +44,19 @@ import { convertSvgToDataUrl } from "@/utils";
 
 type CreateTagButtonProps = {
   refreshAsync: () => Promise<unknown>;
+  defaultType?: TagTypeEnum;
 };
-export const CreateTagButton = ({ refreshAsync }: CreateTagButtonProps) => {
+export const CreateTagButton = ({
+  refreshAsync,
+  defaultType = TagTypeEnum.ALL,
+}: CreateTagButtonProps) => {
   const [open, setOpen] = React.useState(false);
   const form = useForm<CreateTagDTO>({
     resolver: zodResolver(createTagSchema),
     defaultValues: {
       name: "",
       slug: "",
-      type: TagTypeEnum.ALL,
+      type: defaultType,
     },
   });
 
@@ -60,10 +64,14 @@ export const CreateTagButton = ({ refreshAsync }: CreateTagButtonProps) => {
 
   React.useEffect(() => {
     if (open) {
-      form.reset();
+      form.reset({
+        name: "",
+        slug: "",
+        type: defaultType,
+      });
       form.clearErrors();
     }
-  }, [form, open]);
+  }, [defaultType, form, open]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

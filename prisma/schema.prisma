@@ -14,7 +14,7 @@ generator client {
 // 使用 postgresql 作为数据库
 datasource db {
   provider = "postgresql"
-  url      = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  url      = env("DATABASE_URL")
   // directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
@@ -215,16 +215,19 @@ enum TagTypeEnum {
   BLOG
   // 仅用于笔记
   NOTE
+  // 仅用于日报
+  DAILY_REPORT
 }
 
 model Tag {
-  name     String      @unique
-  slug     String      @unique
-  blogs    Blog[]
-  notes    Note[]
-  type     TagTypeEnum @default(ALL)
-  icon     String?     @db.Text
-  iconDark String?     @db.Text
+  name         String        @unique
+  slug         String        @unique
+  blogs        Blog[]
+  notes        Note[]
+  dailyReports DailyReport[]
+  type         TagTypeEnum   @default(ALL)
+  icon         String?       @db.Text
+  iconDark     String?       @db.Text
 
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
@@ -247,6 +250,29 @@ model Blog {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model DailyReport {
+  id          String    @id @default(cuid())
+  reportType  String
+  date        String
+  slug        String    @unique
+  title       String
+  summary     String    @db.Text
+  body        String    @db.Text
+  sources     Json      @default("[]")
+  metadata    Json?
+  tags        Tag[]
+  generatedAt DateTime?
+  published   Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([reportType, date])
+  @@index([date])
+  @@index([reportType])
+  @@index([published])
+  @@index([createdAt])
 }
 
 model WebsiteStatistics {

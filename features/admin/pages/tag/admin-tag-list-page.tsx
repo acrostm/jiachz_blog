@@ -12,6 +12,7 @@ import {
   Book,
   Calendar,
   ImageIcon,
+  Newspaper,
   RotateCw,
   ScrollIcon,
   Search,
@@ -133,6 +134,7 @@ export const AdminTagListPage = () => {
           [TagTypeEnum.ALL]: "",
           [TagTypeEnum.BLOG]: <Book className="size-4" />,
           [TagTypeEnum.NOTE]: <ScrollIcon className="size-4" />,
+          [TagTypeEnum.DAILY_REPORT]: <Newspaper className="size-4" />,
         };
 
         return (
@@ -141,6 +143,18 @@ export const AdminTagListPage = () => {
             {typeLabel}
           </Badge>
         );
+      },
+    },
+    {
+      accessorKey: "_count.dailyReports",
+      header: () => (
+        <div className="flex items-center space-x-1">
+          <Newspaper className="size-4" />
+          <span>日报</span>
+        </div>
+      ),
+      cell({ row }: { row: Row<Tag> }) {
+        return row.original._count.dailyReports || PLACEHOLDER_TEXT;
       },
     },
     {

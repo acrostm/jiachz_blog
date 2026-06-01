@@ -4,6 +4,7 @@ export const PATHS = {
   /** ************* SITE ****************** */
   SITE_HOME: "/",
   SITE_BLOG: "/blog",
+  SITE_DAILY_REPORTS: "/daily-reports",
   SITE_NEWS: "/news",
   SITE_STEAM_PRICES: "/steam-prices",
   SITE_ABOUT: "/about",
@@ -20,6 +21,8 @@ export const PATHS = {
   ADMIN_BLOG: "/admin/blog",
   ADMIN_BLOG_CREATE: "/admin/blog/create",
   ADMIN_BLOG_EDIT: "/admin/blog/edit",
+  ADMIN_DAILY_REPORTS: "/admin/daily-reports",
+  ADMIN_DAILY_REPORT_EDIT: "/admin/daily-reports/edit",
 
   ADMIN_TAG: "/admin/tag",
   ADMIN_NOTE: "/admin/note",
@@ -38,6 +41,7 @@ export const PATHS_MAP: Record<string, string> = {
   /** ************* SITE ****************** */
   [PATHS.SITE_HOME]: "首页",
   [PATHS.SITE_BLOG]: "博客",
+  [PATHS.SITE_DAILY_REPORTS]: "日报",
   [PATHS.SITE_NEWS]: "News",
   [PATHS.SITE_STEAM_PRICES]: "Steam",
   [PATHS.SITE_COMING]: "即将上线",
@@ -53,6 +57,8 @@ export const PATHS_MAP: Record<string, string> = {
   [PATHS.ADMIN_BLOG]: "博客",
   [PATHS.ADMIN_BLOG_CREATE]: "创建博客",
   [PATHS.ADMIN_BLOG_EDIT]: "编辑博客",
+  [PATHS.ADMIN_DAILY_REPORTS]: "日报",
+  [PATHS.ADMIN_DAILY_REPORT_EDIT]: "编辑日报",
   [PATHS.ADMIN_TAG]: "标签",
   [PATHS.ADMIN_NOTE]: "笔记",
   [PATHS.ADMIN_USER]: "用户管理",
@@ -69,6 +75,7 @@ export const PATH_DESCRIPTION_MAP: Record<string, string> = {
   /** ************* SITE ****************** */
   [PATHS.SITE_HOME]: "首页",
   [PATHS.SITE_BLOG]: "这里记录了我的想法、文章",
+  [PATHS.SITE_DAILY_REPORTS]: "按日期归档的自动化日报",
   [PATHS.SITE_NEWS]: "聚合实时热榜、技术社区和开源趋势",
   [PATHS.SITE_STEAM_PRICES]: "Steam 多区官方价格实时比价",
   [PATHS.SITE_COMING]: "功能正在准备中",
@@ -82,6 +89,8 @@ export const PATH_DESCRIPTION_MAP: Record<string, string> = {
   [PATHS.ADMIN_BLOG]: `博客管理，在这里对 博客进行操作`,
   [PATHS.ADMIN_BLOG_CREATE]: "在这里尽情地创作",
   [PATHS.ADMIN_BLOG_EDIT]: "好的文章总是需要反复打磨的",
+  [PATHS.ADMIN_DAILY_REPORTS]: "管理自动生成的不同主题日报",
+  [PATHS.ADMIN_DAILY_REPORT_EDIT]: "调整日报标题、摘要、正文和标签",
   [PATHS.ADMIN_TAG]: `标签管理，在这里对标签进行操作`,
   [PATHS.ADMIN_NOTE]: "好记性不如烂笔头",
   [PATHS.ADMIN_USER]: "管理所有用户",

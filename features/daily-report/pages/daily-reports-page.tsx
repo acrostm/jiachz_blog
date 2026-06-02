@@ -8,7 +8,7 @@ import { Wrapper } from "@/components/wrapper";
 
 import { PLACEHOLDER_TEXT } from "@/constants";
 
-import { DailyReportCalendar } from "../components/daily-report-calendar";
+import { DailyReportCalendarToggle } from "../components/daily-report-calendar-toggle";
 import {
   DailyReportContent,
   type DailyReportContentItem,
@@ -42,7 +42,7 @@ export const DailyReportsPage = ({
       <GsapReveal>
         <header
           data-gsap-reveal
-          className="mb-8 flex flex-col gap-5 border-b border-[var(--future-line)] pb-7 lg:flex-row lg:items-end lg:justify-between"
+          className="relative z-50 mb-8 flex flex-col gap-5 border-b border-[var(--future-line)] pb-7 lg:flex-row lg:items-end lg:justify-between"
         >
           <div className="max-w-3xl">
             <div className="mb-4 flex items-center gap-3">
@@ -58,7 +58,7 @@ export const DailyReportsPage = ({
             </p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 sm:w-[360px]">
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,140px)_minmax(0,140px)_auto] lg:min-w-[520px]">
             <Metric
               label="Dates"
               value={String(dates.length).padStart(2, "0")}
@@ -67,49 +67,44 @@ export const DailyReportsPage = ({
               label="Topics"
               value={String(reportTypes.length).padStart(2, "0")}
             />
-            <div className="future-muted col-span-2 flex items-center gap-2 text-sm">
+            <DailyReportCalendarToggle
+              archiveReports={archiveReports}
+              dates={dates}
+              selectedDate={selectedDate}
+            />
+            <div className="future-muted flex items-center gap-2 text-sm sm:col-span-3">
               <Archive className="size-4 text-[var(--future-accent)]" />
               当前日期：{selectedDate || PLACEHOLDER_TEXT}
             </div>
           </div>
         </header>
 
-        <div className="grid gap-7 lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[340px_minmax(0,1fr)]">
-          <aside data-gsap-reveal className="lg:sticky lg:top-24 lg:self-start">
-            <DailyReportCalendar
-              archiveReports={archiveReports}
-              dates={dates}
-              selectedDate={selectedDate}
-            />
-          </aside>
-
-          <main data-gsap-reveal className="min-w-0">
-            {!reports.length ? (
-              <div className="future-panel-strong grid min-h-[56vh] place-content-center gap-6 rounded-2xl p-8 text-center">
-                <IllustrationNoContent className="mx-auto size-[24vh]" />
-                <div>
-                  <div className="future-label mb-3 flex items-center justify-center gap-2">
-                    <Layers3 className="size-3.5" />
-                    {selectedDate || PLACEHOLDER_TEXT}
-                  </div>
-                  <h2 className="text-2xl font-semibold tracking-normal">
-                    这一天还没有日报
-                  </h2>
-                  <p className="future-muted mt-3 max-w-xl text-sm leading-7">
-                    可以在左侧日历选择带有标记的日期，或者等待自动化 agent
-                    完成当天写入。
-                  </p>
+        <main data-gsap-reveal className="relative z-0 min-w-0">
+          {!reports.length ? (
+            <div className="future-panel-strong grid min-h-[56vh] place-content-center gap-6 rounded-2xl p-8 text-center">
+              <IllustrationNoContent className="mx-auto size-[24vh]" />
+              <div>
+                <div className="future-label mb-3 flex items-center justify-center gap-2">
+                  <Layers3 className="size-3.5" />
+                  {selectedDate || PLACEHOLDER_TEXT}
                 </div>
+                <h2 className="text-2xl font-semibold tracking-normal">
+                  这一天还没有日报
+                </h2>
+                <p className="future-muted mt-3 max-w-xl text-sm leading-7">
+                  打开右上角日历，选择带有标记的日期，或者等待自动化 agent
+                  完成当天写入。
+                </p>
               </div>
-            ) : (
-              <DailyReportContent
-                reports={reportItems}
-                selectedDate={selectedDate}
-                selectedReportType={selectedReportType}
-              />
-            )}
-          </main>
-        </div>
+            </div>
+          ) : (
+            <DailyReportContent
+              reports={reportItems}
+              selectedDate={selectedDate}
+              selectedReportType={selectedReportType}
+            />
+          )}
+        </main>
       </GsapReveal>
     </Wrapper>
   );

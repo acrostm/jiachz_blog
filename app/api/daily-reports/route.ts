@@ -1,10 +1,13 @@
 import { type NextRequest, NextResponse } from "next/server";
 
-import { Prisma } from "@prisma/client";
+import { Prisma, TagTypeEnum } from "@prisma/client";
 
 import { SITE_URL } from "@/config";
 
-import { ingestDailyReportSchema } from "@/features/daily-report";
+import {
+  DEFAULT_DAILY_REPORT_TAG,
+  ingestDailyReportSchema,
+} from "@/features/daily-report";
 import { prisma } from "@/lib/prisma";
 
 export const runtime = "nodejs";
@@ -115,6 +118,13 @@ export async function POST(request: NextRequest) {
     data.metadata === undefined
       ? undefined
       : (data.metadata as Prisma.InputJsonValue);
+  const defaultTagConnectOrCreate = {
+    where: { slug: DEFAULT_DAILY_REPORT_TAG.slug },
+    create: {
+      ...DEFAULT_DAILY_REPORT_TAG,
+      type: TagTypeEnum.DAILY_REPORT,
+    },
+  } satisfies Prisma.TagCreateOrConnectWithoutDailyReportsInput;
 
   try {
     const report = await prisma.dailyReport.upsert({
@@ -135,6 +145,9 @@ export async function POST(request: NextRequest) {
         metadata,
         generatedAt,
         published: data.published,
+        tags: {
+          connectOrCreate: defaultTagConnectOrCreate,
+        },
       },
       update: {
         slug,
@@ -145,6 +158,12 @@ export async function POST(request: NextRequest) {
         ...(metadata === undefined ? {} : { metadata }),
         generatedAt,
         published: data.published,
+        tags: {
+          connectOrCreate: defaultTagConnectOrCreate,
+        },
+      },
+      include: {
+        tags: true,
       },
     });
 

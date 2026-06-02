@@ -17,6 +17,7 @@ type DailyReportCalendarProps = {
     reportType: string;
   }>;
   dates: string[];
+  onDateSelect?: () => void;
   selectedDate: string;
 };
 
@@ -36,6 +37,7 @@ const MONTH_FORMATTER = new Intl.DateTimeFormat("zh-CN", {
 export const DailyReportCalendar = ({
   archiveReports,
   dates,
+  onDateSelect,
   selectedDate,
 }: DailyReportCalendarProps) => {
   const router = useRouter();
@@ -67,7 +69,15 @@ export const DailyReportCalendar = ({
   }, [selectedDate]);
 
   return (
-    <section className="future-panel-strong overflow-hidden rounded-2xl p-4">
+    <section
+      className="future-panel-strong overflow-hidden rounded-2xl p-4 shadow-2xl shadow-black/35"
+      style={{
+        WebkitBackdropFilter: "blur(36px) saturate(1.45)",
+        backdropFilter: "blur(36px) saturate(1.45)",
+        background:
+          "color-mix(in srgb, hsl(var(--background)) 96%, transparent)",
+      }}
+    >
       <div className="mb-5 flex items-start justify-between gap-3">
         <div>
           <div className="future-label flex items-center gap-2">
@@ -172,6 +182,7 @@ export const DailyReportCalendar = ({
 
   function handleDateSelect(date: string) {
     router.push(`${PATHS.SITE_DAILY_REPORTS}?date=${date}`);
+    onDateSelect?.();
   }
 };
 

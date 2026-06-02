@@ -1,12 +1,13 @@
 "use server";
 
-import { type Prisma } from "@prisma/client";
+import { type Prisma, TagTypeEnum } from "@prisma/client";
 
 import { ERROR_NO_PERMISSION, PUBLISHED_MAP } from "@/constants";
 import { noPermission } from "@/features/user";
 import { prisma } from "@/lib/prisma";
 import { getSkip } from "@/utils";
 
+import { DEFAULT_DAILY_REPORT_TAG } from "../constants";
 import {
   type GetDailyReportsDTO,
   type UpdateDailyReportDTO,
@@ -144,13 +145,29 @@ export const updateDailyReport = async (params: UpdateDailyReportDTO) => {
     return { success: false, error: "日报不存在" };
   }
 
+  const defaultTag = await prisma.tag.upsert({
+    where: { slug: DEFAULT_DAILY_REPORT_TAG.slug },
+    create: {
+      ...DEFAULT_DAILY_REPORT_TAG,
+      type: TagTypeEnum.DAILY_REPORT,
+    },
+    update: {
+      type: TagTypeEnum.DAILY_REPORT,
+    },
+  });
   const reportTags = new Set(report.tags.map((tag) => tag.id));
-  const tagsToConnect = tags
+  const normalizedTags =
+    tags === undefined
+      ? undefined
+      : Array.from(new Set([...tags, defaultTag.id]));
+  const tagsToConnect = normalizedTags
     ?.filter((tagID) => !reportTags.has(tagID))
     .map((tagID) => ({ id: tagID }));
   const tagsToDisconnect = Array.from(reportTags)
-    .filter((tagID) => !tags?.includes(tagID))
+    .filter((tagID) => !normalizedTags?.includes(tagID))
     .map((tagID) => ({ id: tagID }));
+  const shouldConnectDefaultTag =
+    normalizedTags === undefined && !reportTags.has(defaultTag.id);
 
   try {
     await prisma.dailyReport.update({
@@ -164,8 +181,14 @@ export const updateDailyReport = async (params: UpdateDailyReportDTO) => {
         ...(generatedAt === undefined
           ? {}
           : { generatedAt: new Date(generatedAt) }),
-        ...(tags === undefined
-          ? {}
+        ...(normalizedTags === undefined
+          ? shouldConnectDefaultTag
+            ? {
+                tags: {
+                  connect: [{ id: defaultTag.id }],
+                },
+              }
+            : {}
           : {
               tags: {
                 connect: tagsToConnect?.length ? tagsToConnect : undefined,

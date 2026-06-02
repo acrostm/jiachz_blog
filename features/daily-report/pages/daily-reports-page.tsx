@@ -1,25 +1,26 @@
 import React from "react";
 
-import Link from "next/link";
+import { Archive, Layers3 } from "lucide-react";
 
-import { CalendarDays, Clock3, Layers3, Tags } from "lucide-react";
-
-import { Badge } from "@/components/ui/badge";
-
-import { BytemdViewer } from "@/components/bytemd";
 import { IllustrationNoContent } from "@/components/illustrations";
 import { GsapReveal } from "@/components/motion/gsap-reveal";
 import { Wrapper } from "@/components/wrapper";
 
-import { PATHS, PLACEHOLDER_TEXT } from "@/constants";
-import { TagPrefixIcon } from "@/features/tag";
-import { cn, prettyDateWithWeekday, toSlashDateString } from "@/lib/utils";
+import { PLACEHOLDER_TEXT } from "@/constants";
 
-import { DailyReportSelector } from "../components/daily-report-selector";
+import { DailyReportCalendarToggle } from "../components/daily-report-calendar-toggle";
+import {
+  DailyReportContent,
+  type DailyReportContentItem,
+} from "../components/daily-report-content";
 import { type DailyReport } from "../types";
 
 type DailyReportsPageProps = {
   reports: DailyReport[];
+  archiveReports: Array<{
+    date: string;
+    reportType: string;
+  }>;
   dates: string[];
   reportTypes: string[];
   selectedDate: string;
@@ -28,151 +29,82 @@ type DailyReportsPageProps = {
 
 export const DailyReportsPage = ({
   reports,
+  archiveReports,
   dates,
   reportTypes,
   selectedDate,
   selectedReportType,
 }: DailyReportsPageProps) => {
-  const activeReport = reports[0];
+  const reportItems = reports.map(toDailyReportContentItem);
 
   return (
-    <Wrapper className="flex min-h-screen flex-col px-6 pb-24 pt-12">
+    <Wrapper className="flex min-h-screen flex-col px-4 pb-24 pt-8 sm:px-6 md:px-10">
       <GsapReveal>
-        <section className="relative mb-8 overflow-hidden rounded-[2rem] border border-[var(--future-line)] px-6 py-10 md:px-10 md:py-14">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_14%_22%,rgb(223_114_69/0.18),transparent_34%),radial-gradient(circle_at_86%_14%,rgb(34_211_238/0.16),transparent_30%)]" />
-          <div className="relative z-[1] grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-end">
-            <div data-gsap-reveal>
-              <div className="mb-6 flex items-center gap-3">
-                <span className="future-label">Daily Reports</span>
-                <span className="h-px w-16 bg-[color:var(--future-accent)] opacity-55" />
-              </div>
-              <h1 className="future-heading max-w-4xl text-5xl font-black leading-[0.95] md:text-7xl">
-                每日日报
-              </h1>
-              <p className="future-muted mt-6 max-w-2xl text-base leading-8 md:text-lg">
-                每天早上由我的agent自动总结，生成的日报会按日期和主题归档。
-              </p>
+        <header
+          data-gsap-reveal
+          className="relative z-50 mb-8 flex flex-col gap-5 border-b border-[var(--future-line)] pb-7 lg:flex-row lg:items-end lg:justify-between"
+        >
+          <div className="max-w-3xl">
+            <div className="mb-4 flex items-center gap-3">
+              <span className="future-label">Daily Reports</span>
+              <span className="h-px w-16 bg-[color:var(--future-accent)] opacity-55" />
             </div>
-
-            <div
-              data-gsap-reveal
-              className="future-panel grid grid-cols-2 gap-4 rounded-3xl p-5"
-            >
-              <Metric
-                label="Dates"
-                value={String(dates.length).padStart(2, "0")}
-              />
-              <Metric
-                label="Topics"
-                value={String(reportTypes.length).padStart(2, "0")}
-              />
-              <div className="col-span-2 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-              <p className="future-muted col-span-2 text-sm leading-6">
-                当前日期：{selectedDate || PLACEHOLDER_TEXT}
-              </p>
-            </div>
-          </div>
-        </section>
-
-        <DailyReportSelector
-          dates={dates}
-          reportTypes={reportTypes}
-          selectedDate={selectedDate}
-          selectedReportType={selectedReportType}
-        />
-
-        {!reports.length ? (
-          <div className="grid place-content-center gap-6 py-20 text-center">
-            <IllustrationNoContent className="mx-auto size-[28vh]" />
-            <h2 className="text-2xl font-semibold tracking-normal">
-              这一天还没有日报
-            </h2>
-            <p className="future-muted max-w-xl text-sm leading-7">
-              可以换一个日期，或者等待自动化 agent 完成当天的写入。
+            <h1 className="future-heading text-4xl font-black leading-tight md:text-6xl">
+              每日日报
+            </h1>
+            <p className="future-muted mt-4 text-base leading-8 md:text-lg">
+              每天早上由我的 agent 自动总结。选择日历日期进入当天归档，再用主题
+              tab 直接切换正文。
             </p>
           </div>
-        ) : (
-          <div
-            data-gsap-reveal
-            className="mt-8 grid gap-8 xl:grid-cols-[280px_minmax(0,1fr)]"
-          >
-            <aside className="space-y-3">
-              {reports.map((report) => (
-                <Link
-                  key={report.id}
-                  href={`${PATHS.SITE_DAILY_REPORTS}?date=${report.date}&reportType=${report.reportType}`}
-                  className={cn(
-                    "future-panel block rounded-2xl p-4 transition",
-                    report.id === activeReport?.id &&
-                      "border-[color:var(--future-accent)] bg-white/[0.06]",
-                  )}
-                >
-                  <div className="future-label mb-3 flex items-center gap-2">
-                    <Layers3 className="size-3.5" />
-                    {report.reportType}
-                  </div>
-                  <h2 className="line-clamp-2 text-base font-semibold tracking-normal">
-                    {report.title}
-                  </h2>
-                  <p className="future-muted mt-2 line-clamp-3 text-sm leading-6">
-                    {report.summary}
-                  </p>
-                </Link>
-              ))}
-            </aside>
 
-            {activeReport && (
-              <article className="future-panel-strong overflow-hidden rounded-[2rem] px-5 py-7 md:p-10">
-                <div className="mb-8 border-b border-[var(--future-line)] pb-8">
-                  <div className="mb-4 flex flex-wrap items-center gap-3">
-                    <Badge variant="outline" className="font-mono uppercase">
-                      {activeReport.reportType}
-                    </Badge>
-                    <Meta icon={<CalendarDays className="size-4" />}>
-                      {prettyDateWithWeekday(
-                        new Date(`${activeReport.date}T00:00:00`),
-                      )}
-                    </Meta>
-                    {activeReport.generatedAt && (
-                      <Meta icon={<Clock3 className="size-4" />}>
-                        {toSlashDateString(activeReport.generatedAt)}
-                      </Meta>
-                    )}
-                  </div>
-                  <h2 className="future-heading text-4xl font-black leading-tight md:text-6xl">
-                    {activeReport.title}
-                  </h2>
-                  <p className="future-muted mt-5 max-w-3xl text-base leading-8">
-                    {activeReport.summary}
-                  </p>
-                  {activeReport.tags.length > 0 && (
-                    <div className="mt-6 flex flex-wrap gap-2">
-                      {activeReport.tags.map((tag) => (
-                        <Badge
-                          key={tag.id}
-                          variant="outline"
-                          className="border-[var(--future-line)] bg-white/[0.04]"
-                        >
-                          <TagPrefixIcon tag={tag} className="mr-1 size-3" />
-                          {tag.name}
-                        </Badge>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                <BytemdViewer body={activeReport.body} />
-
-                {activeReport.tags.length === 0 && (
-                  <div className="future-muted mt-10 flex items-center gap-2 border-t border-[var(--future-line)] pt-6 text-sm">
-                    <Tags className="size-4" />
-                    暂无标签
-                  </div>
-                )}
-              </article>
-            )}
+          <div className="grid gap-3 sm:grid-cols-[minmax(0,140px)_minmax(0,140px)_auto] lg:min-w-[520px]">
+            <Metric
+              label="Dates"
+              value={String(dates.length).padStart(2, "0")}
+            />
+            <Metric
+              label="Topics"
+              value={String(reportTypes.length).padStart(2, "0")}
+            />
+            <DailyReportCalendarToggle
+              archiveReports={archiveReports}
+              dates={dates}
+              selectedDate={selectedDate}
+            />
+            <div className="future-muted flex items-center gap-2 text-sm sm:col-span-3">
+              <Archive className="size-4 text-[var(--future-accent)]" />
+              当前日期：{selectedDate || PLACEHOLDER_TEXT}
+            </div>
           </div>
-        )}
+        </header>
+
+        <main data-gsap-reveal className="relative z-0 min-w-0">
+          {!reports.length ? (
+            <div className="future-panel-strong grid min-h-[56vh] place-content-center gap-6 rounded-2xl p-8 text-center">
+              <IllustrationNoContent className="mx-auto size-[24vh]" />
+              <div>
+                <div className="future-label mb-3 flex items-center justify-center gap-2">
+                  <Layers3 className="size-3.5" />
+                  {selectedDate || PLACEHOLDER_TEXT}
+                </div>
+                <h2 className="text-2xl font-semibold tracking-normal">
+                  这一天还没有日报
+                </h2>
+                <p className="future-muted mt-3 max-w-xl text-sm leading-7">
+                  打开右上角日历，选择带有标记的日期，或者等待自动化 agent
+                  完成当天写入。
+                </p>
+              </div>
+            </div>
+          ) : (
+            <DailyReportContent
+              reports={reportItems}
+              selectedDate={selectedDate}
+              selectedReportType={selectedReportType}
+            />
+          )}
+        </main>
       </GsapReveal>
     </Wrapper>
   );
@@ -180,7 +112,7 @@ export const DailyReportsPage = ({
 
 const Metric = ({ label, value }: { label: string; value: string }) => {
   return (
-    <div>
+    <div className="future-panel rounded-2xl p-4">
       <p className="future-label">{label}</p>
       <p className="mt-3 font-mono text-4xl font-semibold tracking-normal">
         {value}
@@ -189,17 +121,20 @@ const Metric = ({ label, value }: { label: string; value: string }) => {
   );
 };
 
-const Meta = ({
-  icon,
-  children,
-}: {
-  icon: React.ReactNode;
-  children: React.ReactNode;
-}) => {
-  return (
-    <span className="future-muted inline-flex items-center gap-1.5 font-mono text-xs">
-      {icon}
-      {children}
-    </span>
-  );
-};
+const toDailyReportContentItem = (
+  report: DailyReport,
+): DailyReportContentItem => ({
+  id: report.id,
+  reportType: report.reportType,
+  date: report.date,
+  title: report.title,
+  summary: report.summary,
+  body: report.body,
+  generatedAt: report.generatedAt?.toISOString() ?? null,
+  tags: report.tags.map((tag) => ({
+    id: tag.id,
+    name: tag.name,
+    icon: tag.icon,
+    iconDark: tag.iconDark,
+  })),
+});

@@ -4,7 +4,9 @@ import Link from "next/link";
 
 import { CalendarDays, Eye, MapPin, MoveLeft, User } from "lucide-react";
 
-import { BytemdViewer } from "@/components/bytemd";
+import { type OptionItem } from "@/types";
+
+import { MarkdownEnhancer } from "@/components/bytemd/markdown-enhancer";
 import { DetailSidebar } from "@/components/detail-sidebar";
 import { MarkdownTOC } from "@/components/markdown-toc";
 import { GsapReveal } from "@/components/motion/gsap-reveal";
@@ -21,10 +23,16 @@ import { type Blog } from "../types";
 
 type BlogDetailProps = {
   blog: Blog;
+  markdown: {
+    html: string;
+    toc: OptionItem<string>[];
+  };
   uv?: number;
 };
 
-export const BlogDetailPage = ({ blog, uv = 0 }: BlogDetailProps) => {
+export const BlogDetailPage = ({ blog, markdown, uv = 0 }: BlogDetailProps) => {
+  const markdownBodyID = `blog-markdown-${blog.id}`;
+
   return (
     <Wrapper className="flex flex-col px-6 pb-24 pt-8">
       <ArticleReadingProgress />
@@ -103,7 +111,12 @@ export const BlogDetailPage = ({ blog, uv = 0 }: BlogDetailProps) => {
           className="mt-8 grid gap-8 wrapper:grid-cols-[minmax(0,1fr)_240px]"
         >
           <article className="future-panel-strong overflow-hidden rounded-[2rem] px-5 py-7 md:p-10">
-            <BytemdViewer body={blog.body || ""} />
+            <div
+              id={markdownBodyID}
+              className="markdown-body"
+              dangerouslySetInnerHTML={{ __html: markdown.html }}
+            />
+            <MarkdownEnhancer markdownBodyID={markdownBodyID} />
 
             <div className="mt-12 border-t border-[var(--future-line)] pt-8">
               <p className="future-label mb-4">Tagged</p>
@@ -112,7 +125,7 @@ export const BlogDetailPage = ({ blog, uv = 0 }: BlogDetailProps) => {
           </article>
 
           <DetailSidebar>
-            <MarkdownTOC />
+            <MarkdownTOC tocList={markdown.toc} />
           </DetailSidebar>
         </div>
       </GsapReveal>

@@ -1,8 +1,13 @@
 import type { BytemdPlugin } from "bytemd";
-import type { Element, Root } from "hast";
 import { visit } from "unist-util-visit";
 
-import { appendClassName, isElement, isText } from "./hast";
+import {
+  type HastElement,
+  type HastRoot,
+  appendClassName,
+  isElement,
+  isText,
+} from "./hast";
 
 /**
  * Plugin to handle inline code display
@@ -12,8 +17,8 @@ import { appendClassName, isElement, isText } from "./hast";
 export const inlineCodePlugin = (): BytemdPlugin => {
   return {
     rehype: (process) =>
-      process.use(() => (tree: Root) => {
-        visit(tree, "element", (node: Element, _index, parent) => {
+      process.use(() => (tree: HastRoot) => {
+        visit(tree, "element", (node: HastElement, _index, parent) => {
           // Handle inline code elements (not in pre blocks)
           if (
             node.tagName === "code" &&

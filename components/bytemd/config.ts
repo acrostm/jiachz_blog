@@ -6,14 +6,23 @@ import highlightSSR from "@bytemd/plugin-highlight-ssr";
 import mediumZoom from "@bytemd/plugin-medium-zoom";
 import { type EditorProps } from "@bytemd/react";
 import { merge } from "lodash-es";
-import { all } from "lowlight";
 
 import {
   codeBlockPlugin,
   headingPlugin,
   inlineCodePlugin,
   prettyLinkPlugin,
+  tablePlugin,
 } from "./plugins";
+
+const highlightAliases = {
+  bash: ["sh", "shell", "zsh"],
+  javascript: ["js", "jsx"],
+  markdown: ["md", "mdx"],
+  plaintext: ["text", "txt"],
+  typescript: ["ts", "tsx"],
+  xml: ["html"],
+};
 
 export const plugins = [
   breaks(),
@@ -21,10 +30,13 @@ export const plugins = [
   mediumZoom(),
   gfm({ locale: gfm_zhHans }),
   highlightSSR({
+    aliases: highlightAliases,
+    detect: false,
     ignoreMissing: true,
-    languages: all,
+    plainText: ["text", "txt", "plain", "plaintext"],
   }),
-  codeBlockPlugin(), // 添加代码块插件来设置data-language属性
+  codeBlockPlugin(),
+  tablePlugin(),
   inlineCodePlugin(),
   prettyLinkPlugin(),
   headingPlugin(),

@@ -1,7 +1,7 @@
-@import "./bytemd.css";
-@import "./github.css";
 @import "bytemd/dist/index.css";
+@import "./github.css";
 @import "./github-dark.css";
+@import "./bytemd.css";
 
 @tailwind base;
 @tailwind components;

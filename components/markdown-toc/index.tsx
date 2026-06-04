@@ -1,37 +1,14 @@
-"use client";
-
 import React from "react";
 
 import Link from "next/link";
 
-import { useMount } from "ahooks";
-
 import { type OptionItem } from "@/types";
 
-export const MarkdownTOC = () => {
-  const [tocList, setTocList] = React.useState<OptionItem<string>[]>([]);
+type MarkdownTOCProps = {
+  tocList: OptionItem<string>[];
+};
 
-  useMount(() => {
-    const markdownBodyElement = document.querySelector(".markdown-body");
-    if (!markdownBodyElement) return;
-
-    const h2Elems = markdownBodyElement.querySelectorAll("h2");
-    const newTocList: OptionItem<string>[] = [];
-
-    h2Elems.forEach((h2) => {
-      const text = h2.textContent;
-      const id = h2.getAttribute("id");
-      if (text && id) {
-        newTocList.push({
-          value: id,
-          label: text,
-        });
-      }
-    });
-
-    setTocList(newTocList);
-  });
-
+export const MarkdownTOC = ({ tocList }: MarkdownTOCProps) => {
   return (
     <div>
       <div className="future-label">Contents</div>

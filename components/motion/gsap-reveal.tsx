@@ -26,18 +26,27 @@ export const GsapReveal = ({
 
   useGSAP(
     () => {
-      const items = gsap.utils.toArray<HTMLElement>(selector);
+      const root = scope.current;
+      const items = root
+        ? gsap.utils.toArray<HTMLElement>(root.querySelectorAll(selector))
+        : [];
 
       if (!items.length) {
         return;
       }
+
+      const clearRevealStyles = () => {
+        gsap.set(items, {
+          clearProps: "opacity,visibility,transform,filter",
+        });
+      };
 
       const reduceMotion = window.matchMedia(
         "(prefers-reduced-motion: reduce)",
       ).matches;
 
       if (reduceMotion) {
-        gsap.set(items, { autoAlpha: 1, clearProps: "transform,filter" });
+        clearRevealStyles();
         return;
       }
 
@@ -56,6 +65,11 @@ export const GsapReveal = ({
             duration: 0.9,
             delay: Math.min(index * stagger, 0.32),
             ease: "power3.out",
+            onComplete: () => {
+              gsap.set(item, {
+                clearProps: "opacity,visibility,transform,filter",
+              });
+            },
             scrollTrigger: {
               trigger: item,
               start: "top 88%",
@@ -64,6 +78,9 @@ export const GsapReveal = ({
           },
         );
       });
+
+      gsap.delayedCall(1.6, clearRevealStyles);
+      requestAnimationFrame(() => ScrollTrigger.refresh());
     },
     { scope },
   );

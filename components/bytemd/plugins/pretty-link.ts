@@ -1,10 +1,11 @@
 import type { BytemdPlugin } from "bytemd";
-import type { Element, Root } from "hast";
 import { visit } from "unist-util-visit";
 
 import { extractDomainFromUrl } from "@/utils";
 
 import {
+  type HastElement,
+  type HastRoot,
   cloneHastNode,
   createElementFromHtml,
   getStringProperty,
@@ -35,7 +36,7 @@ const stackoverflowSvgNode = createElementFromHtml(
   `<svg xmlns="http://www.w3.org/2000/svg" width="0.68em" height="0.8em" viewBox="0 0 256 304"><path fill="#bcbbbb" d="M216.33 276.188v-81.211h26.953v108.165H0V194.977h26.954v81.211z"/><path fill="#f48023" d="m56.708 187.276l132.318 27.654l5.6-26.604L62.31 160.672zm17.502-63.009l122.517 57.058l11.202-24.503L85.412 99.414zm33.955-60.208l103.964 86.462l17.152-20.653l-103.964-86.462zM175.375 0L153.67 16.102l80.511 108.515l21.703-16.102zM53.906 248.884h135.119V221.93H53.907z"/></svg>`,
 );
 
-const domainToSvgNodeMap: Record<string, Element> = {
+const domainToSvgNodeMap: Record<string, HastElement> = {
   "bilibili.com": bilibiliSvgNode,
   "juejin.cn": juejinSvgNode,
   "github.com": githubSvgNode,
@@ -62,8 +63,8 @@ const getExternalDomain = (href: string) => {
 export const prettyLinkPlugin = (): BytemdPlugin => {
   return {
     rehype: (process) =>
-      process.use(() => (tree: Root) => {
-        visit(tree, "element", (node: Element) => {
+      process.use(() => (tree: HastRoot) => {
+        visit(tree, "element", (node: HastElement) => {
           if (node.tagName === "a") {
             const href = getStringProperty(node.properties, "href");
             // 如果是以 # 开头，说明是hash，不做处理

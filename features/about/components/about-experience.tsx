@@ -134,10 +134,17 @@ export const AboutExperience = ({ siteStats }: AboutExperienceProps) => {
             className="future-heading max-w-5xl font-mono text-6xl font-black leading-[0.9] md:text-8xl lg:text-9xl"
           >
             {NICKNAME}
-            <span
-              aria-hidden="true"
-              className="ml-1 inline-block h-[0.78em] w-2 translate-y-2 bg-[var(--future-accent)] motion-safe:animate-pulse md:w-3"
-            />
+            <Link
+              href={PATHS.SITE_TUI}
+              aria-label="打开隐藏终端页面"
+              title="run ./secret"
+              className="ml-1 inline-block rounded-sm align-baseline outline-none transition hover:scale-105 focus-visible:ring-2 focus-visible:ring-[var(--future-accent)]"
+            >
+              <span
+                aria-hidden="true"
+                className="block h-[0.78em] w-2 translate-y-2 bg-[var(--future-accent)] motion-safe:animate-pulse md:w-3"
+              />
+            </Link>
           </h1>
 
           <p

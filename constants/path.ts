@@ -8,6 +8,7 @@ export const PATHS = {
   SITE_NEWS: "/news",
   SITE_STEAM_PRICES: "/steam-prices",
   SITE_ABOUT: "/about",
+  SITE_TUI: "/tui",
   SITE_COMING: "/coming-soon",
   SITE_MESSAGES: "/messages",
   SITE_PROFILE: "/admin/profile",
@@ -49,6 +50,7 @@ export const PATHS_MAP: Record<string, string> = {
   [PATHS.SITE_PROFILE]: "个人资料",
   [PATHS.SITE_USERS]: "用户管理",
   [PATHS.SITE_ABOUT]: "关于",
+  [PATHS.SITE_TUI]: "TUI",
   [PATHS.SITEMAP]: "站点地图",
 
   /** ************* ADMIN ****************** */
@@ -81,6 +83,7 @@ export const PATH_DESCRIPTION_MAP: Record<string, string> = {
   [PATHS.SITE_COMING]: "功能正在准备中",
   [PATHS.AUTH_SIGN_UP]: "注册一个账号，加入我们",
   [PATHS.SITE_ABOUT]: `你有一份关于${NICKNAME}的简介`,
+  [PATHS.SITE_TUI]: `隐藏在站点里的 ${NICKNAME} 终端简介`,
   [PATHS.SITE_MESSAGES]: "请留言，分享你的想法",
 
   /** ************* ADMIN ****************** */

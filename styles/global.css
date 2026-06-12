@@ -442,11 +442,97 @@ html.dark .shiki span {
     );
   }
 
+  .tui-glow {
+    text-shadow:
+      0 0 8px rgb(var(--tui-glow-rgb) / 0.48),
+      0 0 2px rgb(var(--tui-glow-rgb) / 0.8);
+  }
+
+  .tui-border-glow {
+    box-shadow:
+      0 0 18px rgb(var(--tui-glow-rgb) / 0.13),
+      inset 0 0 18px rgb(var(--tui-glow-rgb) / 0.04);
+  }
+
+  .tui-crt::before {
+    content: "";
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    background: repeating-linear-gradient(
+      0deg,
+      rgb(0 0 0 / 0.04),
+      rgb(0 0 0 / 0.04) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+  }
+
+  .tui-crt::after {
+    content: "";
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 79;
+    background:
+      radial-gradient(circle at 50% 50%, transparent 38%, rgb(0 0 0 / 0.26)),
+      linear-gradient(
+        90deg,
+        rgb(var(--tui-glow-rgb) / 0.035),
+        transparent 18%,
+        transparent 82%,
+        rgb(var(--tui-glow-rgb) / 0.035)
+      );
+  }
+
+  .tui-cursor {
+    animation: tui-blink 1s step-end infinite;
+  }
+
+  .tui-scrollbar {
+    scrollbar-color: var(--tui-dim) var(--tui-bg);
+    scrollbar-width: thin;
+  }
+
+  .tui-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .tui-scrollbar::-webkit-scrollbar-track {
+    background: var(--tui-bg);
+  }
+
+  .tui-scrollbar::-webkit-scrollbar-thumb {
+    background: var(--tui-dim);
+  }
+
+  .tui-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: var(--tui-fg);
+  }
+
+  @keyframes tui-blink {
+    0%,
+    50% {
+      opacity: 1;
+    }
+
+    51%,
+    100% {
+      opacity: 0;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .future-ambient__blob,
     .future-ambient__grid {
       animation: none !important;
       transform: none !important;
+    }
+
+    .tui-cursor {
+      animation: none !important;
     }
   }
 }

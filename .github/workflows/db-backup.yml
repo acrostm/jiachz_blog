@@ -6,17 +6,29 @@ on:
     - cron: "0 */12 * * *"
   workflow_dispatch: # 允许手动触发测试
 
+# 备份只读取仓库并使用 Secrets，不通过 GITHUB_TOKEN 写入任何内容。
+permissions:
+  contents: read
+
 jobs:
   backup:
-    runs-on: ubuntu-latest
+    # ubuntu-latest 已切到 Ubuntu 26.04，且该版本移除了 apt-key。
+    # 固定 24.04；安装步骤改用 signed-by keyring，之后升级镜像也不再依赖 apt-key。
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
     steps:
       - name: Install PostgreSQL 17 Client
         run: |
+          set -o pipefail
           # 添加 PostgreSQL 官方仓库以获取最新版本 (17)
           sudo apt-get update
-          sudo apt-get install -y wget gnupg
-          wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
-          echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
+          sudo apt-get install -y wget gnupg ca-certificates lsb-release
+          sudo install -d /usr/share/keyrings
+          wget --quiet -O /tmp/postgresql.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          gpg --show-keys --with-colons /tmp/postgresql.asc | grep -F 'B97B0AFCAA1A47F044F244A07FCC7D46ACCC4CF8'
+          gpg --dearmor --batch --yes -o /tmp/postgresql.gpg /tmp/postgresql.asc
+          sudo install -m 644 /tmp/postgresql.gpg /usr/share/keyrings/postgresql.gpg
+          echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list
           sudo apt-get update
           sudo apt-get install -y postgresql-client-17
 
